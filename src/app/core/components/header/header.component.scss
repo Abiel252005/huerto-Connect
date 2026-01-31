@@ -78,7 +78,8 @@ header.scrolled .logo-text {
                 transition: width 0.3s;
             }
 
-            &:hover:after {
+            &:hover:after,
+            &.active:after {
                 width: 100%;
             }
         }
