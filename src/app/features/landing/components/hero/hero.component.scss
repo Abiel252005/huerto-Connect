@@ -58,6 +58,8 @@
 
 .hero-text {
     max-width: 600px;
+    align-self: center; // Vertically center within the grid
+    margin-top: 100px; // Increased to 100px to push down further
 
     // Animate in
     animation: fadeUp 1s ease-out forwards;
@@ -193,6 +195,8 @@
     @media(min-width: 992px) {
         display: block;
         position: relative;
+        align-self: center; // Vertically center within the grid
+        margin-top: 100px; // Match text position
     }
 
     // Background glow/blob behind image
