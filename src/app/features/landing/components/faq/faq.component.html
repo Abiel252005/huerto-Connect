@@ -1,0 +1,34 @@
+<section class="faq-section" id="faq">
+    <div class="container">
+        <div class="section-header text-center">
+            <span class="badge">Preguntas Frecuentes</span>
+            <h2>¿Tienes Dudas?</h2>
+            <p class="section-subtitle">Respuestas a las preguntas más comunes</p>
+        </div>
+
+        <div class="faq-container">
+            <div class="faq-item" *ngFor="let item of faqs; let i = index" [class.active]="item.open"
+                (click)="toggle(i)">
+                <div class="faq-header">
+                    <h3>{{ item.question }}</h3>
+                    <span class="toggle-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="chevron">
+                            <polyline points="6 9 12 15 18 9"></polyline>
+                        </svg>
+                    </span>
+                </div>
+                <div class="faq-body">
+                    <div class="content-wrapper">
+                        <p>{{ item.answer }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="faq-footer">
+            <p>¿No encuentras tu respuesta?</p>
+            <a href="#contact" class="contact-link">Contáctanos directamente</a>
+        </div>
+    </div>
+</section>

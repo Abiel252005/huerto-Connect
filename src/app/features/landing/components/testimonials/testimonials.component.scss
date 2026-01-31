@@ -1,0 +1,167 @@
+.testimonials-section {
+    padding: 100px 0;
+    background-color: white;
+    /* Clean background per mockup */
+}
+
+.section-header {
+    margin-bottom: 60px;
+    text-align: center;
+
+    .badge {
+        background-color: #FFF8E1;
+        /* Light Yellow */
+        color: #FBC02D;
+        /* Deep Yellow/Orange text */
+        padding: 8px 18px;
+        border-radius: 20px;
+        margin-bottom: 20px;
+        display: inline-block;
+        font-size: 0.8rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    h2 {
+        font-size: 2.5rem;
+        color: var(--color-secondary);
+        margin-bottom: 15px;
+    }
+
+    .section-subtitle {
+        color: #777;
+        font-size: 1.1rem;
+    }
+}
+
+.testimonials-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 30px;
+
+    @media (min-width: 768px) {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+.testimonial-card {
+    background: white;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+    border: 1px solid rgba(0, 0, 0, 0.03);
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.3s ease;
+
+    &:hover {
+        transform: translateY(-5px);
+    }
+
+    .card-cover {
+        height: 180px;
+        background-size: cover;
+        background-position: center;
+        position: relative;
+
+        .quote-icon {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 3rem;
+            line-height: 1;
+            color: rgba(255, 255, 255, 0.8);
+            font-family: serif;
+        }
+
+        /* Subtle overlay gradient at bottom if needed */
+        &::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 50%;
+            background: linear-gradient(transparent, rgba(0, 0, 0, 0.4));
+            opacity: 0.6;
+        }
+    }
+
+    .card-content {
+        padding: 30px;
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+    }
+
+    .stars {
+        color: #FF6B00;
+        /* Deep Orange per mockup */
+        font-size: 1.2rem;
+        margin-bottom: 15px;
+        display: flex;
+        gap: 2px;
+    }
+
+    .quote {
+        color: #555;
+        font-size: 1rem;
+        line-height: 1.6;
+        font-style: italic;
+        /* Looks regular in mockup actually, but italic is standard for quotes. Mockup is regular font. */
+        font-style: normal;
+        margin-bottom: 30px;
+        flex: 1;
+        /* Pushes author down */
+    }
+
+    .author-area {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        border-top: 1px solid #f0f0f0;
+        padding-top: 20px;
+
+        .author-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            overflow: hidden;
+            flex-shrink: 0;
+
+            img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
+        }
+
+        .author-info {
+            display: flex;
+            flex-direction: column;
+
+            h4 {
+                margin: 0;
+                font-size: 1rem;
+                color: var(--color-secondary);
+                font-weight: 700;
+            }
+
+            .role {
+                font-size: 0.8rem;
+                color: #777;
+            }
+
+            .location {
+                font-size: 0.75rem;
+                color: var(--color-primary);
+                display: flex;
+                align-items: center;
+                gap: 4px;
+                margin-top: 2px;
+                font-weight: 500;
+            }
+        }
+    }
+}

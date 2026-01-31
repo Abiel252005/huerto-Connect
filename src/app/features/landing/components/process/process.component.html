@@ -1,0 +1,28 @@
+<section class="process-section" id="process">
+    <div class="container">
+        <div class="section-header text-center">
+            <span class="badge">Proceso Simple</span>
+            <h2>Cómo Funciona</h2>
+            <p class="section-subtitle">Del diagnóstico a la cosecha: un proceso simple y probado</p>
+        </div>
+
+        <div class="steps-grid">
+            <div class="step-card" *ngFor="let step of steps">
+                <div class="icon-wrapper">
+                    <!-- Placeholder SVG -->
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                    </svg>
+                </div>
+                <div class="step-number">{{ step.number }}</div>
+                <h3>{{ step.title }}</h3>
+                <p>{{ step.desc }}</p>
+            </div>
+        </div>
+
+        <div class="cta-container">
+            <button class="btn btn-primary">Solicitar Evaluación Gratuita</button>
+        </div>
+    </div>
+</section>

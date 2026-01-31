@@ -1,0 +1,43 @@
+<section class="testimonials-section" id="testimonials">
+    <div class="container">
+        <div class="section-header text-center">
+            <span class="badge">Casos de Éxito</span>
+            <h2>Historias Reales</h2>
+            <p class="section-subtitle">Productores que transformaron sus huertos con tecnología</p>
+        </div>
+
+        <div class="testimonials-grid">
+            <div class="testimonial-card" *ngFor="let item of testimonials">
+                <div class="card-cover" [style.background-image]="'url(' + item.cover + ')'">
+                    <div class="quote-icon">❝</div>
+                </div>
+
+                <div class="card-content">
+                    <div class="stars">
+                        <span *ngFor="let star of [1,2,3,4,5]">★</span>
+                    </div>
+
+                    <p class="quote">"{{ item.text }}"</p>
+
+                    <div class="author-area">
+                        <div class="author-avatar">
+                            <img [src]="item.image" [alt]="item.name">
+                        </div>
+                        <div class="author-info">
+                            <h4>{{ item.name }}</h4>
+                            <span class="role">{{ item.role }}</span>
+                            <span class="location">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                                    <circle cx="12" cy="10" r="3"></circle>
+                                </svg>
+                                {{ item.location }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

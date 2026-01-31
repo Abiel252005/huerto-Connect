@@ -1,0 +1,24 @@
+<section class="features-section" id="services">
+    <div class="container">
+        <div class="section-header text-center">
+            <span class="badge">Tecnología de Punta</span>
+            <h2>Todo lo que Necesitas</h2>
+            <p class="section-subtitle">Soluciones integrales para llevar tu producción al siguiente nivel</p>
+        </div>
+
+        <div class="features-grid">
+            <div class="feature-card" *ngFor="let feature of features">
+                <div class="feature-icon" [style.background-color]="feature.color">
+                    <!-- SVG Icons Placeholder using simple shapes or imported SVGs -->
+                    <!-- For now, using a generic svg with dynamic content or class -->
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round" style="color: white;">
+                        <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path>
+                    </svg>
+                </div>
+                <h3>{{ feature.title }}</h3>
+                <p>{{ feature.description }}</p>
+            </div>
+        </div>
+    </div>
+</section>

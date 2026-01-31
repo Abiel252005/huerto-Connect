@@ -1,0 +1,35 @@
+<section class="hero-section">
+    <div class="hero-bg"></div>
+    <div class="container hero-content">
+        <div class="hero-text">
+            <div class="badge">Agricutura Inteligente</div>
+            <h1>Tu Huerto,<br> <span class="highlight">Infinitas Posibilidades</span></h1>
+            <p class="subtitle">Cosecha más, usa menos. Tecnología que respeta la tierra y multiplica tus resultados.
+            </p>
+
+            <div class="cta-group">
+                <a href="#" class="btn btn-primary">Comenzar Ahora →</a>
+                <a href="#" class="btn btn-outline">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                    </svg>
+                    Ver Demo
+                </a>
+            </div>
+
+            <div class="stats-container">
+                <div class="stat-card" *ngFor="let stat of stats">
+                    <div class="stat-value">{{ stat.value }}</div>
+                    <div class="stat-label">{{ stat.label }}</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="hero-image">
+            <!-- Placeholder for the overlapping image from Figma -->
+            <!-- In real app, this would be <img src="assets/hero-img.png"> -->
+            <div class="img-placeholder"></div>
+        </div>
+    </div>
+</section>
