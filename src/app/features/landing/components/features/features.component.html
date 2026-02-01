@@ -1,23 +1,87 @@
 <section class="features-section" id="services">
-    <div class="container">
-        <div class="section-header text-center">
-            <span class="badge">Tecnología de Punta</span>
-            <h2>Todo lo que Necesitas</h2>
-            <p class="section-subtitle">Soluciones integrales para llevar tu producción al siguiente nivel</p>
+    <div class="container overflow-hidden">
+        <div class="section-header">
+            <span class="badge-pill">Tecnología</span>
+            <h2>Innovación para tu Cultivo</h2>
+            <p>Herramientas poderosas diseñadas para la agricultura del futuro.</p>
         </div>
 
-        <div class="features-grid">
-            <div class="feature-card" *ngFor="let feature of features">
-                <div class="feature-icon" [style.background-color]="feature.color">
-                    <!-- SVG Icons Placeholder using simple shapes or imported SVGs -->
-                    <!-- For now, using a generic svg with dynamic content or class -->
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                        stroke-linecap="round" stroke-linejoin="round" style="color: white;">
-                        <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path>
-                    </svg>
+        <div class="bento-grid" #scrollContainer (mousedown)="onMouseDown($event)" (mouseleave)="onMouseLeave()"
+            (mouseup)="onMouseUp()" (mousemove)="onMouseMove($event)">
+
+            <div class="bento-card" *ngFor="let feature of features" [style.--card-gradient]="feature.color"
+                [style.--card-color-glow]="feature.color">
+
+                <div class="card-bg-glow"></div>
+
+                <div class="card-content">
+                    <div class="icon-box">
+                        <!-- Switch for Icons -->
+                        <ng-container [ngSwitch]="feature.icon">
+                            <!-- CPU/Chip -->
+                            <svg *ngSwitchCase="'cpu'" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect>
+                                <rect x="9" y="9" width="6" height="6"></rect>
+                                <line x1="9" y1="1" x2="9" y2="4"></line>
+                                <line x1="15" y1="1" x2="15" y2="4"></line>
+                                <line x1="9" y1="20" x2="9" y2="23"></line>
+                                <line x1="15" y1="20" x2="15" y2="23"></line>
+                                <line x1="20" y1="9" x2="23" y2="9"></line>
+                                <line x1="20" y1="14" x2="23" y2="14"></line>
+                                <line x1="1" y1="9" x2="4" y2="9"></line>
+                                <line x1="1" y1="14" x2="4" y2="14"></line>
+                            </svg>
+
+                            <!-- Droplet -->
+                            <svg *ngSwitchCase="'droplet'" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M12 2.69l5.74 5.88a6 6 0 0 1-8.48 8.48A6 6 0 0 1 5.53 9.43L12 2.69z">
+                                </path>
+                            </svg>
+
+                            <!-- Sun -->
+                            <svg *ngSwitchCase="'sun'" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="5"></circle>
+                                <line x1="12" y1="1" x2="12" y2="3"></line>
+                                <line x1="12" y1="21" x2="12" y2="23"></line>
+                                <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                                <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                                <line x1="1" y1="12" x2="3" y2="12"></line>
+                                <line x1="21" y1="12" x2="23" y2="12"></line>
+                                <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                                <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                            </svg>
+
+                            <!-- Wifi -->
+                            <svg *ngSwitchCase="'wifi'" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M5 12.55a11 11 0 0 1 14.08 0"></path>
+                                <path d="M1.42 9a16 16 0 0 1 21.16 0"></path>
+                                <path d="M8.53 16.11a6 6 0 0 1 6.95 0"></path>
+                                <line x1="12" y1="20" x2="12.01" y2="20"></line>
+                            </svg>
+
+                            <!-- Bar Chart -->
+                            <svg *ngSwitchCase="'bar-chart'" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="18" y1="20" x2="18" y2="10"></line>
+                                <line x1="12" y1="20" x2="12" y2="4"></line>
+                                <line x1="6" y1="20" x2="6" y2="14"></line>
+                            </svg>
+
+                            <!-- Shield -->
+                            <svg *ngSwitchCase="'shield'" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                            </svg>
+                        </ng-container>
+                    </div>
+
+                    <h3>{{ feature.title }}</h3>
+                    <p>{{ feature.description }}</p>
                 </div>
-                <h3>{{ feature.title }}</h3>
-                <p>{{ feature.description }}</p>
             </div>
         </div>
     </div>
