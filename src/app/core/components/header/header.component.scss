@@ -16,7 +16,17 @@ header {
 
         .logo-text,
         .nav-desktop a {
-            color: var(--color-secondary);
+            color: var(--color-text-dark); // Force dark text
+        }
+
+        .logo .logo-icon .logo-img {
+            &.logo-white {
+                opacity: 0;
+            }
+
+            &.logo-dark {
+                opacity: 1;
+            }
         }
     }
 }
@@ -35,11 +45,26 @@ header {
     .logo-icon {
         display: flex;
         align-items: center;
+        position: relative;
+        width: 40px;
+        height: 40px;
 
         .logo-img {
-            height: 40px; // Adjust based on preference
-            width: auto;
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 100%;
             object-fit: contain;
+            transition: opacity 0.3s ease;
+
+            &.logo-white {
+                opacity: 1;
+            }
+
+            &.logo-dark {
+                opacity: 0;
+            }
         }
     }
 

@@ -13,6 +13,14 @@ export class HeaderComponent {
     isMenuOpen = false;
     activeSection = '';
 
+    links = [
+        { label: 'Nosotros', sectionId: 'about' },
+        { label: 'Servicios', sectionId: 'services' },
+        { label: 'Proceso', sectionId: 'process' },
+        { label: 'Testimonios', sectionId: 'testimonials' },
+        { label: 'FAQ', sectionId: 'faq' }
+    ];
+
     @HostListener('window:scroll', [])
     onWindowScroll() {
         this.isScrolled = window.scrollY > 20;

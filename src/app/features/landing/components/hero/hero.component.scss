@@ -258,3 +258,67 @@
         background-position: 200% center;
     }
 }
+
+@keyframes float {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-20px);
+    }
+}
+
+@keyframes gradient-flow {
+    0% {
+        background-position: 0% 50%;
+    }
+
+    50% {
+        background-position: 100% 50%;
+    }
+
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+// Apply animations
+.hero-bg {
+    // ... existing styles ...
+    background-size: 200% 200%;
+    animation: gradient-flow 15s ease infinite;
+}
+
+.hero-image {
+    // ... existing styles ...
+    animation: fadeIn 1s ease-out 0.3s forwards, float 6s ease-in-out infinite;
+
+    .img-placeholder {
+        // ... existing styles ...
+        transition: transform 0.5s ease, box-shadow 0.5s ease;
+
+        &:hover {
+            transform: scale(1.03) rotate(1deg);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4);
+        }
+    }
+}
+
+.stat-card {
+    // ... existing styles ...
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); // Bouncy effect
+
+    &:hover {
+        transform: translateY(-10px) scale(1.05);
+        background: rgba(255, 255, 255, 0.12);
+        border-color: var(--color-primary);
+        box-shadow: 0 15px 35px rgba(0, 212, 161, 0.2);
+
+        .stat-value {
+            text-shadow: 0 0 10px rgba(0, 212, 161, 0.5);
+        }
+    }
+}

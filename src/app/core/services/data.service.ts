@@ -24,12 +24,57 @@ export interface ContactData {
     message: string;
 }
 
+export interface HeroData {
+    badge: string;
+    title: string;
+    highlight: string;
+    subtitle: string;
+    ctaPrimary: string;
+    ctaSecondary: string;
+    stats: { value: string; label: string }[];
+    backgroundImage: string;
+}
+
+export interface HeaderLink {
+    label: string;
+    sectionId: string;
+}
+
 @Injectable({
     providedIn: 'root'
 })
 export class DataService {
 
     constructor() { }
+
+    getHeaderLinks(): Observable<HeaderLink[]> {
+        const links: HeaderLink[] = [
+            { label: 'Nosotros', sectionId: 'about' },
+            { label: 'Servicios', sectionId: 'services' },
+            { label: 'Proceso', sectionId: 'process' },
+            { label: 'Testimonios', sectionId: 'testimonials' },
+            { label: 'FAQ', sectionId: 'faq' }
+        ];
+        return of(links).pipe(delay(100));
+    }
+
+    getHeroData(): Observable<HeroData> {
+        const data: HeroData = {
+            badge: 'Agricultura Inteligente',
+            title: 'Tu Huerto,',
+            highlight: 'Infinitas Posibilidades',
+            subtitle: 'Cosecha más, usa menos. Tecnología que respeta la tierra y multiplica tus resultados.',
+            ctaPrimary: 'Comenzar Ahora →',
+            ctaSecondary: 'Ver Demo',
+            stats: [
+                { value: '500+', label: 'Huertos Activos' },
+                { value: '98%', label: 'Satisfacción' },
+                { value: '24/7', label: 'Monitoreo' }
+            ],
+            backgroundImage: 'https://images.unsplash.com/photo-1530836369250-ef72a3f5cda8?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'
+        };
+        return of(data).pipe(delay(200));
+    }
 
     getTestimonials(): Observable<Testimonial[]> {
         const data: Testimonial[] = [

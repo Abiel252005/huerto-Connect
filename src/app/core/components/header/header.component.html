@@ -2,17 +2,17 @@
   <div class="container header-container">
     <div class="logo">
       <div class="logo-icon">
-        <img src="assets/images/brote.png" alt="Huerto Connect Logo" class="logo-img">
+        <img src="assets/images/brote.png" alt="Huerto Connect Logo" class="logo-img logo-white">
+        <img src="assets/images/brote-negro.png" alt="Huerto Connect Logo" class="logo-img logo-dark">
       </div>
       <span class="logo-text">HUERTO CONNECT</span>
     </div>
 
     <nav class="nav-desktop">
-      <a (click)="scrollToSection('about')" [class.active]="activeSection === 'about'">Nosotros</a>
-      <a (click)="scrollToSection('services')" [class.active]="activeSection === 'services'">Servicios</a>
-      <a (click)="scrollToSection('process')" [class.active]="activeSection === 'process'">Proceso</a>
-      <a (click)="scrollToSection('testimonials')" [class.active]="activeSection === 'testimonials'">Testimonios</a>
-      <a (click)="scrollToSection('faq')" [class.active]="activeSection === 'faq'">FAQ</a>
+      <a *ngFor="let link of links" (click)="scrollToSection(link.sectionId)"
+        [class.active]="activeSection === link.sectionId">
+        {{ link.label }}
+      </a>
     </nav>
 
     <div class="header-actions">
@@ -27,11 +27,7 @@
 
   <!-- Mobile Menu -->
   <div class="mobile-menu" [class.open]="isMenuOpen">
-    <a (click)="scrollToSection('about')">Nosotros</a>
-    <a (click)="scrollToSection('services')">Servicios</a>
-    <a (click)="scrollToSection('process')">Proceso</a>
-    <a (click)="scrollToSection('testimonials')">Testimonios</a>
-    <a (click)="scrollToSection('faq')">FAQ</a>
+    <a *ngFor="let link of links" (click)="scrollToSection(link.sectionId)">{{ link.label }}</a>
     <button class="btn btn-primary mobile-cta" (click)="scrollToSection('contact')">Contáctanos</button>
   </div>
 </header>
