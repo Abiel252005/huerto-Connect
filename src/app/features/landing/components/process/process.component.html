@@ -1,28 +1,64 @@
 <section class="process-section" id="process">
+    <div class="background-effects">
+        <div class="glow-orb orb-1"></div>
+        <div class="glow-orb orb-2"></div>
+    </div>
+
     <div class="container">
         <div class="section-header text-center">
             <span class="badge">Proceso Simple</span>
             <h2>Cómo Funciona</h2>
-            <p class="section-subtitle">Del diagnóstico a la cosecha: un proceso simple y probado</p>
+            <p class="section-subtitle">Del diagnóstico a la cosecha: tecnología avanzada simplificada</p>
         </div>
+
 
         <div class="steps-grid">
-            <div class="step-card" *ngFor="let step of steps">
-                <div class="icon-wrapper">
-                    <!-- Placeholder SVG -->
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                        stroke-linecap="round" stroke-linejoin="round">
-                        <circle cx="12" cy="12" r="10"></circle>
-                    </svg>
-                </div>
-                <div class="step-number">{{ step.number }}</div>
-                <h3>{{ step.title }}</h3>
-                <p>{{ step.desc }}</p>
-            </div>
-        </div>
+            <div class="step-card" *ngFor="let step of steps; let i = index">
+                <div class="card-content">
+                    <div class="step-number-wrapper">
+                        <span class="step-number">{{ step.number }}</span>
+                        <!-- <div class="ring-pulse"></div> -->
+                    </div>
 
-        <div class="cta-container">
-            <button class="btn btn-primary">Solicitar Evaluación Gratuita</button>
+                    <div class="icon-wrapper">
+                        <!-- Placeholder SVG based on icon property or generic -->
+                        <ng-container [ngSwitch]="step.icon">
+                            <svg *ngSwitchCase="'search'" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="11" cy="11" r="8" />
+                                <path d="m21 21-4.3-4.3" />
+                            </svg>
+                            <svg *ngSwitchCase="'settings'" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <path
+                                    d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.1a2 2 0 0 1-1-1.74v-.47a2 2 0 0 1 1-1.74l.15-.1a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" />
+                                <circle cx="12" cy="12" r="3" />
+                            </svg>
+                            <svg *ngSwitchCase="'power'" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M12 2v10" />
+                                <path d="M18.4 6.6a9 9 0 1 1-12.77.04" />
+                            </svg>
+                            <svg *ngSwitchCase="'trending-up'" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" />
+                                <polyline points="17 6 23 6 23 12" />
+                            </svg>
+                            <svg *ngSwitchDefault width="24" height="24" viewBox="0 0 24 24" fill="none"
+                                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10"></circle>
+                            </svg>
+                        </ng-container>
+                    </div>
+
+                    <h3>{{ step.title }}</h3>
+                    <p>{{ step.desc }}</p>
+                </div>
+            </div>
         </div>
     </div>
 </section>

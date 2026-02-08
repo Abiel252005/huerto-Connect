@@ -1,27 +1,80 @@
+@use 'sass:map';
+
+// Variables for White/Green Theme
+$color-bg-light: #ffffff;
+$color-card-green-start: #00d4a1;
+$color-card-green-end: #00a87e;
+$color-text-on-green: #ffffff;
+$color-text-dark: #1a1a1a;
+$color-text-grey: #666666;
+$glass-highlight: rgba(255, 255, 255, 0.15);
+
 .process-section {
-    padding: 100px 0;
-    background-color: var(--color-bg-light);
+    padding: clamp(60px, 8vh, 100px) 0;
+    position: relative;
+    background-color: $color-bg-light;
+    overflow: hidden;
+    color: $color-text-dark;
+
+    @media (min-height: 800px) and (min-width: 992px) {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+    }
+}
+
+// Subtle background pattern or noise if needed, keeping it clean white for now
+.background-effects {
+    display: none; // Removing dark mode orbs for clean white look
+}
+
+.container {
+    position: relative;
+    z-index: 1;
 }
 
 .section-header {
     text-align: center;
-    margin-bottom: 60px;
+    margin-bottom: 80px;
 
     .badge {
-        background-color: rgba(0, 212, 161, 0.1);
-        color: var(--color-primary-hover);
-        padding: 6px 16px;
-        border-radius: 20px;
-        margin-bottom: 15px;
+        background: rgba($color-card-green-start, 0.1);
+        color: darken($color-card-green-start, 10%);
+        padding: 8px 18px;
+        border-radius: 50px;
+        font-size: 0.85rem;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        border: 1px solid rgba($color-card-green-start, 0.2);
+        margin-bottom: 20px;
         display: inline-block;
     }
+
+    h2 {
+        color: $color-text-dark;
+        font-size: 2.5rem;
+        margin-bottom: 15px;
+    }
+
+    .section-subtitle {
+        color: $color-text-grey;
+        font-size: 1.1rem;
+        max-width: 600px;
+        margin: 0 auto;
+    }
+}
+
+.process-flow {
+    position: relative;
+    margin-bottom: 40px;
+    padding: 20px 0;
 }
 
 .steps-grid {
     display: grid;
     grid-template-columns: 1fr;
     gap: 30px;
-    margin-bottom: 60px;
+    margin-bottom: 20px;
 
     @media (min-width: 768px) {
         grid-template-columns: repeat(2, 1fr);
@@ -29,71 +82,278 @@
 
     @media (min-width: 992px) {
         grid-template-columns: repeat(4, 1fr);
+        gap: 40px;
     }
 }
 
-.step-card {
-    text-align: center;
-    background: white;
-    padding: 40px 20px;
-    border-radius: 20px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.03);
-    position: relative;
+// Animation Variables
+$total-steps: 4;
+$cycle-duration: 8s; // Total time for one full cycle
+
+// Step-specific keyframes to control exact timing
+@for $i from 1 through $total-steps {
+    $start-percent: (
+        $i - 1) * 20; // 0, 20, 40, 60 (Compressed slightly to fit all in 8s comfortably)
+    $fade-in-duration: 10;
+    $full-on-start: $start-percent + $fade-in-duration;
+
+    // Keyframes for Card Body
+    @keyframes chargeCard-#{$i} {
+
+        // Start Grey
+        0%,
+        #{$start-percent}% {
+            background: $color-bg-light;
+            border-color: rgba(0, 0, 0, 0.05
+            );
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+        transform: scale(1);
+    }
+
+    // Turn Green and STAY Green
+    #{$full-on-start}%,
+    95% {
+        background: linear-gradient(135deg, $color-card-green-start 0%, $color-card-green-end 100%);
+        border-color: transparent;
+        box-shadow: 0 15px 40px rgba(0, 212, 161, 0.3);
+        transform: scale(1.02);
+    }
+
+    // Reset at very end
+    100% {
+        background: $color-bg-light;
+        border-color: rgba(0, 0, 0, 0.05);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+        transform: scale(1);
+    }
+}
+
+// Keyframes for Icon Wrapper
+@keyframes chargeIcon-#{$i} {
+
+    // Start Green on Grey
+    0%,
+    #{$start-percent}% {
+        background: rgba($color-card-green-start, 0.1);
+        color: $color-card-green-start;
+    }
+
+    // turn White on Green
+    #{$full-on-start}%,
+    95% {
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+    }
+
+    // Reset
+    100% {
+        background: rgba($color-card-green-start, 0.1);
+        color: $color-card-green-start;
+    }
+}
+
+// Keyframes for Text
+@keyframes chargeText-#{$i} {
+
+    // Start Dark
+    0%,
+    #{$start-percent}% {
+        color: $color-text-dark;
+    }
+
+    // Burn White
+    #{$full-on-start}%,
+    95% {
+        color: white;
+    }
+
+    // Reset
+    100% {
+        color: $color-text-dark;
+    }
+}
+
+// Keyframes for Description (slightly lighter grey to white)
+@keyframes chargeDesc-#{$i} {
+
+    0%,
+    #{$start-percent}% {
+        color: $color-text-grey;
+    }
+
+    #{$full-on-start}%,
+    95% {
+        color: rgba(255, 255, 255, 0.9);
+    }
+
+    100% {
+        color: $color-text-grey;
+    }
+}
+
+// Apply animations to Step Card #i
+.step-card:nth-child(#{$i}) {
+    .card-content {
+        animation: chargeCard-#{$i} $cycle-duration ease-in-out infinite;
+    }
 
     .icon-wrapper {
-        width: 80px;
-        height: 80px;
-        background-color: rgba(0, 212, 161, 0.1);
-        color: var(--color-primary);
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin: 0 auto 20px;
-
-        svg {
-            width: 32px;
-            height: 32px;
-        }
+        animation: chargeIcon-#{$i} $cycle-duration ease-in-out infinite;
     }
 
+    h3,
     .step-number {
-        color: var(--color-primary);
-        font-weight: 700;
-        margin-bottom: 10px;
-        font-size: 0.9rem;
-    }
-
-    h3 {
-        margin-bottom: 15px;
-        color: var(--color-secondary);
+        animation: chargeText-#{$i} $cycle-duration ease-in-out infinite;
     }
 
     p {
-        color: #666;
-        font-size: 0.9rem;
+        animation: chargeDesc-#{$i} $cycle-duration ease-in-out infinite;
+    }
+
+    @media (min-width: 992px) {
+        &::before {
+            animation: flowLine-#{$i} $cycle-duration ease-in-out infinite;
+        }
     }
 }
 
-/* Connecting line (desktop only) */
-@media (min-width: 992px) {
-    .step-card:not(:last-child)::after {
+// Line Animation: Fills AFTER card is green
+$line-start: $full-on-start;
+$line-full: $line-start + 10;
+
+@keyframes flowLine-#{$i} {
+
+    0%,
+    #{$line-start}% {
+        width: 0;
+        opacity: 1;
+    }
+
+    #{$line-full}%,
+    95% {
+        width: 50px;
+        opacity: 1;
+    }
+
+    // Fills and stays
+    100% {
+        width: 50px;
+        opacity: 0;
+    }
+
+    // Reset
+}
+}
+
+.step-card {
+    position: relative;
+    z-index: 2;
+
+    // Connector Line Base (Grey)
+    @media (min-width: 992px) {
+        &:not(:last-child) {
+            &::after {
+                content: '';
+                position: absolute;
+                top: 50px;
+                right: -45px;
+                width: 50px;
+                height: 2px;
+                background-color: rgba(0, 0, 0, 0.05);
+                z-index: 0;
+            }
+
+            // Green Line Overlay
+            &::before {
+                content: '';
+                position: absolute;
+                top: 50px;
+                right: -45px;
+                width: 0;
+                height: 2px;
+                background-color: $color-card-green-start;
+                z-index: 1;
+            }
+        }
+    }
+}
+
+.card-content {
+    // Default Static (Grey)
+    background: $color-bg-light;
+    padding: 30px 20px;
+    border-radius: 20px;
+    text-align: center;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+
+    // Top Gloss (subtle)
+    &::after {
         content: '';
         position: absolute;
-        top: 80px;
-        /* Adjust based on icon size/padding */
-        right: -30px;
-        /* Half of gap */
-        width: 60px;
-        /* Gap size */
-        height: 2px;
-        background-color: var(--color-primary);
-        opacity: 0.3;
-        display: none;
-        /* Tricky with grid gap, easier to use CSS Grid lines or just Skip connecting lines for now as it breaks responsive easily without SVG */
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(rgba(255, 255, 255, 0.5) 0%, transparent 40%);
+        pointer-events: none;
+        opacity: 0.5;
     }
 }
 
-.cta-container {
-    text-align: center;
+.step-number-wrapper {
+    position: relative;
+    margin-bottom: 20px;
+
+    .step-number {
+        font-family: 'Courier New', monospace;
+        font-weight: bold;
+        color: rgba(0, 0, 0, 0.2); // Default dark/grey
+        font-size: 1.2rem;
+    }
+
+    .ring-pulse {
+        display: none;
+    }
+}
+
+.icon-wrapper {
+    width: 70px;
+    height: 70px;
+    background: rgba($color-card-green-start, 0.1); // Default Light Green BG
+    color: $color-card-green-start; // Default Green Icon
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+    font-size: 2rem;
+    backdrop-filter: blur(5px);
+    transition: all 0.3s ease;
+
+    svg {
+        width: 32px;
+        height: 32px;
+        stroke-width: 2.5px;
+    }
+}
+
+h3 {
+    color: $color-text-dark; // Default Dark
+    margin-bottom: 15px;
+    font-size: 1.2rem;
+    font-weight: 700;
+}
+
+p {
+    color: $color-text-grey; // Default Grey
+    font-size: 0.9rem;
+    line-height: 1.5;
+    margin: 0;
 }
