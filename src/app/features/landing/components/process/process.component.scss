@@ -267,46 +267,12 @@ $cycle-duration: 8s;
 
 // ============ ICON SPECIFIC ANIMATIONS ============
 
-// Search icon - searching/wobble effect
-.icon-search {
-    transform-origin: center;
-}
-
-@keyframes searchWobble {
-
-    0%,
-    100% {
-        transform: translate(0, 0) rotate(0deg);
+// User-cog icon - gear spins smoothly
+.icon-user-cog {
+    .spinning-gear {
+        transform-origin: 24px 12px;
+        animation: gearSpin 4s linear infinite;
     }
-
-    10% {
-        transform: translate(-4px, -3px) rotate(-8deg);
-    }
-
-    25% {
-        transform: translate(4px, -2px) rotate(8deg);
-    }
-
-    40% {
-        transform: translate(-3px, 3px) rotate(-6deg);
-    }
-
-    55% {
-        transform: translate(5px, 2px) rotate(6deg);
-    }
-
-    70% {
-        transform: translate(-2px, -4px) rotate(-4deg);
-    }
-
-    85% {
-        transform: translate(3px, 3px) rotate(4deg);
-    }
-}
-
-// Gear icon - smooth rotation
-.icon-gear {
-    transform-origin: center;
 }
 
 @keyframes gearSpin {
@@ -319,67 +285,131 @@ $cycle-duration: 8s;
     }
 }
 
-// Power icon - pulse/glow effect
-.icon-power {
+// Brain/IA icon - scale pulse like heartbeat
+.icon-brain {
     transform-origin: center;
 }
 
-@keyframes powerPulse {
+@keyframes brainPulse {
+
+    0%,
+    100% {
+        transform: scale(1);
+    }
+
+    15% {
+        transform: scale(1.15);
+    }
+
+    30% {
+        transform: scale(1);
+    }
+
+    45% {
+        transform: scale(1.1);
+    }
+
+    60% {
+        transform: scale(1);
+    }
+}
+
+// Brain/AI icon - neural pulse effect
+.icon-gear {
+    transform-origin: center;
+}
+
+@keyframes brainPulse {
 
     0%,
     100% {
         transform: scale(1);
         filter: drop-shadow(0 0 0 transparent);
+        opacity: 0.7;
     }
 
-    50% {
-        transform: scale(1.1);
-        filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.8));
-    }
-}
-
-// Trending icon - draw/grow effect
-.icon-trending {
-    transform-origin: left bottom;
-}
-
-@keyframes trendingDraw {
-    0% {
-        stroke-dasharray: 60;
-        stroke-dashoffset: 60;
-        opacity: 0.3;
-        transform: scaleY(0.8);
-    }
-
-    30% {
+    10% {
+        transform: scale(1.2);
+        filter: drop-shadow(0 0 20px rgba(0, 212, 161, 1)) drop-shadow(0 0 40px rgba(0, 212, 161, 0.8));
         opacity: 1;
-        transform: scaleY(1);
     }
 
-    50% {
-        stroke-dasharray: 60;
-        stroke-dashoffset: 0;
+    25% {
+        transform: scale(0.9);
+        filter: drop-shadow(0 0 5px rgba(0, 212, 161, 0.3));
+        opacity: 0.7;
+    }
+
+    40% {
+        transform: scale(1.25);
+        filter: drop-shadow(0 0 25px rgba(0, 212, 161, 1)) drop-shadow(0 0 50px rgba(0, 212, 161, 0.9));
         opacity: 1;
-        transform: scaleY(1);
+    }
+
+    55% {
+        transform: scale(0.95);
+        filter: drop-shadow(0 0 8px rgba(0, 212, 161, 0.4));
+        opacity: 0.8;
     }
 
     70% {
-        stroke-dashoffset: 0;
+        transform: scale(1.15);
+        filter: drop-shadow(0 0 18px rgba(0, 212, 161, 0.9));
         opacity: 1;
     }
 
     85% {
-        stroke-dashoffset: 0;
-        opacity: 0.3;
-    }
-
-    100% {
-        stroke-dasharray: 60;
-        stroke-dashoffset: 60;
-        opacity: 0.3;
-        transform: scaleY(0.8);
+        transform: scale(1.05);
+        filter: drop-shadow(0 0 10px rgba(0, 212, 161, 0.5));
+        opacity: 0.9;
     }
 }
+
+// Seedling icon - grow from small to full
+.icon-power {
+    transform-origin: center bottom;
+}
+
+@keyframes seedlingGrow {
+
+    0%,
+    100% {
+        transform: scaleY(0.4) scaleX(0.6);
+        opacity: 0.5;
+    }
+
+    50% {
+        transform: scaleY(1) scaleX(1);
+        opacity: 1;
+    }
+}
+
+// Calendar icon - visible page flip bounce
+.icon-trending {
+    transform-origin: center bottom;
+}
+
+@keyframes calendarFlip {
+
+    0%,
+    100% {
+        transform: translateY(0) rotateX(0deg);
+    }
+
+    25% {
+        transform: translateY(-4px) rotateX(-10deg);
+    }
+
+    50% {
+        transform: translateY(-8px) rotateX(-20deg);
+    }
+
+    75% {
+        transform: translateY(-4px) rotateX(-10deg);
+    }
+}
+
+
 
 h3 {
     color: $color-text-dark;
@@ -650,9 +680,9 @@ p {
         animation: numberGlow 0.6s ease-out 2.5s forwards;
     }
 
-    // Gear icon animation - smooth continuous rotation
-    .icon-gear {
-        animation: gearSpin 8s linear 2.6s infinite;
+    // Brain icon animation - pulse
+    .icon-brain {
+        animation: brainPulse 2s ease-in-out 2.6s infinite;
     }
 
     @media (min-width: 992px) {
@@ -704,9 +734,9 @@ p {
         animation: numberGlow 0.6s ease-out 4.5s forwards;
     }
 
-    // Power icon animation - pulse glow effect
+    // Seedling icon animation - grow
     .icon-power {
-        animation: powerPulse 1.5s ease-in-out 4.6s infinite;
+        animation: seedlingGrow 3s ease-in-out 4.6s infinite;
     }
 
     @media (min-width: 992px) {
@@ -758,9 +788,9 @@ p {
         animation: numberGlow 0.6s ease-out 6.5s forwards;
     }
 
-    // Trending icon animation - line draws and resets (infinite loop)
+    // Calendar icon animation - page flip effect
     .icon-trending {
-        animation: trendingDraw 2.5s ease-in-out 7s infinite;
+        animation: calendarFlip 3s ease-in-out 7s infinite;
     }
 }
 

@@ -6,9 +6,9 @@
 
     <div class="container">
         <div class="section-header text-center">
-            <span class="badge">Proceso Simple</span>
+            <span class="badge">Tu Camino al Éxito</span>
             <h2>Cómo Funciona</h2>
-            <p class="section-subtitle">Del diagnóstico a la cosecha: tecnología avanzada simplificada</p>
+            <p class="section-subtitle">De tu perfil a la cosecha: inteligencia artificial que te guía en cada paso</p>
         </div>
 
 
@@ -36,32 +36,59 @@
                         <div class="orbit-ring">
                             <div class="orbit-particle"></div>
                         </div>
-                        <!-- Placeholder SVG based on icon property or generic -->
+                        <!-- Icons based on step -->
                         <ng-container [ngSwitch]="step.icon">
-                            <svg *ngSwitchCase="'search'" class="icon-search" xmlns="http://www.w3.org/2000/svg"
-                                width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            <!-- User with spinning gear icon -->
+                            <svg *ngSwitchCase="'user-cog'" class="icon-user-cog" xmlns="http://www.w3.org/2000/svg"
+                                width="32" height="32" viewBox="0 0 32 32" fill="none" stroke="currentColor"
                                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <circle cx="11" cy="11" r="8" />
-                                <path d="m21 21-4.3-4.3" />
+                                <!-- User silhouette -->
+                                <circle cx="12" cy="10" r="5" />
+                                <path d="M20 28a8 8 0 1 0-16 0" />
+                                <!-- Spinning gear (separate group) -->
+                                <g class="spinning-gear">
+                                    <circle cx="24" cy="12" r="3" fill="none" />
+                                    <path d="M24 7v2" />
+                                    <path d="M24 15v2" />
+                                    <path d="M19.5 9.5l1.4 1.4" />
+                                    <path d="M27.1 13.1l1.4 1.4" />
+                                    <path d="M19.5 14.5l1.4-1.4" />
+                                    <path d="M27.1 10.9l1.4-1.4" />
+                                    <path d="M19 12h2" />
+                                    <path d="M27 12h2" />
+                                </g>
                             </svg>
-                            <svg *ngSwitchCase="'settings'" class="icon-gear" xmlns="http://www.w3.org/2000/svg"
-                                width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path
-                                    d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.1a2 2 0 0 1-1-1.74v-.47a2 2 0 0 1 1-1.74l.15-.1a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" />
-                                <circle cx="12" cy="12" r="3" />
+                            <!-- Brain with IA text -->
+                            <svg *ngSwitchCase="'brain'" class="icon-brain" xmlns="http://www.w3.org/2000/svg"
+                                width="32" height="32" viewBox="0 0 32 32" fill="none" stroke="currentColor"
+                                stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                <!-- Brain shape -->
+                                <path d="M10 8c-2.5 0-4 1.5-4 3.5 0 1.5 1 2.5 1 4s-1 3-1 4.5c0 2 2 3.5 4 3.5" />
+                                <path d="M22 8c2.5 0 4 1.5 4 3.5 0 1.5-1 2.5-1 4s1 3 1 4.5c0 2-2 3.5-4 3.5" />
+                                <path d="M10 8c0-2 2-4 6-4s6 2 6 4" />
+                                <path d="M10 23.5c0 2 2 4.5 6 4.5s6-2.5 6-4.5" />
+                                <path d="M16 4v6" />
+                                <!-- IA text inside brain -->
+                                <text x="16" y="19" text-anchor="middle" fill="currentColor" stroke="none" font-size="7"
+                                    font-weight="bold" font-family="Arial, sans-serif">IA</text>
                             </svg>
-                            <svg *ngSwitchCase="'power'" class="icon-power" xmlns="http://www.w3.org/2000/svg"
+                            <!-- Seedling icon -->
+                            <svg *ngSwitchCase="'seedling'" class="icon-power" xmlns="http://www.w3.org/2000/svg"
                                 width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M12 2v10" />
-                                <path d="M18.4 6.6a9 9 0 1 1-12.77.04" />
+                                <path d="M12 10a4 4 0 0 0 4-4V2a9.16 9.16 0 0 0-8 4" />
+                                <path d="M12 10c-4 0-8-2-8-6a8 8 0 0 1 8 6" />
+                                <path d="M12 10v12" />
                             </svg>
-                            <svg *ngSwitchCase="'trending-up'" class="icon-trending" xmlns="http://www.w3.org/2000/svg"
+                            <!-- Calendar icon -->
+                            <svg *ngSwitchCase="'calendar'" class="icon-trending" xmlns="http://www.w3.org/2000/svg"
                                 width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" />
-                                <polyline points="17 6 23 6 23 12" />
+                                <rect x="3" y="4" width="18" height="18" rx="2" />
+                                <line x1="16" y1="2" x2="16" y2="6" />
+                                <line x1="8" y1="2" x2="8" y2="6" />
+                                <line x1="3" y1="10" x2="21" y2="10" />
+                                <path d="m9 16 2 2 4-4" />
                             </svg>
                             <svg *ngSwitchDefault width="24" height="24" viewBox="0 0 24 24" fill="none"
                                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -79,9 +106,9 @@
         <!-- ============ STATISTICS SECTION ============ -->
         <div class="stats-section">
             <div class="stats-header">
-                <span class="stats-badge">Impacto Real</span>
-                <h3>Datos que Transforman</h3>
-                <p>Resultados reales de nuestros clientes en los últimos 12 meses</p>
+                <span class="stats-badge">Lo Que Ofrecemos</span>
+                <h3>Tu Asistente Agrícola</h3>
+                <p>Tecnología que se adapta a tus necesidades y te acompaña siempre</p>
             </div>
 
             <div class="stats-grid">
@@ -97,35 +124,50 @@
                         <!-- Animated icon -->
                         <div class="stat-icon" [ngClass]="'icon-' + stat.color">
                             <ng-container [ngSwitch]="stat.icon">
-                                <svg *ngSwitchCase="'trending-up'" xmlns="http://www.w3.org/2000/svg" width="24"
-                                    height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" />
-                                    <polyline points="17 6 23 6 23 12" />
-                                </svg>
-                                <svg *ngSwitchCase="'droplet'" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                <!-- Robot/AI icon -->
+                                <svg *ngSwitchCase="'robot'" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
                                     viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z" />
+                                    <rect x="3" y="11" width="18" height="10" rx="2" />
+                                    <circle cx="12" cy="5" r="2" />
+                                    <path d="M12 7v4" />
+                                    <line x1="8" y1="16" x2="8" y2="16" />
+                                    <line x1="16" y1="16" x2="16" y2="16" />
                                 </svg>
+                                <!-- Leaf icon -->
                                 <svg *ngSwitchCase="'leaf'" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
                                     viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <path
                                         d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z" />
                                     <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12" />
                                 </svg>
-                                <svg *ngSwitchCase="'dollar'" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                <!-- Target icon -->
+                                <svg *ngSwitchCase="'target'" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
                                     viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <line x1="12" y1="1" x2="12" y2="23" />
-                                    <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+                                    <circle cx="12" cy="12" r="10" />
+                                    <circle cx="12" cy="12" r="6" />
+                                    <circle cx="12" cy="12" r="2" />
                                 </svg>
+                                <!-- Lightbulb icon -->
+                                <svg *ngSwitchCase="'lightbulb'" xmlns="http://www.w3.org/2000/svg" width="24"
+                                    height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path
+                                        d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5" />
+                                    <path d="M9 18h6" />
+                                    <path d="M10 22h4" />
+                                </svg>
+                                <!-- Clock icon -->
                                 <svg *ngSwitchCase="'clock'" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
                                     viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <circle cx="12" cy="12" r="10" />
                                     <polyline points="12 6 12 12 16 14" />
                                 </svg>
-                                <svg *ngSwitchCase="'shield'" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                <!-- Users icon -->
+                                <svg *ngSwitchCase="'users'" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
                                     viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-                                    <polyline points="9 12 11 14 15 10" />
+                                    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+                                    <circle cx="9" cy="7" r="4" />
+                                    <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
+                                    <path d="M16 3.13a4 4 0 0 1 0 7.75" />
                                 </svg>
                             </ng-container>
                         </div>
