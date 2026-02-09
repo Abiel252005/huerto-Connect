@@ -20,9 +20,11 @@ export class FaqComponent implements OnInit {
         });
     }
 
-    toggle(index: number) {
-        // Optional: Close others when one opens (Accordion behavior)
-        // this.faqs.forEach((faq, i) => { if (i !== index) faq.open = false; });
+    toggle(index: number): void {
+        // Accordion behavior - close others when one opens
+        this.faqs.forEach((faq, i) => {
+            if (i !== index) faq.open = false;
+        });
         this.faqs[index].open = !this.faqs[index].open;
     }
 }
