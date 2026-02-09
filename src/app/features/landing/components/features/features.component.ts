@@ -13,98 +13,98 @@ export class FeaturesComponent implements AfterViewInit, OnDestroy {
 
     features = [
         {
-            title: 'Monitoreo Inteligente',
-            description: 'Sensores IoT miden humedad, pH y temperatura en tiempo real.',
-            icon: 'cpu',
+            title: 'Asistente IA',
+            description: 'Inteligencia artificial que analiza tu zona y te guía paso a paso.',
+            icon: 'brain',
             color: 'linear-gradient(135deg, #00C9A7 0%, #00D4A1 100%)',
             size: 'large',
             delay: '0ms'
         },
         {
-            title: 'Riego Autónomo',
-            description: 'Automatización precisa basada en datos, 0% desperdicio.',
-            icon: 'droplet',
+            title: 'Cultivos Personalizados',
+            description: 'Recomendaciones basadas en tu ubicación, clima y tipo de terreno.',
+            icon: 'leaf',
             color: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
             size: 'normal',
             delay: '100ms'
         },
         {
-            title: 'Energía Solar',
-            description: 'Tu huerto 100% autosuficiente.',
-            icon: 'sun',
+            title: 'Cronograma de Siembra',
+            description: 'Programa de actividades y fecha estimada de cosecha.',
+            icon: 'calendar',
             color: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
             size: 'normal',
             delay: '200ms'
         },
         {
-            title: 'Control Total',
-            description: 'App móvil para gestión remota desde cualquier parte del mundo.',
-            icon: 'wifi',
+            title: 'Tips por Ubicación',
+            description: 'Consejos adaptados a la temporada y condiciones de tu región.',
+            icon: 'location',
             color: 'linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%)',
             size: 'wide',
             delay: '300ms'
         },
         {
-            title: 'Analytics IA',
-            description: 'Predicciones de cosecha y detección de plagas antes de que ocurran.',
-            icon: 'bar-chart',
+            title: 'Comunidad Agricultora',
+            description: 'Conecta con otros usuarios, comparte experiencias y aprende.',
+            icon: 'users',
             color: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
             size: 'tall',
             delay: '400ms'
         },
         {
-            title: 'Seguridad 24/7',
-            description: 'Alertas inmediatas de actividad.',
-            icon: 'shield',
+            title: 'Soporte 24/7',
+            description: 'Asistencia disponible cuando la necesites, siempre.',
+            icon: 'support',
             color: 'linear-gradient(135deg, #ff9a9e 0%, #fecfef 99%, #fecfef 100%)',
             size: 'normal',
             delay: '500ms'
         },
-        // Duplicate for loop illusion (x2)
+        // Duplicados para el loop infinito
         {
-            title: 'Monitoreo Inteligente',
-            description: 'Sensores IoT miden humedad, pH y temperatura en tiempo real.',
-            icon: 'cpu',
+            title: 'Asistente IA',
+            description: 'Inteligencia artificial que analiza tu zona y te guía paso a paso.',
+            icon: 'brain',
             color: 'linear-gradient(135deg, #00C9A7 0%, #00D4A1 100%)',
             size: 'large',
             delay: '0ms'
         },
         {
-            title: 'Riego Autónomo',
-            description: 'Automatización precisa basada en datos, 0% desperdicio.',
-            icon: 'droplet',
+            title: 'Cultivos Personalizados',
+            description: 'Recomendaciones basadas en tu ubicación, clima y tipo de terreno.',
+            icon: 'leaf',
             color: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
             size: 'normal',
             delay: '100ms'
         },
         {
-            title: 'Energía Solar',
-            description: 'Tu huerto 100% autosuficiente.',
-            icon: 'sun',
+            title: 'Cronograma de Siembra',
+            description: 'Programa de actividades y fecha estimada de cosecha.',
+            icon: 'calendar',
             color: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
             size: 'normal',
             delay: '200ms'
         },
         {
-            title: 'Control Total',
-            description: 'App móvil para gestión remota desde cualquier parte del mundo.',
-            icon: 'wifi',
+            title: 'Tips por Ubicación',
+            description: 'Consejos adaptados a la temporada y condiciones de tu región.',
+            icon: 'location',
             color: 'linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%)',
             size: 'wide',
             delay: '300ms'
         },
         {
-            title: 'Analytics IA',
-            description: 'Predicciones de cosecha y detección de plagas antes de que ocurran.',
-            icon: 'bar-chart',
+            title: 'Comunidad Agricultora',
+            description: 'Conecta con otros usuarios, comparte experiencias y aprende.',
+            icon: 'users',
             color: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
             size: 'tall',
             delay: '400ms'
         },
         {
-            title: 'Seguridad 24/7',
-            description: 'Alertas inmediatas de actividad.',
-            icon: 'shield',
+            title: 'Soporte 24/7',
+            description: 'Asistencia disponible cuando la necesites, siempre.',
+            icon: 'support',
             color: 'linear-gradient(135deg, #ff9a9e 0%, #fecfef 99%, #fecfef 100%)',
             size: 'normal',
             delay: '500ms'
