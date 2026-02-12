@@ -1,23 +1,21 @@
 /* =============================================
-   SPLASH SCREEN – Seed Germination Animation
+   SPLASH SCREEN – Futuristic Germination
    ============================================= */
 
 :host {
     display: block;
 }
 
+/* ---- Fullscreen overlay ---- */
 .splash-screen {
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
+    inset: 0;
     z-index: 99999;
     display: flex;
     align-items: center;
     justify-content: center;
-    background: radial-gradient(ellipse at center, #0f4a38 0%, #0C3B2E 40%, #081f18 100%);
-    transition: opacity 0.8s ease, visibility 0.8s ease;
+    background: radial-gradient(ellipse at 50% 60%, #0f4a38 0%, #0C3B2E 45%, #071e16 100%);
+    transition: opacity 1.5s ease, visibility 1.5s ease;
     overflow: hidden;
 
     &.fade-out {
@@ -30,209 +28,408 @@
     }
 }
 
-/* ---- Floating particles ---- */
-.particles {
+/* ---- Scan lines overlay ---- */
+.scanlines {
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(0deg,
+            transparent,
+            transparent 2px,
+            rgba(0, 0, 0, 0.03) 2px,
+            rgba(0, 0, 0, 0.03) 4px);
+    pointer-events: none;
+    z-index: 10;
+}
+
+/* ---- Animated grid background ---- */
+.grid-bg {
+    position: absolute;
+    inset: 0;
+    background-image:
+        linear-gradient(rgba(0, 212, 161, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 212, 161, 0.03) 1px, transparent 1px);
+    background-size: 60px 60px;
+    animation: gridMove 8s linear infinite;
+    opacity: 0.6;
+}
+
+@keyframes gridMove {
+    0% {
+        transform: translate(0, 0);
+    }
+
+    100% {
+        transform: translate(60px, 60px);
+    }
+}
+
+/* ---- Tech particles ---- */
+.tech-particles {
     position: absolute;
     inset: 0;
     pointer-events: none;
+    z-index: 1;
 }
 
-.particle {
+.t-particle {
     position: absolute;
+    width: 3px;
+    height: 3px;
+    border-radius: 50%;
+    background: #00D4A1;
+    box-shadow: 0 0 6px #00D4A1, 0 0 12px rgba(0, 212, 161, 0.3);
+    opacity: 0;
+}
+
+.tp1 {
+    left: 10%;
+    top: 20%;
+    animation: particleFade 4s 0.0s ease-in-out infinite;
+}
+
+.tp2 {
+    left: 85%;
+    top: 15%;
+    animation: particleFade 5s 0.5s ease-in-out infinite;
+    width: 2px;
+    height: 2px;
+}
+
+.tp3 {
+    left: 25%;
+    top: 70%;
+    animation: particleFade 3s 1.0s ease-in-out infinite;
+}
+
+.tp4 {
+    left: 75%;
+    top: 80%;
+    animation: particleFade 4s 1.5s ease-in-out infinite;
     width: 4px;
     height: 4px;
-    border-radius: 50%;
-    background: rgba(0, 212, 161, 0.3);
-    animation: floatParticle 6s infinite ease-in-out;
 }
 
-@for $i from 1 through 12 {
-    .particle:nth-child(#{$i}) {
-        left: random(100) * 1%;
-        top: random(100) * 1%;
-        width: (2 + random(4)) * 1px;
-        height: (2 + random(4)) * 1px;
-        animation-delay: random(4000) * -1ms;
-        animation-duration: (4 + random(4)) * 1s;
-        opacity: 0.15 + random(35) * 0.01;
-    }
+.tp5 {
+    left: 50%;
+    top: 10%;
+    animation: particleFade 5s 0.3s ease-in-out infinite;
 }
 
-@keyframes floatParticle {
+.tp6 {
+    left: 15%;
+    top: 50%;
+    animation: particleFade 3s 2.0s ease-in-out infinite;
+    width: 2px;
+    height: 2px;
+}
+
+.tp7 {
+    left: 90%;
+    top: 55%;
+    animation: particleFade 4s 0.8s ease-in-out infinite;
+}
+
+.tp8 {
+    left: 40%;
+    top: 85%;
+    animation: particleFade 5s 1.2s ease-in-out infinite;
+}
+
+.tp9 {
+    left: 65%;
+    top: 30%;
+    animation: particleFade 3s 0.6s ease-in-out infinite;
+    width: 4px;
+    height: 4px;
+}
+
+.tp10 {
+    left: 5%;
+    top: 90%;
+    animation: particleFade 4s 1.8s ease-in-out infinite;
+}
+
+.tp11 {
+    left: 55%;
+    top: 45%;
+    animation: particleFade 5s 2.2s ease-in-out infinite;
+    width: 2px;
+    height: 2px;
+}
+
+.tp12 {
+    left: 35%;
+    top: 25%;
+    animation: particleFade 3s 0.4s ease-in-out infinite;
+}
+
+@keyframes particleFade {
 
     0%,
     100% {
-        transform: translateY(0) scale(1);
-        opacity: 0.2;
+        opacity: 0;
+        transform: scale(0) translateY(0);
     }
 
-    50% {
-        transform: translateY(-40px) scale(1.3);
-        opacity: 0.5;
+    30% {
+        opacity: 0.8;
+        transform: scale(1) translateY(-10px);
+    }
+
+    70% {
+        opacity: 0.4;
+        transform: scale(0.8) translateY(-25px);
     }
 }
 
-/* ---- Main animation container ---- */
+/* ---- Pulse rings ---- */
+.pulse-rings {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -55%);
+    z-index: 1;
+}
+
+.ring {
+    position: absolute;
+    border: 1px solid rgba(0, 212, 161, 0.15);
+    border-radius: 50%;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0);
+}
+
+.ring-1 {
+    width: 200px;
+    height: 200px;
+    animation: ringPulse 3s 1.5s ease-out infinite;
+}
+
+.ring-2 {
+    width: 200px;
+    height: 200px;
+    animation: ringPulse 3s 2.0s ease-out infinite;
+}
+
+.ring-3 {
+    width: 200px;
+    height: 200px;
+    animation: ringPulse 3s 2.5s ease-out infinite;
+}
+
+@keyframes ringPulse {
+    0% {
+        transform: translate(-50%, -50%) scale(0);
+        opacity: 0.6;
+        border-color: rgba(0, 212, 161, 0.3);
+    }
+
+    100% {
+        transform: translate(-50%, -50%) scale(2.5);
+        opacity: 0;
+        border-color: rgba(0, 212, 161, 0);
+    }
+}
+
+/* ---- Animation container ---- */
 .animation-container {
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 24px;
+    position: relative;
+    z-index: 5;
 }
 
-.germination-svg {
-    width: 220px;
-    height: 300px;
+/* ---- Sprout wrapper ---- */
+.sprout-wrapper {
+    position: relative;
+}
+
+.hex-glow {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 180px;
+    height: 180px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(0, 212, 161, 0.12) 0%, transparent 70%);
+    animation: hexPulse 2.5s 2s ease-in-out infinite;
+}
+
+@keyframes hexPulse {
+
+    0%,
+    100% {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 0.5;
+    }
+
+    50% {
+        transform: translate(-50%, -50%) scale(1.15);
+        opacity: 0.8;
+    }
+}
+
+.sprout-svg {
+    width: 200px;
+    height: 280px;
+    position: relative;
+    z-index: 2;
+}
+
+/* ---- Circuit BG ---- */
+.circuit-bg {
+    opacity: 0;
+    animation: fadeIn 1s 0.5s ease forwards;
 }
 
 /* ---- Soil ---- */
-.soil {
+.soil-group {
     opacity: 0;
-    animation: fadeIn 0.6s 0.2s ease forwards;
+    animation: fadeSlideUp 0.8s 0.2s ease forwards;
 }
 
-.soil-dot {
-    opacity: 0;
-    animation: fadeIn 0.5s 0.5s ease forwards;
-}
-
-/* ---- Seed splits open ---- */
+/* ---- Seed ---- */
 .seed-left {
-    transform-origin: 155px 270px;
-    animation: seedSplitLeft 1s 0.6s ease forwards;
+    transform-origin: 105px 245px;
+    animation: splitLeft 1.2s 0.6s ease forwards;
 }
 
 .seed-right {
-    transform-origin: 145px 270px;
-    animation: seedSplitRight 1s 0.6s ease forwards;
+    transform-origin: 95px 245px;
+    animation: splitRight 1.2s 0.6s ease forwards;
 }
 
-@keyframes seedSplitLeft {
+@keyframes splitLeft {
     0% {
-        transform: translate(5px, 0) rotate(0deg);
+        transform: translate(5px, 0) rotate(0);
         opacity: 1;
     }
 
-    60% {
-        transform: translate(-4px, -2px) rotate(-15deg);
+    40% {
+        transform: translate(-2px, -3px) rotate(-10deg);
         opacity: 1;
     }
 
     100% {
-        transform: translate(-8px, 5px) rotate(-25deg);
-        opacity: 0.6;
+        transform: translate(-12px, 10px) rotate(-35deg);
+        opacity: 0.3;
     }
 }
 
-@keyframes seedSplitRight {
+@keyframes splitRight {
     0% {
-        transform: translate(-5px, 0) rotate(0deg);
+        transform: translate(-5px, 0) rotate(0);
         opacity: 1;
     }
 
-    60% {
-        transform: translate(4px, -2px) rotate(15deg);
+    40% {
+        transform: translate(2px, -3px) rotate(10deg);
         opacity: 1;
     }
 
     100% {
-        transform: translate(8px, 5px) rotate(25deg);
-        opacity: 0.6;
+        transform: translate(12px, 10px) rotate(35deg);
+        opacity: 0.3;
     }
 }
 
-/* ---- Roots grow downward ---- */
-.root {
-    stroke-dasharray: 80;
-    stroke-dashoffset: 80;
-}
-
-.root-1 {
-    animation: growLine 1.2s 1.2s ease forwards;
-}
-
-.root-2 {
-    animation: growLine 1.2s 1.4s ease forwards;
-}
-
-.root-3 {
-    animation: growLine 1s 1.6s ease forwards;
-}
-
-@keyframes growLine {
-    to {
-        stroke-dashoffset: 0;
-    }
-}
-
-/* ---- Stem grows upward ---- */
+/* ---- Stem ---- */
 .stem {
     stroke-dasharray: 160;
     stroke-dashoffset: 160;
-    animation: growStem 1.5s 1.0s ease forwards;
+    animation: drawLine 1.8s 0.8s ease-out forwards;
 }
 
-@keyframes growStem {
+@keyframes drawLine {
     to {
         stroke-dashoffset: 0;
     }
 }
 
-/* ---- Leaves unfurl ---- */
-.leaf {
+/* ---- Energy lines running up stem ---- */
+.energy-line {
+    stroke-dasharray: 8 12;
+    stroke-dashoffset: 80;
     opacity: 0;
-    transform-origin: 150px 180px;
+}
+
+.el1 {
+    animation: energyFlow 2s 2s linear infinite, fadeIn 0.5s 2s ease forwards;
+}
+
+.el2 {
+    animation: energyFlow 2s 2.3s linear infinite, fadeIn 0.5s 2.3s ease forwards;
+}
+
+@keyframes energyFlow {
+    0% {
+        stroke-dashoffset: 80;
+    }
+
+    100% {
+        stroke-dashoffset: 0;
+    }
+}
+
+/* ---- Leaves ---- */
+.leaf-group {
+    opacity: 0;
 }
 
 .leaf-left {
-    animation: unfurlLeft 0.8s 2.2s ease forwards;
+    transform-origin: 100px 175px;
+    animation: leafLeft 1.2s 2s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
 }
 
 .leaf-right {
-    transform-origin: 150px 160px;
-    animation: unfurlRight 0.8s 2.5s ease forwards;
+    transform-origin: 100px 155px;
+    animation: leafRight 1.2s 2.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
 }
 
 .leaf-top {
-    transform-origin: 150px 140px;
-    animation: unfurlTop 0.8s 2.8s ease forwards;
+    transform-origin: 100px 130px;
+    animation: leafTop 1s 2.7s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
 }
 
-@keyframes unfurlLeft {
+@keyframes leafLeft {
     0% {
         opacity: 0;
-        transform: scale(0.2) rotate(30deg);
+        transform: scale(0) rotate(50deg);
     }
 
-    60% {
+    50% {
         opacity: 1;
         transform: scale(1.1) rotate(-5deg);
     }
 
     100% {
         opacity: 1;
-        transform: scale(1) rotate(0deg);
+        transform: scale(1) rotate(0);
     }
 }
 
-@keyframes unfurlRight {
+@keyframes leafRight {
     0% {
         opacity: 0;
-        transform: scale(0.2) rotate(-30deg);
+        transform: scale(0) rotate(-50deg);
     }
 
-    60% {
+    50% {
         opacity: 1;
         transform: scale(1.1) rotate(5deg);
     }
 
     100% {
         opacity: 1;
-        transform: scale(1) rotate(0deg);
+        transform: scale(1) rotate(0);
     }
 }
 
-@keyframes unfurlTop {
+@keyframes leafTop {
     0% {
         opacity: 0;
         transform: scale(0) translateY(20px);
@@ -240,7 +437,7 @@
 
     60% {
         opacity: 1;
-        transform: scale(1.15) translateY(-3px);
+        transform: scale(1.2) translateY(-3px);
     }
 
     100% {
@@ -249,15 +446,54 @@
     }
 }
 
+/* ---- Leaf veins ---- */
+.leaf-vein {
+    stroke-dasharray: 80;
+    stroke-dashoffset: 80;
+    animation: drawLine 1.2s 2.5s ease forwards;
+}
+
+.leaf-vein-side {
+    stroke-dasharray: 40;
+    stroke-dashoffset: 40;
+    animation: drawLine 0.8s 2.8s ease forwards;
+}
+
 /* ---- Sparkles ---- */
 .sparkle {
     opacity: 0;
 }
 
-@for $i from 1 through 6 {
-    .s#{$i} {
-        animation: sparkle 1.5s (2.6s + $i * 0.15s) ease infinite;
-    }
+.s1 {
+    animation: sparkle 2.5s 3.0s ease infinite;
+}
+
+.s2 {
+    animation: sparkle 2.5s 3.15s ease infinite;
+}
+
+.s3 {
+    animation: sparkle 2.5s 3.3s ease infinite;
+}
+
+.s4 {
+    animation: sparkle 2.5s 3.05s ease infinite;
+}
+
+.s5 {
+    animation: sparkle 2.5s 3.4s ease infinite;
+}
+
+.s6 {
+    animation: sparkle 2.5s 3.25s ease infinite;
+}
+
+.s7 {
+    animation: sparkle 2.5s 3.1s ease infinite;
+}
+
+.s8 {
+    animation: sparkle 2.5s 3.35s ease infinite;
 }
 
 @keyframes sparkle {
@@ -265,12 +501,49 @@
     0%,
     100% {
         opacity: 0;
-        transform: scale(0);
+        transform: scale(0) rotate(0);
     }
 
     50% {
         opacity: 1;
-        transform: scale(1.5);
+        transform: scale(2) rotate(180deg);
+    }
+}
+
+/* ---- Data dots flowing up stem ---- */
+.data-dot {
+    opacity: 0;
+}
+
+.dd1 {
+    animation: dataFlow 1.5s 2.2s ease-in-out infinite;
+}
+
+.dd2 {
+    animation: dataFlow 1.5s 2.7s ease-in-out infinite;
+}
+
+.dd3 {
+    animation: dataFlow 1.5s 3.2s ease-in-out infinite;
+}
+
+@keyframes dataFlow {
+    0% {
+        opacity: 0;
+        transform: translateY(0);
+    }
+
+    20% {
+        opacity: 1;
+    }
+
+    80% {
+        opacity: 0.6;
+    }
+
+    100% {
+        opacity: 0;
+        transform: translateY(-115px);
     }
 }
 
@@ -278,30 +551,93 @@
 .brand-text {
     text-align: center;
     opacity: 0;
-    animation: brandReveal 1s 2.8s ease forwards;
+    animation: brandReveal 1.2s 2.8s ease forwards;
 }
 
 .brand-name {
     font-family: 'Inter', sans-serif;
-    font-size: 2rem;
+    font-size: 2.2rem;
     font-weight: 800;
     color: #fff;
-    letter-spacing: 2px;
-    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.brand-icon {
+    font-size: 2rem;
+    animation: pulse 2s 3.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.2);
+    }
+}
+
+.brand-word-h {
+    color: #fff;
 }
 
 .brand-highlight {
-    color: #00D4A1;
-    text-shadow: 0 0 20px rgba(0, 212, 161, 0.5);
+    background: linear-gradient(135deg, #00D4A1, #55efc4);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.brand-line {
+    width: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #00D4A1, transparent);
+    margin: 8px auto;
+    animation: lineExpand 0.8s 3.2s ease forwards;
+}
+
+@keyframes lineExpand {
+    to {
+        width: 120px;
+    }
 }
 
 .brand-tagline {
     font-family: 'Inter', sans-serif;
-    font-size: 0.95rem;
-    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.5);
     letter-spacing: 4px;
     text-transform: uppercase;
-    margin-top: 6px;
+    display: flex;
+    justify-content: center;
+    gap: 0;
+}
+
+.tag-char {
+    opacity: 0;
+    display: inline-block;
+    animation: charReveal 0.4s ease forwards;
+    min-width: 4px;
+}
+
+@keyframes charReveal {
+    0% {
+        opacity: 0;
+        transform: translateY(8px);
+        filter: blur(4px);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+        filter: blur(0);
+    }
 }
 
 @keyframes brandReveal {
@@ -316,51 +652,121 @@
     }
 }
 
-/* ---- Loading bar ---- */
-.loading-bar-container {
-    width: 180px;
-    height: 3px;
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 4px;
-    overflow: hidden;
+/* ---- Futuristic loader ---- */
+.loader-futuristic {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
     opacity: 0;
-    animation: fadeIn 0.5s 3s ease forwards;
+    animation: fadeIn 0.6s 0.3s ease forwards;
 }
 
-.loading-bar {
+.loader-ring-container {
+    position: relative;
+    width: 60px;
+    height: 60px;
+}
+
+.loader-ring-svg {
+    width: 100%;
     height: 100%;
-    width: 0%;
-    background: linear-gradient(90deg, #00D4A1, #2ECC71);
-    border-radius: 4px;
-    animation: loadProgress 1s 3.1s ease forwards;
-    box-shadow: 0 0 10px rgba(0, 212, 161, 0.5);
+    transform: rotate(-90deg);
 }
 
-@keyframes loadProgress {
+.loader-ring-track {
+    opacity: 1;
+}
+
+.loader-ring-progress {
+    stroke-dasharray: 213.6;
+    stroke-dashoffset: 213.6;
+    animation: ringFill 4s 0.5s ease-out forwards;
+    filter: drop-shadow(0 0 4px rgba(0, 212, 161, 0.6));
+}
+
+@keyframes ringFill {
     to {
-        width: 100%;
+        stroke-dashoffset: 0;
     }
 }
 
-/* ---- Utility keyframes ---- */
+.loader-percent {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-family: 'Inter', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: #00D4A1;
+    text-shadow: 0 0 10px rgba(0, 212, 161, 0.4);
+}
+
+.loader-status {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.35);
+    letter-spacing: 1px;
+    animation: textBlink 2s ease-in-out infinite;
+}
+
+@keyframes textBlink {
+
+    0%,
+    100% {
+        opacity: 0.35;
+    }
+
+    50% {
+        opacity: 0.7;
+    }
+}
+
+/* ---- Utility ---- */
 @keyframes fadeIn {
     to {
         opacity: 1;
     }
 }
 
+@keyframes fadeSlideUp {
+    0% {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
 /* ---- Responsive ---- */
 @media (max-width: 480px) {
-    .germination-svg {
-        width: 180px;
-        height: 240px;
+    .sprout-svg {
+        width: 160px;
+        height: 220px;
     }
 
     .brand-name {
-        font-size: 1.5rem;
+        font-size: 1.6rem;
     }
 
     .brand-tagline {
-        font-size: 0.8rem;
+        font-size: 0.7rem;
+        letter-spacing: 3px;
+    }
+
+    .loader-ring-container {
+        width: 50px;
+        height: 50px;
+    }
+
+    .ring-1,
+    .ring-2,
+    .ring-3 {
+        width: 150px;
+        height: 150px;
     }
 }

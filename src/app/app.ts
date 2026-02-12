@@ -18,5 +18,9 @@ export class AppComponent {
 
   onSplashComplete(): void {
     this.showSplash = false;
+
+    // Smoothly transition body from dark splash color to page background
+    document.body.style.transition = 'background-color 1.5s ease';
+    document.body.style.backgroundColor = '#F9F9F9';
   }
 }

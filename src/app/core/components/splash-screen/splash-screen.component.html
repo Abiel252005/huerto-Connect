@@ -1,111 +1,198 @@
 <div class="splash-screen" [class.fade-out]="isFadingOut" [class.hidden]="isHidden">
-    <!-- Particles background -->
-    <div class="particles">
-        <span class="particle" *ngFor="let p of [1,2,3,4,5,6,7,8,9,10,11,12]"></span>
+    <!-- Scan lines overlay -->
+    <div class="scanlines"></div>
+
+    <!-- Animated grid background -->
+    <div class="grid-bg"></div>
+
+    <!-- Floating tech particles -->
+    <div class="tech-particles">
+        <span class="t-particle tp1"></span>
+        <span class="t-particle tp2"></span>
+        <span class="t-particle tp3"></span>
+        <span class="t-particle tp4"></span>
+        <span class="t-particle tp5"></span>
+        <span class="t-particle tp6"></span>
+        <span class="t-particle tp7"></span>
+        <span class="t-particle tp8"></span>
+        <span class="t-particle tp9"></span>
+        <span class="t-particle tp10"></span>
+        <span class="t-particle tp11"></span>
+        <span class="t-particle tp12"></span>
+    </div>
+
+    <!-- Pulse rings behind the sprout -->
+    <div class="pulse-rings">
+        <div class="ring ring-1"></div>
+        <div class="ring ring-2"></div>
+        <div class="ring ring-3"></div>
     </div>
 
     <!-- Main animation container -->
     <div class="animation-container">
-        <svg viewBox="0 0 300 400" xmlns="http://www.w3.org/2000/svg" class="germination-svg">
-            <!-- Glow filter -->
-            <defs>
-                <filter id="glow">
-                    <feGaussianBlur stdDeviation="3" result="coloredBlur" />
-                    <feMerge>
-                        <feMergeNode in="coloredBlur" />
-                        <feMergeNode in="SourceGraphic" />
-                    </feMerge>
-                </filter>
-                <linearGradient id="stemGradient" x1="0%" y1="100%" x2="0%" y2="0%">
-                    <stop offset="0%" stop-color="#0C3B2E" />
-                    <stop offset="50%" stop-color="#2ECC71" />
-                    <stop offset="100%" stop-color="#00D4A1" />
-                </linearGradient>
-                <radialGradient id="seedGradient" cx="50%" cy="50%" r="50%">
-                    <stop offset="0%" stop-color="#8B6914" />
-                    <stop offset="70%" stop-color="#6B4F10" />
-                    <stop offset="100%" stop-color="#4A370B" />
-                </radialGradient>
-                <linearGradient id="leafGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stop-color="#00D4A1" />
-                    <stop offset="100%" stop-color="#2ECC71" />
-                </linearGradient>
-                <linearGradient id="soilGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                    <stop offset="0%" stop-color="#5D4037" />
-                    <stop offset="100%" stop-color="#3E2723" />
-                </linearGradient>
-                <linearGradient id="rootGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                    <stop offset="0%" stop-color="#8B6914" />
-                    <stop offset="100%" stop-color="#6B4F10" />
-                </linearGradient>
-            </defs>
 
-            <!-- Soil -->
-            <ellipse class="soil" cx="150" cy="280" rx="100" ry="20" fill="url(#soilGradient)" />
+        <!-- SVG Sprout Animation -->
+        <div class="sprout-wrapper">
+            <!-- Hex glow behind -->
+            <div class="hex-glow"></div>
 
-            <!-- Soil dots for texture -->
-            <circle class="soil-dot sd1" cx="110" cy="278" r="2" fill="#4E342E" opacity="0.5" />
-            <circle class="soil-dot sd2" cx="140" cy="283" r="1.5" fill="#4E342E" opacity="0.4" />
-            <circle class="soil-dot sd3" cx="175" cy="276" r="2.5" fill="#4E342E" opacity="0.3" />
-            <circle class="soil-dot sd4" cx="190" cy="282" r="1.8" fill="#4E342E" opacity="0.5" />
+            <svg viewBox="0 0 200 320" xmlns="http://www.w3.org/2000/svg" class="sprout-svg">
+                <defs>
+                    <filter id="neonGlow" x="-50%" y="-50%" width="200%" height="200%">
+                        <feGaussianBlur stdDeviation="3" result="blur1" />
+                        <feGaussianBlur stdDeviation="8" result="blur2" />
+                        <feMerge>
+                            <feMergeNode in="blur2" />
+                            <feMergeNode in="blur1" />
+                            <feMergeNode in="SourceGraphic" />
+                        </feMerge>
+                    </filter>
 
-            <!-- Roots (grow downward from seed) -->
-            <g class="roots" filter="url(#glow)">
-                <path class="root root-1" d="M150,275 Q145,295 135,310 Q130,320 125,330" stroke="url(#rootGradient)"
-                    stroke-width="2" fill="none" stroke-linecap="round" />
-                <path class="root root-2" d="M150,275 Q155,300 160,315 Q165,325 170,335" stroke="url(#rootGradient)"
-                    stroke-width="2" fill="none" stroke-linecap="round" />
-                <path class="root root-3" d="M150,275 Q150,295 148,310 Q147,320 150,340" stroke="url(#rootGradient)"
-                    stroke-width="1.5" fill="none" stroke-linecap="round" />
-            </g>
+                    <filter id="softGlow" x="-30%" y="-30%" width="160%" height="160%">
+                        <feGaussianBlur stdDeviation="2" result="glow" />
+                        <feMerge>
+                            <feMergeNode in="glow" />
+                            <feMergeNode in="SourceGraphic" />
+                        </feMerge>
+                    </filter>
 
-            <!-- Seed (splits open) -->
-            <g class="seed" filter="url(#glow)">
-                <ellipse class="seed-left" cx="145" cy="270" rx="14" ry="10" fill="url(#seedGradient)" stroke="#4A370B"
-                    stroke-width="0.5" />
-                <ellipse class="seed-right" cx="155" cy="270" rx="14" ry="10" fill="url(#seedGradient)" stroke="#4A370B"
-                    stroke-width="0.5" />
-            </g>
+                    <linearGradient id="stemGrad" x1="0%" y1="100%" x2="0%" y2="0%">
+                        <stop offset="0%" stop-color="#0C3B2E" />
+                        <stop offset="30%" stop-color="#1a6b4a" />
+                        <stop offset="70%" stop-color="#2ECC71" />
+                        <stop offset="100%" stop-color="#00D4A1" />
+                    </linearGradient>
 
-            <!-- Stem (grows upward from seed) -->
-            <path class="stem" d="M150,270 Q148,240 150,200 Q152,170 150,140" stroke="url(#stemGradient)"
-                stroke-width="4" fill="none" stroke-linecap="round" filter="url(#glow)" />
+                    <linearGradient id="leafGradL" x1="100%" y1="100%" x2="0%" y2="0%">
+                        <stop offset="0%" stop-color="#1a6b4a" />
+                        <stop offset="40%" stop-color="#2ECC71" />
+                        <stop offset="100%" stop-color="#00D4A1" />
+                    </linearGradient>
 
-            <!-- Left Leaf -->
-            <g class="leaf leaf-left" filter="url(#glow)">
-                <path d="M150,180 Q120,160 100,170 Q110,150 150,175" fill="url(#leafGradient)" opacity="0.9" />
-                <path d="M150,178 Q125,165 105,170" stroke="#0C3B2E" stroke-width="0.8" fill="none" opacity="0.4" />
-            </g>
+                    <linearGradient id="leafGradR" x1="0%" y1="100%" x2="100%" y2="0%">
+                        <stop offset="0%" stop-color="#2ECC71" />
+                        <stop offset="60%" stop-color="#00D4A1" />
+                        <stop offset="100%" stop-color="#55efc4" />
+                    </linearGradient>
 
-            <!-- Right Leaf -->
-            <g class="leaf leaf-right" filter="url(#glow)">
-                <path d="M150,160 Q180,140 200,150 Q190,130 150,155" fill="url(#leafGradient)" opacity="0.9" />
-                <path d="M150,158 Q175,145 195,150" stroke="#0C3B2E" stroke-width="0.8" fill="none" opacity="0.4" />
-            </g>
+                    <radialGradient id="soilGrad" cx="50%" cy="40%" r="60%">
+                        <stop offset="0%" stop-color="#5D4037" />
+                        <stop offset="100%" stop-color="#3E2723" />
+                    </radialGradient>
 
-            <!-- Top tiny leaf / bud -->
-            <g class="leaf leaf-top" filter="url(#glow)">
-                <path d="M150,140 Q140,120 145,105 Q150,115 155,105 Q160,120 150,140" fill="#00D4A1" opacity="0.95" />
-            </g>
+                    <radialGradient id="seedGrad" cx="35%" cy="35%" r="65%">
+                        <stop offset="0%" stop-color="#A1887F" />
+                        <stop offset="50%" stop-color="#795548" />
+                        <stop offset="100%" stop-color="#4E342E" />
+                    </radialGradient>
 
-            <!-- Sparkle particles around the sprout -->
-            <circle class="sparkle s1" cx="120" cy="150" r="2" fill="#00D4A1" />
-            <circle class="sparkle s2" cx="180" cy="130" r="1.5" fill="#2ECC71" />
-            <circle class="sparkle s3" cx="130" cy="120" r="1.8" fill="#00D4A1" />
-            <circle class="sparkle s4" cx="175" cy="165" r="2" fill="#2ECC71" />
-            <circle class="sparkle s5" cx="110" cy="170" r="1.2" fill="#00D4A1" />
-            <circle class="sparkle s6" cx="190" cy="155" r="1.5" fill="#2ECC71" />
-        </svg>
+                    <!-- Circuit pattern for tech feel -->
+                    <pattern id="circuitPattern" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse">
+                        <path d="M0,20 L15,20 M25,20 L40,20 M20,0 L20,15 M20,25 L20,40" stroke="rgba(0,212,161,0.08)"
+                            stroke-width="0.5" fill="none" />
+                        <circle cx="20" cy="20" r="2" fill="rgba(0,212,161,0.05)" />
+                    </pattern>
+                </defs>
+
+                <!-- Tech circuit background (subtle) -->
+                <rect x="0" y="0" width="200" height="320" fill="url(#circuitPattern)" class="circuit-bg" />
+
+                <!-- Soil mound -->
+                <g class="soil-group">
+                    <ellipse cx="100" cy="250" rx="65" ry="16" fill="url(#soilGrad)" />
+                    <ellipse cx="88" cy="247" rx="28" ry="5" fill="rgba(255,255,255,0.04)" />
+                </g>
+
+                <!-- Seed -->
+                <g class="seed-group">
+                    <ellipse class="seed-left" cx="95" cy="245" rx="11" ry="8" fill="url(#seedGrad)" stroke="#5D4037"
+                        stroke-width="0.5" />
+                    <ellipse class="seed-right" cx="105" cy="245" rx="11" ry="8" fill="url(#seedGrad)" stroke="#5D4037"
+                        stroke-width="0.5" />
+                </g>
+
+                <!-- Main stem with neon glow -->
+                <path class="stem" d="M100,245 C100,228 98,210 100,190 C102,170 99,155 100,130" stroke="url(#stemGrad)"
+                    stroke-width="4.5" fill="none" stroke-linecap="round" filter="url(#neonGlow)" />
+
+                <!-- Energy lines along stem -->
+                <path class="energy-line el1" d="M100,245 C100,228 98,210 100,190" stroke="#55efc4" stroke-width="1"
+                    fill="none" stroke-linecap="round" opacity="0.6" />
+                <path class="energy-line el2" d="M100,190 C102,170 99,155 100,130" stroke="#55efc4" stroke-width="1"
+                    fill="none" stroke-linecap="round" opacity="0.6" />
+
+                <!-- LEFT LEAF -->
+                <g class="leaf-group leaf-left" filter="url(#neonGlow)">
+                    <path class="leaf-shape" d="M100,175 C90,170 60,155 45,140 C35,130 30,115 40,108
+               C50,100 65,110 75,125 C85,140 95,160 100,175Z" fill="url(#leafGradL)" />
+                    <path class="leaf-vein" d="M100,175 C88,162 65,140 45,125" stroke="rgba(255,255,255,0.3)"
+                        stroke-width="1" fill="none" stroke-linecap="round" />
+                    <path class="leaf-vein-side" d="M80,158 C72,150 62,148" stroke="rgba(255,255,255,0.18)"
+                        stroke-width="0.7" fill="none" />
+                    <path class="leaf-vein-side" d="M68,143 C62,136 54,133" stroke="rgba(255,255,255,0.12)"
+                        stroke-width="0.6" fill="none" />
+                </g>
+
+                <!-- RIGHT LEAF -->
+                <g class="leaf-group leaf-right" filter="url(#neonGlow)">
+                    <path class="leaf-shape" d="M100,155 C110,148 135,130 152,118 C162,110 168,98 160,90
+               C150,82 137,92 127,105 C117,120 105,140 100,155Z" fill="url(#leafGradR)" />
+                    <path class="leaf-vein" d="M100,155 C115,140 138,118 155,105" stroke="rgba(255,255,255,0.3)"
+                        stroke-width="1" fill="none" stroke-linecap="round" />
+                    <path class="leaf-vein-side" d="M122,136 C130,128 140,126" stroke="rgba(255,255,255,0.18)"
+                        stroke-width="0.7" fill="none" />
+                </g>
+
+                <!-- TOP BUD -->
+                <g class="leaf-group leaf-top" filter="url(#neonGlow)">
+                    <path class="leaf-shape" d="M100,130 C96,118 92,100 95,85 C98,75 102,75 105,85
+               C108,100 104,118 100,130Z" fill="#00D4A1" />
+                    <path class="leaf-vein" d="M100,128 C100,112 100,98 100,87" stroke="rgba(255,255,255,0.2)"
+                        stroke-width="0.7" fill="none" />
+                </g>
+
+                <!-- Sparkle particles -->
+                <circle class="sparkle s1" cx="38" cy="103" r="2" fill="#00D4A1" />
+                <circle class="sparkle s2" cx="162" cy="86" r="1.8" fill="#55efc4" />
+                <circle class="sparkle s3" cx="52" cy="82" r="1.5" fill="#2ECC71" />
+                <circle class="sparkle s4" cx="150" cy="112" r="2" fill="#00D4A1" />
+                <circle class="sparkle s5" cx="93" cy="76" r="1.3" fill="#55efc4" />
+                <circle class="sparkle s6" cx="112" cy="72" r="1.6" fill="#2ECC71" />
+                <circle class="sparkle s7" cx="70" cy="95" r="1.2" fill="#00D4A1" />
+                <circle class="sparkle s8" cx="135" cy="100" r="1.4" fill="#55efc4" />
+
+                <!-- Data flow dots moving up the stem -->
+                <circle class="data-dot dd1" cx="100" cy="245" r="2" fill="#00D4A1" filter="url(#softGlow)" />
+                <circle class="data-dot dd2" cx="100" cy="245" r="1.5" fill="#55efc4" filter="url(#softGlow)" />
+                <circle class="data-dot dd3" cx="100" cy="245" r="1.8" fill="#2ECC71" filter="url(#softGlow)" />
+            </svg>
+        </div>
 
         <!-- Brand text -->
         <div class="brand-text">
-            <h1 class="brand-name">Huerto<span class="brand-highlight">Connect</span></h1>
-            <p class="brand-tagline">Cultivando el futuro</p>
+            <h1 class="brand-name">
+                <span class="brand-icon">🌱</span>
+                <span class="brand-word-h">Huerto</span><span class="brand-highlight">Connect</span>
+            </h1>
+            <div class="brand-line"></div>
+            <p class="brand-tagline">
+                <span class="tag-char" *ngFor="let char of taglineChars; let i = index"
+                    [style.animation-delay]="(3 + i * 0.05) + 's'">{{char}}</span>
+            </p>
         </div>
 
-        <!-- Loading bar -->
-        <div class="loading-bar-container">
-            <div class="loading-bar"></div>
+        <!-- Futuristic loading indicator -->
+        <div class="loader-futuristic">
+            <div class="loader-ring-container">
+                <svg class="loader-ring-svg" viewBox="0 0 80 80">
+                    <circle class="loader-ring-track" cx="40" cy="40" r="34" stroke="rgba(255,255,255,0.06)"
+                        stroke-width="2" fill="none" />
+                    <circle class="loader-ring-progress" cx="40" cy="40" r="34" stroke="#00D4A1" stroke-width="2.5"
+                        fill="none" stroke-linecap="round" filter="url(#softGlow)" />
+                </svg>
+                <span class="loader-percent">{{loadPercent}}%</span>
+            </div>
+            <p class="loader-status">{{loadingText}}</p>
         </div>
     </div>
 </div>

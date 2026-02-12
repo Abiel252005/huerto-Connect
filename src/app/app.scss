@@ -1,0 +1,18 @@
+/* ====================================
+   App – Seamless page reveal (NO white flash)
+   ==================================== */
+
+:host {
+    display: block;
+}
+
+.page-content {
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 1.5s ease, visibility 1.5s ease;
+
+    &.page-visible {
+        opacity: 1;
+        visibility: visible;
+    }
+}
