@@ -1,198 +1,194 @@
 <div class="splash-screen" [class.fade-out]="isFadingOut" [class.hidden]="isHidden">
-    <!-- Scan lines overlay -->
-    <div class="scanlines"></div>
 
-    <!-- Animated grid background -->
-    <div class="grid-bg"></div>
+    <div class="scene">
+        <svg viewBox="0 0 500 520" xmlns="http://www.w3.org/2000/svg" class="logo-svg">
+            <defs>
+                <filter id="softG" x="-30%" y="-30%" width="160%" height="160%">
+                    <feGaussianBlur stdDeviation="5" result="g" />
+                    <feMerge>
+                        <feMergeNode in="g" />
+                        <feMergeNode in="SourceGraphic" />
+                    </feMerge>
+                </filter>
+                <filter id="ndG" x="-40%" y="-40%" width="180%" height="180%">
+                    <feGaussianBlur stdDeviation="2" result="g" />
+                    <feMerge>
+                        <feMergeNode in="g" />
+                        <feMergeNode in="SourceGraphic" />
+                    </feMerge>
+                </filter>
 
-    <!-- Floating tech particles -->
-    <div class="tech-particles">
-        <span class="t-particle tp1"></span>
-        <span class="t-particle tp2"></span>
-        <span class="t-particle tp3"></span>
-        <span class="t-particle tp4"></span>
-        <span class="t-particle tp5"></span>
-        <span class="t-particle tp6"></span>
-        <span class="t-particle tp7"></span>
-        <span class="t-particle tp8"></span>
-        <span class="t-particle tp9"></span>
-        <span class="t-particle tp10"></span>
-        <span class="t-particle tp11"></span>
-        <span class="t-particle tp12"></span>
-    </div>
+                <linearGradient id="lfA" x1="100%" y1="100%" x2="0%" y2="0%">
+                    <stop offset="0%" stop-color="#33691E" />
+                    <stop offset="40%" stop-color="#4CAF50" />
+                    <stop offset="100%" stop-color="#8BC34A" />
+                </linearGradient>
+                <linearGradient id="lfB" x1="0%" y1="100%" x2="100%" y2="0%">
+                    <stop offset="0%" stop-color="#2E7D32" />
+                    <stop offset="40%" stop-color="#43A047" />
+                    <stop offset="100%" stop-color="#7CB342" />
+                </linearGradient>
+                <linearGradient id="lfSm" x1="100%" y1="100%" x2="0%" y2="0%">
+                    <stop offset="0%" stop-color="#388E3C" />
+                    <stop offset="100%" stop-color="#66BB6A" />
+                </linearGradient>
+                <linearGradient id="stG" x1="0%" y1="100%" x2="0%" y2="0%">
+                    <stop offset="0%" stop-color="#6D4C41" />
+                    <stop offset="30%" stop-color="#558B2F" />
+                    <stop offset="100%" stop-color="#689F38" />
+                </linearGradient>
+                <radialGradient id="slG" cx="50%" cy="30%" r="65%">
+                    <stop offset="0%" stop-color="#8D6E63" />
+                    <stop offset="60%" stop-color="#6D4C41" />
+                    <stop offset="100%" stop-color="#4E342E" />
+                </radialGradient>
+                <linearGradient id="blG" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#4FC3F7" />
+                    <stop offset="100%" stop-color="#0288D1" />
+                </linearGradient>
+                <linearGradient id="grG" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#66BB6A" />
+                    <stop offset="100%" stop-color="#2E7D32" />
+                </linearGradient>
+                <linearGradient id="crG" x1="50%" y1="0%" x2="50%" y2="100%">
+                    <stop offset="0%" stop-color="#4FC3F7" />
+                    <stop offset="100%" stop-color="#0277BD" />
+                </linearGradient>
+            </defs>
 
-    <!-- Pulse rings behind the sprout -->
-    <div class="pulse-rings">
-        <div class="ring ring-1"></div>
-        <div class="ring ring-2"></div>
-        <div class="ring ring-3"></div>
-    </div>
+            <!-- ======== OUTER WHITE ARC ======== -->
+            <path class="o-track" d="M 155,400 A 195,195 0 1 1 345,400" fill="none" stroke="rgba(255,255,255,0.04)"
+                stroke-width="2.5" />
+            <path class="o-glow" d="M 155,400 A 195,195 0 1 1 345,400" fill="none" stroke="rgba(255,255,255,0.06)"
+                stroke-width="10" filter="url(#softG)" />
+            <path class="o-prog" d="M 155,400 A 195,195 0 1 1 345,400" fill="none" stroke="rgba(255,255,255,0.75)"
+                stroke-width="2" stroke-linecap="round" filter="url(#softG)" [attr.stroke-dasharray]="1021"
+                [attr.stroke-dashoffset]="arcOffset" />
 
-    <!-- Main animation container -->
-    <div class="animation-container">
+            <!-- ======== BLUE ARC + NODES ======== -->
+            <g class="orb orb-b">
+                <path d="M 140,360 A 150,150 0 1 1 360,360" fill="none" stroke="url(#blG)" stroke-width="1.5"
+                    opacity="0.4" />
+                <circle class="nd nd-b1" cx="140" cy="360" r="4.5" fill="#4FC3F7" filter="url(#ndG)" />
+                <circle class="nd nd-b2" cx="160" cy="180" r="3.5" fill="#29B6F6" filter="url(#ndG)" />
+                <circle class="nd nd-b3" cx="250" cy="110" r="3" fill="#4FC3F7" filter="url(#ndG)" />
+                <circle class="nd nd-b4" cx="345" cy="185" r="4" fill="#29B6F6" filter="url(#ndG)" />
+                <circle class="nd nd-b5" cx="360" cy="360" r="4.5" fill="#0288D1" filter="url(#ndG)" />
+                <circle class="nd nd-b6" cx="310" cy="130" r="3" fill="#4FC3F7" filter="url(#ndG)" />
+            </g>
 
-        <!-- SVG Sprout Animation -->
-        <div class="sprout-wrapper">
-            <!-- Hex glow behind -->
-            <div class="hex-glow"></div>
+            <!-- ======== GREEN ARC + NODES ======== -->
+            <g class="orb orb-g">
+                <path d="M 158,350 A 120,120 0 1 1 342,350" fill="none" stroke="url(#grG)" stroke-width="1.5"
+                    opacity="0.35" />
+                <circle class="nd nd-g1" cx="158" cy="350" r="4" fill="#66BB6A" filter="url(#ndG)" />
+                <circle class="nd nd-g2" cx="178" cy="198" r="3" fill="#43A047" filter="url(#ndG)" />
+                <circle class="nd nd-g3" cx="250" cy="138" r="3.5" fill="#66BB6A" filter="url(#ndG)" />
+                <circle class="nd nd-g4" cx="325" cy="203" r="3" fill="#2E7D32" filter="url(#ndG)" />
+                <circle class="nd nd-g5" cx="342" cy="350" r="4" fill="#43A047" filter="url(#ndG)" />
+            </g>
 
-            <svg viewBox="0 0 200 320" xmlns="http://www.w3.org/2000/svg" class="sprout-svg">
-                <defs>
-                    <filter id="neonGlow" x="-50%" y="-50%" width="200%" height="200%">
-                        <feGaussianBlur stdDeviation="3" result="blur1" />
-                        <feGaussianBlur stdDeviation="8" result="blur2" />
-                        <feMerge>
-                            <feMergeNode in="blur2" />
-                            <feMergeNode in="blur1" />
-                            <feMergeNode in="SourceGraphic" />
-                        </feMerge>
-                    </filter>
+            <!-- ======== CIRCUIT BOWL (lens / mountain shape) ======== -->
+            <g class="bowl">
+                <path class="bowl-bg"
+                    d="M 160,295 Q 205,300 250,302 Q 295,300 340,295 Q 310,340 250,345 Q 190,340 160,295 Z"
+                    fill="rgba(41,182,246,0.05)" stroke="rgba(79,195,247,0.3)" stroke-width="1.5" />
+                <line class="rl rl1" x1="250" y1="305" x2="250" y2="340" stroke="url(#crG)" stroke-width="1.1" />
+                <line class="rl rl2" x1="230" y1="304" x2="224" y2="335" stroke="url(#crG)" stroke-width="0.8" />
+                <line class="rl rl3" x1="270" y1="304" x2="276" y2="336" stroke="url(#crG)" stroke-width="0.8" />
+                <line class="rl rl4" x1="208" y1="302" x2="200" y2="328" stroke="url(#crG)" stroke-width="0.6" />
+                <line class="rl rl5" x1="292" y1="302" x2="300" y2="330" stroke="url(#crG)" stroke-width="0.6" />
+                <line class="rl rl6" x1="186" y1="300" x2="182" y2="318" stroke="url(#crG)" stroke-width="0.5" />
+                <line class="rl rl7" x1="314" y1="300" x2="318" y2="320" stroke="url(#crG)" stroke-width="0.5" />
+                <line class="rl rl8" x1="200" y1="322" x2="300" y2="322" stroke="url(#crG)" stroke-width="0.35"
+                    opacity="0.3" />
+                <line class="rl rl9" x1="212" y1="314" x2="288" y2="314" stroke="url(#crG)" stroke-width="0.3"
+                    opacity="0.25" />
+                <circle class="cn cn1" cx="250" cy="340" r="3" fill="#4FC3F7" />
+                <circle class="cn cn2" cx="224" cy="335" r="2.5" fill="#29B6F6" />
+                <circle class="cn cn3" cx="276" cy="336" r="2.5" fill="#4FC3F7" />
+                <circle class="cn cn4" cx="200" cy="328" r="2" fill="#0288D1" />
+                <circle class="cn cn5" cx="300" cy="330" r="2" fill="#29B6F6" />
+                <circle class="cn cn6" cx="182" cy="318" r="1.8" fill="#0277BD" />
+                <circle class="cn cn7" cx="318" cy="320" r="1.8" fill="#4FC3F7" />
+                <circle class="dp dp1" cx="250" cy="308" r="1.8" fill="#4FC3F7" filter="url(#ndG)" />
+                <circle class="dp dp2" cx="230" cy="307" r="1.5" fill="#29B6F6" filter="url(#ndG)" />
+                <circle class="dp dp3" cx="270" cy="307" r="1.5" fill="#4FC3F7" filter="url(#ndG)" />
+            </g>
 
-                    <filter id="softGlow" x="-30%" y="-30%" width="160%" height="160%">
-                        <feGaussianBlur stdDeviation="2" result="glow" />
-                        <feMerge>
-                            <feMergeNode in="glow" />
-                            <feMergeNode in="SourceGraphic" />
-                        </feMerge>
-                    </filter>
+            <!-- ======== SOIL (wider hill) ======== -->
+            <g class="soil">
+                <ellipse cx="250" cy="295" rx="80" ry="12" fill="url(#slG)" />
+                <ellipse cx="238" cy="293" rx="22" ry="3.5" fill="rgba(255,255,255,0.05)" />
+            </g>
 
-                    <linearGradient id="stemGrad" x1="0%" y1="100%" x2="0%" y2="0%">
-                        <stop offset="0%" stop-color="#0C3B2E" />
-                        <stop offset="30%" stop-color="#1a6b4a" />
-                        <stop offset="70%" stop-color="#2ECC71" />
-                        <stop offset="100%" stop-color="#00D4A1" />
-                    </linearGradient>
+            <!-- ======== SPROUT (wider, fatter leaves) ======== -->
+            <g class="sprout">
+                <!-- Stem – thick, slight curve -->
+                <path class="stem" d="M 250,293 C 249,276 247,258 248,242 C 249,228 251,216 250,204" stroke="url(#stG)"
+                    stroke-width="4.5" fill="none" stroke-linecap="round" />
 
-                    <linearGradient id="leafGradL" x1="100%" y1="100%" x2="0%" y2="0%">
-                        <stop offset="0%" stop-color="#1a6b4a" />
-                        <stop offset="40%" stop-color="#2ECC71" />
-                        <stop offset="100%" stop-color="#00D4A1" />
-                    </linearGradient>
-
-                    <linearGradient id="leafGradR" x1="0%" y1="100%" x2="100%" y2="0%">
-                        <stop offset="0%" stop-color="#2ECC71" />
-                        <stop offset="60%" stop-color="#00D4A1" />
-                        <stop offset="100%" stop-color="#55efc4" />
-                    </linearGradient>
-
-                    <radialGradient id="soilGrad" cx="50%" cy="40%" r="60%">
-                        <stop offset="0%" stop-color="#5D4037" />
-                        <stop offset="100%" stop-color="#3E2723" />
-                    </radialGradient>
-
-                    <radialGradient id="seedGrad" cx="35%" cy="35%" r="65%">
-                        <stop offset="0%" stop-color="#A1887F" />
-                        <stop offset="50%" stop-color="#795548" />
-                        <stop offset="100%" stop-color="#4E342E" />
-                    </radialGradient>
-
-                    <!-- Circuit pattern for tech feel -->
-                    <pattern id="circuitPattern" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse">
-                        <path d="M0,20 L15,20 M25,20 L40,20 M20,0 L20,15 M20,25 L20,40" stroke="rgba(0,212,161,0.08)"
-                            stroke-width="0.5" fill="none" />
-                        <circle cx="20" cy="20" r="2" fill="rgba(0,212,161,0.05)" />
-                    </pattern>
-                </defs>
-
-                <!-- Tech circuit background (subtle) -->
-                <rect x="0" y="0" width="200" height="320" fill="url(#circuitPattern)" class="circuit-bg" />
-
-                <!-- Soil mound -->
-                <g class="soil-group">
-                    <ellipse cx="100" cy="250" rx="65" ry="16" fill="url(#soilGrad)" />
-                    <ellipse cx="88" cy="247" rx="28" ry="5" fill="rgba(255,255,255,0.04)" />
+                <!-- LEFT LEAF – wide, oval, curved outward -->
+                <g class="lf lf-l">
+                    <path d="M 250,215
+                   C 242,206 222,186 204,174
+                   C 190,166 178,168 175,176
+                   C 172,186 182,200 200,210
+                   C 218,218 242,222 250,215 Z" fill="url(#lfA)" />
+                    <path class="vn" d="M 249,215 C 234,204 212,190 182,174" stroke="rgba(255,255,255,0.22)"
+                        stroke-width="0.8" fill="none" />
+                    <path class="vn" d="M 230,204 C 218,196 206,192" stroke="rgba(255,255,255,0.12)" stroke-width="0.5"
+                        fill="none" />
+                    <path class="vn" d="M 214,196 C 202,190 192,188" stroke="rgba(255,255,255,0.1)" stroke-width="0.4"
+                        fill="none" />
                 </g>
 
-                <!-- Seed -->
-                <g class="seed-group">
-                    <ellipse class="seed-left" cx="95" cy="245" rx="11" ry="8" fill="url(#seedGrad)" stroke="#5D4037"
-                        stroke-width="0.5" />
-                    <ellipse class="seed-right" cx="105" cy="245" rx="11" ry="8" fill="url(#seedGrad)" stroke="#5D4037"
-                        stroke-width="0.5" />
+                <!-- RIGHT LEAF – wide, oval, curved outward -->
+                <g class="lf lf-r">
+                    <path d="M 250,210
+                   C 258,200 278,178 298,166
+                   C 312,158 324,161 326,170
+                   C 328,180 318,196 300,206
+                   C 282,214 258,218 250,210 Z" fill="url(#lfB)" />
+                    <path class="vn" d="M 251,210 C 266,198 290,182 320,167" stroke="rgba(255,255,255,0.22)"
+                        stroke-width="0.8" fill="none" />
+                    <path class="vn" d="M 272,200 C 284,192 296,189" stroke="rgba(255,255,255,0.12)" stroke-width="0.5"
+                        fill="none" />
+                    <path class="vn" d="M 288,194 C 300,188 310,186" stroke="rgba(255,255,255,0.1)" stroke-width="0.4"
+                        fill="none" />
                 </g>
 
-                <!-- Main stem with neon glow -->
-                <path class="stem" d="M100,245 C100,228 98,210 100,190 C102,170 99,155 100,130" stroke="url(#stemGrad)"
-                    stroke-width="4.5" fill="none" stroke-linecap="round" filter="url(#neonGlow)" />
-
-                <!-- Energy lines along stem -->
-                <path class="energy-line el1" d="M100,245 C100,228 98,210 100,190" stroke="#55efc4" stroke-width="1"
-                    fill="none" stroke-linecap="round" opacity="0.6" />
-                <path class="energy-line el2" d="M100,190 C102,170 99,155 100,130" stroke="#55efc4" stroke-width="1"
-                    fill="none" stroke-linecap="round" opacity="0.6" />
-
-                <!-- LEFT LEAF -->
-                <g class="leaf-group leaf-left" filter="url(#neonGlow)">
-                    <path class="leaf-shape" d="M100,175 C90,170 60,155 45,140 C35,130 30,115 40,108
-               C50,100 65,110 75,125 C85,140 95,160 100,175Z" fill="url(#leafGradL)" />
-                    <path class="leaf-vein" d="M100,175 C88,162 65,140 45,125" stroke="rgba(255,255,255,0.3)"
-                        stroke-width="1" fill="none" stroke-linecap="round" />
-                    <path class="leaf-vein-side" d="M80,158 C72,150 62,148" stroke="rgba(255,255,255,0.18)"
-                        stroke-width="0.7" fill="none" />
-                    <path class="leaf-vein-side" d="M68,143 C62,136 54,133" stroke="rgba(255,255,255,0.12)"
-                        stroke-width="0.6" fill="none" />
+                <!-- SMALL LEAF – lower left, wider -->
+                <g class="lf lf-s">
+                    <path d="M 249,252
+                   C 244,247 232,237 220,232
+                   C 212,228 206,230 205,235
+                   C 204,241 212,248 222,252
+                   C 232,255 246,255 249,252 Z" fill="url(#lfSm)" />
+                    <path class="vn" d="M 248,252 C 238,245 224,237 210,232" stroke="rgba(255,255,255,0.15)"
+                        stroke-width="0.5" fill="none" />
                 </g>
+            </g>
 
-                <!-- RIGHT LEAF -->
-                <g class="leaf-group leaf-right" filter="url(#neonGlow)">
-                    <path class="leaf-shape" d="M100,155 C110,148 135,130 152,118 C162,110 168,98 160,90
-               C150,82 137,92 127,105 C117,120 105,140 100,155Z" fill="url(#leafGradR)" />
-                    <path class="leaf-vein" d="M100,155 C115,140 138,118 155,105" stroke="rgba(255,255,255,0.3)"
-                        stroke-width="1" fill="none" stroke-linecap="round" />
-                    <path class="leaf-vein-side" d="M122,136 C130,128 140,126" stroke="rgba(255,255,255,0.18)"
-                        stroke-width="0.7" fill="none" />
-                </g>
+        </svg>
 
-                <!-- TOP BUD -->
-                <g class="leaf-group leaf-top" filter="url(#neonGlow)">
-                    <path class="leaf-shape" d="M100,130 C96,118 92,100 95,85 C98,75 102,75 105,85
-               C108,100 104,118 100,130Z" fill="#00D4A1" />
-                    <path class="leaf-vein" d="M100,128 C100,112 100,98 100,87" stroke="rgba(255,255,255,0.2)"
-                        stroke-width="0.7" fill="none" />
-                </g>
-
-                <!-- Sparkle particles -->
-                <circle class="sparkle s1" cx="38" cy="103" r="2" fill="#00D4A1" />
-                <circle class="sparkle s2" cx="162" cy="86" r="1.8" fill="#55efc4" />
-                <circle class="sparkle s3" cx="52" cy="82" r="1.5" fill="#2ECC71" />
-                <circle class="sparkle s4" cx="150" cy="112" r="2" fill="#00D4A1" />
-                <circle class="sparkle s5" cx="93" cy="76" r="1.3" fill="#55efc4" />
-                <circle class="sparkle s6" cx="112" cy="72" r="1.6" fill="#2ECC71" />
-                <circle class="sparkle s7" cx="70" cy="95" r="1.2" fill="#00D4A1" />
-                <circle class="sparkle s8" cx="135" cy="100" r="1.4" fill="#55efc4" />
-
-                <!-- Data flow dots moving up the stem -->
-                <circle class="data-dot dd1" cx="100" cy="245" r="2" fill="#00D4A1" filter="url(#softGlow)" />
-                <circle class="data-dot dd2" cx="100" cy="245" r="1.5" fill="#55efc4" filter="url(#softGlow)" />
-                <circle class="data-dot dd3" cx="100" cy="245" r="1.8" fill="#2ECC71" filter="url(#softGlow)" />
-            </svg>
-        </div>
-
-        <!-- Brand text -->
-        <div class="brand-text">
-            <h1 class="brand-name">
-                <span class="brand-icon">🌱</span>
-                <span class="brand-word-h">Huerto</span><span class="brand-highlight">Connect</span>
-            </h1>
-            <div class="brand-line"></div>
-            <p class="brand-tagline">
-                <span class="tag-char" *ngFor="let char of taglineChars; let i = index"
-                    [style.animation-delay]="(3 + i * 0.05) + 's'">{{char}}</span>
-            </p>
-        </div>
-
-        <!-- Futuristic loading indicator -->
-        <div class="loader-futuristic">
-            <div class="loader-ring-container">
-                <svg class="loader-ring-svg" viewBox="0 0 80 80">
-                    <circle class="loader-ring-track" cx="40" cy="40" r="34" stroke="rgba(255,255,255,0.06)"
-                        stroke-width="2" fill="none" />
-                    <circle class="loader-ring-progress" cx="40" cy="40" r="34" stroke="#00D4A1" stroke-width="2.5"
-                        fill="none" stroke-linecap="round" filter="url(#softGlow)" />
+        <!-- Brand -->
+        <div class="brand">
+            <h1 class="brand-title">
+                <span class="wh">HUERTO</span>
+                <svg class="bl" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+                    <path
+                        d="M17,8 C8,10 5.9,16.17 3.82,21.34 L5.71,22 L6.66,19.7 C7.14,19.87 7.64,20 8,20 C19,20 22,3 22,3 C21,5 14,5.25 9,6.25 C4,7.25 2,11.5 2,13.5 C2,15.5 3.75,17.25 3.75,17.25 C7,8 17,8 17,8Z"
+                        fill="#4CAF50" />
                 </svg>
-                <span class="loader-percent">{{loadPercent}}%</span>
-            </div>
-            <p class="loader-status">{{loadingText}}</p>
+                <span class="wc">CONNECT</span>
+            </h1>
+        </div>
+
+        <!-- Loading -->
+        <div class="load-info">
+            <span class="lpct">{{loadPercent}}<span class="psym">%</span></span>
+            <span class="ltxt">{{loadingText}}</span>
         </div>
     </div>
 </div>

@@ -22,12 +22,10 @@ export class SplashScreenComponent implements OnInit, OnDestroy {
     isHidden = false;
     isFadingOut = false;
 
-    // Animated tagline
-    taglineChars = 'Cultivando el futuro'.split('');
-
-    // Loading percentage
     loadPercent = 0;
-    loadingText = 'Inicializando...';
+    loadingText = 'INICIALIZANDO';
+    arcOffset = 1021; // full arc length (hidden)
+    private readonly ARC_TOTAL = 1021;
     private intervalId: ReturnType<typeof setInterval> | null = null;
 
     constructor(
@@ -36,61 +34,52 @@ export class SplashScreenComponent implements OnInit, OnDestroy {
     ) { }
 
     ngOnInit(): void {
-        // Start the percentage counter after a short delay (when the loader becomes visible)
-        setTimeout(() => {
-            this.startCounter();
-        }, 500);
-
-        // Start fade-out
-        setTimeout(() => {
-            this.isFadingOut = true;
-            this.cdr.detectChanges();
-        }, 4500);
-
-        // Fully hidden
-        setTimeout(() => {
-            this.isHidden = true;
-            this.splashComplete.emit();
-            this.cdr.detectChanges();
-        }, 6000);
-    }
-
-    private startCounter(): void {
+        // Smooth counter synced with arc (4.5s fill)
         this.ngZone.run(() => {
             this.intervalId = setInterval(() => {
                 if (this.loadPercent < 100) {
-                    // Smooth acceleration
-                    if (this.loadPercent < 30) {
+                    if (this.loadPercent < 25) {
                         this.loadPercent += 1;
-                    } else if (this.loadPercent < 60) {
+                    } else if (this.loadPercent < 55) {
                         this.loadPercent += 2;
-                    } else if (this.loadPercent < 85) {
+                    } else if (this.loadPercent < 80) {
                         this.loadPercent += 3;
                     } else {
                         this.loadPercent += 2;
                     }
-
                     this.loadPercent = Math.min(100, this.loadPercent);
+                    this.arcOffset = this.ARC_TOTAL * (1 - this.loadPercent / 100);
 
-                    // Update text at milestones
-                    if (this.loadPercent >= 25 && this.loadPercent < 28) {
-                        this.loadingText = 'Cargando recursos...';
-                    } else if (this.loadPercent >= 55 && this.loadPercent < 58) {
-                        this.loadingText = 'Preparando interfaz...';
+                    if (this.loadPercent >= 20 && this.loadPercent < 23) {
+                        this.loadingText = 'CARGANDO MÓDULOS';
+                    } else if (this.loadPercent >= 50 && this.loadPercent < 53) {
+                        this.loadingText = 'CONECTANDO DATOS';
                     } else if (this.loadPercent >= 80 && this.loadPercent < 83) {
-                        this.loadingText = 'Casi listo...';
+                        this.loadingText = 'CASI LISTO';
                     } else if (this.loadPercent >= 100) {
-                        this.loadingText = '¡Listo!';
+                        this.loadingText = 'LISTO';
                         if (this.intervalId) {
                             clearInterval(this.intervalId);
                             this.intervalId = null;
                         }
                     }
-
                     this.cdr.detectChanges();
                 }
-            }, 50);
+            }, 52);
         });
+
+        // Cinematic fade-out
+        setTimeout(() => {
+            this.isFadingOut = true;
+            this.cdr.detectChanges();
+        }, 5200);
+
+        // Remove from DOM
+        setTimeout(() => {
+            this.isHidden = true;
+            this.splashComplete.emit();
+            this.cdr.detectChanges();
+        }, 7000);
     }
 
     ngOnDestroy(): void {
