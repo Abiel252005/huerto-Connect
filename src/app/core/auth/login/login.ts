@@ -1,7 +1,7 @@
 import { CUSTOM_ELEMENTS_SCHEMA, Component, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 
 interface SproutParticle {
   x: number;
@@ -24,6 +24,8 @@ interface SproutParticle {
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class LoginComponent implements OnDestroy {
+  constructor(private readonly router: Router) {}
+
   isRegister = false;
 
   // Login Data
@@ -70,7 +72,7 @@ export class LoginComponent implements OnDestroy {
   }
 
   onLogin() {
-    console.log('Login:', this.loginEmail);
+    this.router.navigate(['/admin']);
   }
 
   onRegister() {

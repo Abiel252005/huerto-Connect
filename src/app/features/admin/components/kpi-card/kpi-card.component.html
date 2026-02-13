@@ -1,0 +1,11 @@
+<article class="kpi-card">
+  <div class="head">
+    <div class="icon"><ion-icon [name]="icon"></ion-icon></div>
+    <small [class.up]="tone === 'up'" [class.down]="tone === 'down'">{{ delta }}</small>
+  </div>
+  <h4>{{ label }}</h4>
+  <strong>{{ value }}</strong>
+  <div class="spark">
+    <span *ngFor="let point of spark" [style.height.%]="point"></span>
+  </div>
+</article>

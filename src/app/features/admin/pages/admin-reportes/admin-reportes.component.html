@@ -1,0 +1,24 @@
+<section class="panel">
+  <header class="head"><h2>Reportes</h2><small>Generador y exportacion</small></header>
+
+  <app-selected-action-bar
+    [title]="'Reporte seleccionado'"
+    [selected]="selectedReporte"
+    [actions]="actions"
+    [summaryTemplate]="reporteSummary"
+    (clearSelection)="clearSelection()"
+  ></app-selected-action-bar>
+
+  <ng-template #reporteSummary let-reporte>
+    <p>{{ reporte.nombre }} · {{ reporte.tipo }} · {{ reporte.fecha }} · Estado: {{ reporte.estado }}</p>
+  </ng-template>
+
+  <app-admin-data-table
+    [rows]="reportes"
+    [columns]="columns"
+    [selected]="selectedReporte"
+    [rowIdentity]="rowIdentity"
+    [emptyMessage]="'No hay reportes disponibles.'"
+    (selectedChange)="onSelectedChange($event)"
+  ></app-admin-data-table>
+</section>

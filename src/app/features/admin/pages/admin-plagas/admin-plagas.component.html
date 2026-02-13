@@ -1,0 +1,33 @@
+<section class="panel">
+  <header class="head">
+    <h2>Deteccion de Plagas (IA)</h2>
+    <small>Revision de imagenes, confianza y feedback al modelo</small>
+  </header>
+
+  <app-selected-action-bar
+    [title]="'Deteccion seleccionada'"
+    [selected]="selectedDeteccion"
+    [actions]="actions"
+    [summaryTemplate]="deteccionSummary"
+    (clearSelection)="clearSelection()"
+  ></app-selected-action-bar>
+
+  <ng-template #deteccionSummary let-deteccion>
+    <div class="summary">
+      <img [src]="deteccion.imagenUrl" [alt]="deteccion.plaga" />
+      <p>
+        {{ deteccion.plaga }} · {{ deteccion.cultivo }} · {{ deteccion.ubicacion }} ·
+        Confianza: {{ deteccion.confianza }}% · Estado: {{ deteccion.estado }}
+      </p>
+    </div>
+  </ng-template>
+
+  <app-admin-data-table
+    [rows]="detecciones"
+    [columns]="columns"
+    [selected]="selectedDeteccion"
+    [rowIdentity]="rowIdentity"
+    [emptyMessage]="'No hay detecciones disponibles.'"
+    (selectedChange)="onSelectedChange($event)"
+  ></app-admin-data-table>
+</section>

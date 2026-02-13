@@ -1,0 +1,33 @@
+.filters {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+
+.search,
+.select {
+  border: 1px solid var(--admin-line);
+  border-radius: 10px;
+  background: var(--admin-surface);
+  min-height: 36px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 10px;
+}
+
+.search input,
+.select select {
+  border: none;
+  outline: none;
+  background: transparent;
+  color: var(--admin-text-main);
+  font-family: inherit;
+}
+
+.select span {
+  color: var(--admin-text-dim);
+  font-size: 12px;
+}
+

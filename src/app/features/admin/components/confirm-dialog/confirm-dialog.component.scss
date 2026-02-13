@@ -1,0 +1,42 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: var(--admin-overlay);
+  display: grid;
+  place-items: center;
+  z-index: 1000;
+}
+
+.dialog {
+  width: min(420px, 90vw);
+  border: 1px solid var(--admin-line);
+  background: var(--admin-panel);
+  border-radius: 12px;
+  padding: 14px;
+}
+
+h4 { margin-bottom: 6px; }
+
+p { color: var(--admin-text-dim); margin-bottom: 12px; }
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+button {
+  border: 1px solid var(--admin-line);
+  background: transparent;
+  color: var(--admin-text-main);
+  border-radius: 8px;
+  padding: 6px 10px;
+  cursor: pointer;
+}
+
+button.primary {
+  color: var(--admin-btn-main-text);
+  border-color: color-mix(in srgb, var(--admin-accent) 36%, transparent);
+  background: linear-gradient(130deg, var(--admin-accent), var(--admin-accent-2));
+}
+

@@ -1,0 +1,30 @@
+<section class="panel">
+  <header class="head">
+    <h2>Cultivos</h2>
+    <small>Catalogo de cultivos y parametros de produccion</small>
+  </header>
+
+  <app-selected-action-bar
+    [title]="'Cultivo seleccionado'"
+    [selected]="selectedCultivo"
+    [actions]="actions"
+    [summaryTemplate]="cultivoSummary"
+    (clearSelection)="clearSelection()"
+  ></app-selected-action-bar>
+
+  <ng-template #cultivoSummary let-cultivo>
+    <p>
+      {{ cultivo.nombre }} · {{ cultivo.temporada }} · Dificultad: {{ cultivo.dificultad }} · Estado:
+      {{ cultivo.activo ? 'Activo' : 'Inactivo' }}
+    </p>
+  </ng-template>
+
+  <app-admin-data-table
+    [rows]="cultivos"
+    [columns]="columns"
+    [selected]="selectedCultivo"
+    [rowIdentity]="rowIdentity"
+    [emptyMessage]="'No hay cultivos disponibles.'"
+    (selectedChange)="onSelectedChange($event)"
+  ></app-admin-data-table>
+</section>

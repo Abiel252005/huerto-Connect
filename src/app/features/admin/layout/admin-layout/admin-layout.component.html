@@ -1,0 +1,60 @@
+<div class="admin-shell" [attr.data-theme]="theme">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="logo"><ion-icon name="leaf-outline"></ion-icon></div>
+      <div class="meta">
+        <strong>Huerto Connect</strong>
+        <span>AI Command Center</span>
+      </div>
+    </div>
+
+    <nav class="menu">
+      <a
+        *ngFor="let item of navItems"
+        class="menu-item"
+        [routerLink]="item.route"
+        routerLinkActive="active"
+        #rla="routerLinkActive"
+        [attr.aria-current]="rla.isActive ? 'page' : null"
+      >
+        <ion-icon [name]="item.icon"></ion-icon>
+        <span>{{ item.label }}</span>
+        <i class="active-dot" *ngIf="rla.isActive" aria-hidden="true"></i>
+      </a>
+    </nav>
+  </aside>
+
+  <section class="workspace">
+    <header class="topbar">
+      <label class="search">
+        <ion-icon name="search-outline"></ion-icon>
+        <input type="text" placeholder="Buscar usuarios, huertos, plagas o reportes..." />
+      </label>
+
+      <div class="status-row">
+        <span class="status-pill" *ngFor="let status of statuses">
+          <i></i>{{ status }}
+        </span>
+      </div>
+
+      <div class="top-actions">
+        <button type="button" class="theme-btn" (click)="toggleTheme()">
+          <ion-icon [name]="themeIcon"></ion-icon>
+          <span>{{ themeLabel }}</span>
+        </button>
+        <button type="button" class="icon-btn"><ion-icon name="notifications-outline"></ion-icon></button>
+        <div class="profile">
+          <div class="avatar">AR</div>
+          <div>
+            <strong>Admin Root</strong>
+            <span>Supervision Global</span>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="content">
+      <router-outlet></router-outlet>
+    </main>
+  </section>
+</div>
