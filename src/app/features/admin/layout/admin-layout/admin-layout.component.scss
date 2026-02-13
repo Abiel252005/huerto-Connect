@@ -292,6 +292,32 @@
   border-color: color-mix(in srgb, var(--admin-accent) 55%, transparent);
 }
 
+.logout-btn {
+  min-height: 36px;
+  border-radius: 10px;
+  border: 1px solid color-mix(in srgb, var(--admin-danger) 36%, transparent);
+  background: color-mix(in srgb, var(--admin-danger) 14%, var(--admin-surface));
+  color: var(--admin-text-main);
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 10px;
+  cursor: pointer;
+  transition: transform 150ms ease, border-color 160ms ease;
+}
+
+.logout-btn ion-icon {
+  font-size: 15px;
+}
+
+.logout-btn:hover {
+  transform: translateY(-1px);
+  border-color: color-mix(in srgb, var(--admin-danger) 62%, transparent);
+}
+
 .icon-btn {
   width: 36px;
   height: 36px;

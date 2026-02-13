@@ -1,10 +1,11 @@
 import {
   CUSTOM_ELEMENTS_SCHEMA,
   ChangeDetectionStrategy,
-  Component
+  Component,
+  inject
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 
 interface NavItem {
   label: string;
@@ -23,6 +24,7 @@ interface NavItem {
 })
 export class AdminLayoutComponent {
   private static readonly THEME_STORAGE_KEY = 'huerto-admin-theme';
+  private readonly router = inject(Router);
 
   theme: 'dark' | 'light' = this.loadTheme();
 
@@ -63,6 +65,13 @@ export class AdminLayoutComponent {
     if (typeof window !== 'undefined') {
       window.localStorage.setItem(AdminLayoutComponent.THEME_STORAGE_KEY, this.theme);
     }
+  }
+
+  logout() {
+    if (typeof window !== 'undefined') {
+      window.sessionStorage.clear();
+    }
+    this.router.navigate(['/login']);
   }
 
   private loadTheme(): 'dark' | 'light' {
