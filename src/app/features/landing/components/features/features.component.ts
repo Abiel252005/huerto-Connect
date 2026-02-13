@@ -13,7 +13,7 @@ export class FeaturesComponent {
         {
             title: 'Monitoreo Inteligente',
             description: 'Sensores IoT que miden en tiempo real cada parámetro vital de tu cultivo.',
-            icon: 'cpu', // Placeholder for icon component or svg
+            icon: 'cpu',
             color: '#00D4A1'
         },
         {

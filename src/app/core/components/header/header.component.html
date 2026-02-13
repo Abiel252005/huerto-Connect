@@ -2,7 +2,10 @@
   <div class="container header-container">
     <div class="logo">
       <div class="logo-icon">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+        </svg>
       </div>
       <span class="logo-text">HUERTO CONNECT</span>
     </div>
@@ -13,10 +16,11 @@
       <a (click)="scrollToSection('process')">Proceso</a>
       <a (click)="scrollToSection('testimonials')">Testimonios</a>
       <a (click)="scrollToSection('faq')">FAQ</a>
+      <a (click)="scrollToSection('contact')">Contáctanos</a>
     </nav>
 
     <div class="header-actions">
-      <button class="btn btn-primary" (click)="scrollToSection('contact')">Contáctanos</button>
+      <button class="btn btn-primary" routerLink="/login">Iniciar Sesión</button>
       <button class="mobile-toggle" (click)="toggleMenu()">
         <span class="bar"></span>
         <span class="bar"></span>
@@ -32,6 +36,7 @@
     <a (click)="scrollToSection('process')">Proceso</a>
     <a (click)="scrollToSection('testimonials')">Testimonios</a>
     <a (click)="scrollToSection('faq')">FAQ</a>
-    <button class="btn btn-primary mobile-cta" (click)="scrollToSection('contact')">Contáctanos</button>
+    <a (click)="scrollToSection('contact')">Contáctanos</a>
+    <button class="btn btn-primary mobile-cta" routerLink="/login">Iniciar Sesión</button>
   </div>
 </header>
