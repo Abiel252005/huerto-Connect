@@ -1,194 +1,136 @@
 <div class="splash-screen" [class.fade-out]="isFadingOut" [class.hidden]="isHidden">
+  <div class="ambient-grid" aria-hidden="true"></div>
+  <div class="ambient-glow glow-a" aria-hidden="true"></div>
+  <div class="ambient-glow glow-b" aria-hidden="true"></div>
 
-    <div class="scene">
-        <svg viewBox="0 0 500 520" xmlns="http://www.w3.org/2000/svg" class="logo-svg">
-            <defs>
-                <filter id="softG" x="-30%" y="-30%" width="160%" height="160%">
-                    <feGaussianBlur stdDeviation="5" result="g" />
-                    <feMerge>
-                        <feMergeNode in="g" />
-                        <feMergeNode in="SourceGraphic" />
-                    </feMerge>
-                </filter>
-                <filter id="ndG" x="-40%" y="-40%" width="180%" height="180%">
-                    <feGaussianBlur stdDeviation="2" result="g" />
-                    <feMerge>
-                        <feMergeNode in="g" />
-                        <feMergeNode in="SourceGraphic" />
-                    </feMerge>
-                </filter>
+  <div class="splash-center">
+    <svg class="ai-logo" viewBox="0 0 500 520" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <defs>
+        <filter id="neon-blur" x="-50%" y="-50%" width="200%" height="200%">
+          <feGaussianBlur stdDeviation="5" />
+        </filter>
+        <linearGradient id="ring-blue" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#00f7ff" />
+          <stop offset="100%" stop-color="#2d6bff" />
+        </linearGradient>
+        <linearGradient id="ring-green" x1="0%" y1="100%" x2="100%" y2="0%">
+          <stop offset="0%" stop-color="#00ff6a" />
+          <stop offset="100%" stop-color="#00ffa3" />
+        </linearGradient>
+        <linearGradient id="stem-green" x1="0%" y1="100%" x2="100%" y2="0%">
+          <stop offset="0%" stop-color="#1db75a" />
+          <stop offset="100%" stop-color="#44d471" />
+        </linearGradient>
+        <linearGradient id="leaf-green" x1="0%" y1="100%" x2="100%" y2="0%">
+          <stop offset="0%" stop-color="#2fbc62" />
+          <stop offset="100%" stop-color="#70df8d" />
+        </linearGradient>
+        <linearGradient id="soil-brown" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#8f6a50" />
+          <stop offset="100%" stop-color="#5d3e2d" />
+        </linearGradient>
+        <linearGradient id="root-blue" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#4dd9ff" />
+          <stop offset="100%" stop-color="#2d6bff" />
+        </linearGradient>
+      </defs>
 
-                <linearGradient id="lfA" x1="100%" y1="100%" x2="0%" y2="0%">
-                    <stop offset="0%" stop-color="#33691E" />
-                    <stop offset="40%" stop-color="#4CAF50" />
-                    <stop offset="100%" stop-color="#8BC34A" />
-                </linearGradient>
-                <linearGradient id="lfB" x1="0%" y1="100%" x2="100%" y2="0%">
-                    <stop offset="0%" stop-color="#2E7D32" />
-                    <stop offset="40%" stop-color="#43A047" />
-                    <stop offset="100%" stop-color="#7CB342" />
-                </linearGradient>
-                <linearGradient id="lfSm" x1="100%" y1="100%" x2="0%" y2="0%">
-                    <stop offset="0%" stop-color="#388E3C" />
-                    <stop offset="100%" stop-color="#66BB6A" />
-                </linearGradient>
-                <linearGradient id="stG" x1="0%" y1="100%" x2="0%" y2="0%">
-                    <stop offset="0%" stop-color="#6D4C41" />
-                    <stop offset="30%" stop-color="#558B2F" />
-                    <stop offset="100%" stop-color="#689F38" />
-                </linearGradient>
-                <radialGradient id="slG" cx="50%" cy="30%" r="65%">
-                    <stop offset="0%" stop-color="#8D6E63" />
-                    <stop offset="60%" stop-color="#6D4C41" />
-                    <stop offset="100%" stop-color="#4E342E" />
-                </radialGradient>
-                <linearGradient id="blG" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stop-color="#4FC3F7" />
-                    <stop offset="100%" stop-color="#0288D1" />
-                </linearGradient>
-                <linearGradient id="grG" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stop-color="#66BB6A" />
-                    <stop offset="100%" stop-color="#2E7D32" />
-                </linearGradient>
-                <linearGradient id="crG" x1="50%" y1="0%" x2="50%" y2="100%">
-                    <stop offset="0%" stop-color="#4FC3F7" />
-                    <stop offset="100%" stop-color="#0277BD" />
-                </linearGradient>
-            </defs>
+      <g class="orbit orbit-green">
+        <path class="orbit-path" d="M 130 300 A 120 120 0 0 1 370 300" />
+        <path class="orbit-flow" d="M 130 300 A 120 120 0 0 1 370 300" />
+        <circle class="node n1" cx="130" cy="300" r="3.8" />
+        <circle class="node n2" cx="170" cy="216" r="3.2" />
+        <circle class="node n3" cx="250" cy="180" r="3.6" />
+        <circle class="node n4" cx="330" cy="216" r="3.2" />
+        <circle class="node n5" cx="370" cy="300" r="3.8" />
+      </g>
 
-            <!-- ======== OUTER WHITE ARC ======== -->
-            <path class="o-track" d="M 155,400 A 195,195 0 1 1 345,400" fill="none" stroke="rgba(255,255,255,0.04)"
-                stroke-width="2.5" />
-            <path class="o-glow" d="M 155,400 A 195,195 0 1 1 345,400" fill="none" stroke="rgba(255,255,255,0.06)"
-                stroke-width="10" filter="url(#softG)" />
-            <path class="o-prog" d="M 155,400 A 195,195 0 1 1 345,400" fill="none" stroke="rgba(255,255,255,0.75)"
-                stroke-width="2" stroke-linecap="round" filter="url(#softG)" [attr.stroke-dasharray]="1021"
-                [attr.stroke-dashoffset]="arcOffset" />
+      <g class="orbit orbit-blue">
+        <path class="orbit-path" d="M 355 300 A 105 105 0 0 1 145 300" />
+        <path class="orbit-flow" d="M 355 300 A 105 105 0 0 1 145 300" />
+        <circle class="node b1" cx="355" cy="300" r="3.5" />
+        <circle class="node b2" cx="320" cy="370" r="3" />
+        <circle class="node b3" cx="250" cy="405" r="3.4" />
+        <circle class="node b4" cx="180" cy="370" r="3" />
+        <circle class="node b5" cx="145" cy="300" r="3.5" />
+      </g>
 
-            <!-- ======== BLUE ARC + NODES ======== -->
-            <g class="orb orb-b">
-                <path d="M 140,360 A 150,150 0 1 1 360,360" fill="none" stroke="url(#blG)" stroke-width="1.5"
-                    opacity="0.4" />
-                <circle class="nd nd-b1" cx="140" cy="360" r="4.5" fill="#4FC3F7" filter="url(#ndG)" />
-                <circle class="nd nd-b2" cx="160" cy="180" r="3.5" fill="#29B6F6" filter="url(#ndG)" />
-                <circle class="nd nd-b3" cx="250" cy="110" r="3" fill="#4FC3F7" filter="url(#ndG)" />
-                <circle class="nd nd-b4" cx="345" cy="185" r="4" fill="#29B6F6" filter="url(#ndG)" />
-                <circle class="nd nd-b5" cx="360" cy="360" r="4.5" fill="#0288D1" filter="url(#ndG)" />
-                <circle class="nd nd-b6" cx="310" cy="130" r="3" fill="#4FC3F7" filter="url(#ndG)" />
-            </g>
+      <path
+        class="outer-arc-track"
+        pathLength="1000"
+        d="M 14 404 A 236 236 0 1 1 486 404"
+        [attr.stroke-dashoffset]="arcOffset"
+      />
+      <path
+        class="outer-arc-halo"
+        pathLength="1000"
+        d="M 14 404 A 236 236 0 1 1 486 404"
+        [attr.stroke-dashoffset]="arcOffset"
+      />
+      <path
+        class="outer-arc-energy"
+        pathLength="1000"
+        d="M 14 404 A 236 236 0 1 1 486 404"
+        [attr.stroke-dashoffset]="arcOffset"
+      />
+      <path
+        class="outer-arc-progress"
+        pathLength="1000"
+        d="M 14 404 A 236 236 0 1 1 486 404"
+        [attr.stroke-dashoffset]="arcOffset"
+      />
 
-            <!-- ======== GREEN ARC + NODES ======== -->
-            <g class="orb orb-g">
-                <path d="M 158,350 A 120,120 0 1 1 342,350" fill="none" stroke="url(#grG)" stroke-width="1.5"
-                    opacity="0.35" />
-                <circle class="nd nd-g1" cx="158" cy="350" r="4" fill="#66BB6A" filter="url(#ndG)" />
-                <circle class="nd nd-g2" cx="178" cy="198" r="3" fill="#43A047" filter="url(#ndG)" />
-                <circle class="nd nd-g3" cx="250" cy="138" r="3.5" fill="#66BB6A" filter="url(#ndG)" />
-                <circle class="nd nd-g4" cx="325" cy="203" r="3" fill="#2E7D32" filter="url(#ndG)" />
-                <circle class="nd nd-g5" cx="342" cy="350" r="4" fill="#43A047" filter="url(#ndG)" />
-            </g>
+      <path class="soil-layer" d="M 170 314 Q 250 286 330 314 Q 250 338 170 314 Z" />
+      <path class="soil-highlight" d="M 182 312 Q 250 294 318 312" />
 
-            <!-- ======== CIRCUIT BOWL (lens / mountain shape) ======== -->
-            <g class="bowl">
-                <path class="bowl-bg"
-                    d="M 160,295 Q 205,300 250,302 Q 295,300 340,295 Q 310,340 250,345 Q 190,340 160,295 Z"
-                    fill="rgba(41,182,246,0.05)" stroke="rgba(79,195,247,0.3)" stroke-width="1.5" />
-                <line class="rl rl1" x1="250" y1="305" x2="250" y2="340" stroke="url(#crG)" stroke-width="1.1" />
-                <line class="rl rl2" x1="230" y1="304" x2="224" y2="335" stroke="url(#crG)" stroke-width="0.8" />
-                <line class="rl rl3" x1="270" y1="304" x2="276" y2="336" stroke="url(#crG)" stroke-width="0.8" />
-                <line class="rl rl4" x1="208" y1="302" x2="200" y2="328" stroke="url(#crG)" stroke-width="0.6" />
-                <line class="rl rl5" x1="292" y1="302" x2="300" y2="330" stroke="url(#crG)" stroke-width="0.6" />
-                <line class="rl rl6" x1="186" y1="300" x2="182" y2="318" stroke="url(#crG)" stroke-width="0.5" />
-                <line class="rl rl7" x1="314" y1="300" x2="318" y2="320" stroke="url(#crG)" stroke-width="0.5" />
-                <line class="rl rl8" x1="200" y1="322" x2="300" y2="322" stroke="url(#crG)" stroke-width="0.35"
-                    opacity="0.3" />
-                <line class="rl rl9" x1="212" y1="314" x2="288" y2="314" stroke="url(#crG)" stroke-width="0.3"
-                    opacity="0.25" />
-                <circle class="cn cn1" cx="250" cy="340" r="3" fill="#4FC3F7" />
-                <circle class="cn cn2" cx="224" cy="335" r="2.5" fill="#29B6F6" />
-                <circle class="cn cn3" cx="276" cy="336" r="2.5" fill="#4FC3F7" />
-                <circle class="cn cn4" cx="200" cy="328" r="2" fill="#0288D1" />
-                <circle class="cn cn5" cx="300" cy="330" r="2" fill="#29B6F6" />
-                <circle class="cn cn6" cx="182" cy="318" r="1.8" fill="#0277BD" />
-                <circle class="cn cn7" cx="318" cy="320" r="1.8" fill="#4FC3F7" />
-                <circle class="dp dp1" cx="250" cy="308" r="1.8" fill="#4FC3F7" filter="url(#ndG)" />
-                <circle class="dp dp2" cx="230" cy="307" r="1.5" fill="#29B6F6" filter="url(#ndG)" />
-                <circle class="dp dp3" cx="270" cy="307" r="1.5" fill="#4FC3F7" filter="url(#ndG)" />
-            </g>
+      <g class="root-system">
+        <path class="root-bowl" d="M 170 316 A 80 58 0 0 0 330 316" />
+        <line class="root-line r1" x1="190" y1="317" x2="190" y2="358" />
+        <line class="root-line r2" x1="208" y1="317" x2="208" y2="368" />
+        <line class="root-line r3" x1="226" y1="317" x2="226" y2="378" />
+        <line class="root-line r4" x1="250" y1="317" x2="250" y2="386" />
+        <line class="root-line r5" x1="274" y1="317" x2="274" y2="378" />
+        <line class="root-line r6" x1="292" y1="317" x2="292" y2="368" />
+        <line class="root-line r7" x1="310" y1="317" x2="310" y2="358" />
 
-            <!-- ======== SOIL (wider hill) ======== -->
-            <g class="soil">
-                <ellipse cx="250" cy="295" rx="80" ry="12" fill="url(#slG)" />
-                <ellipse cx="238" cy="293" rx="22" ry="3.5" fill="rgba(255,255,255,0.05)" />
-            </g>
+        <line class="root-link" x1="208" y1="350" x2="250" y2="362" />
+        <line class="root-link" x1="292" y1="350" x2="250" y2="362" />
 
-            <!-- ======== SPROUT (wider, fatter leaves) ======== -->
-            <g class="sprout">
-                <!-- Stem – thick, slight curve -->
-                <path class="stem" d="M 250,293 C 249,276 247,258 248,242 C 249,228 251,216 250,204" stroke="url(#stG)"
-                    stroke-width="4.5" fill="none" stroke-linecap="round" />
+        <circle class="root-node" cx="190" cy="358" r="2.6" />
+        <circle class="root-node" cx="208" cy="368" r="2.6" />
+        <circle class="root-node" cx="226" cy="378" r="2.6" />
+        <circle class="root-node" cx="250" cy="386" r="3.2" />
+        <circle class="root-node" cx="274" cy="378" r="2.6" />
+        <circle class="root-node" cx="292" cy="368" r="2.6" />
+        <circle class="root-node" cx="310" cy="358" r="2.6" />
 
-                <!-- LEFT LEAF – wide, oval, curved outward -->
-                <g class="lf lf-l">
-                    <path d="M 250,215
-                   C 242,206 222,186 204,174
-                   C 190,166 178,168 175,176
-                   C 172,186 182,200 200,210
-                   C 218,218 242,222 250,215 Z" fill="url(#lfA)" />
-                    <path class="vn" d="M 249,215 C 234,204 212,190 182,174" stroke="rgba(255,255,255,0.22)"
-                        stroke-width="0.8" fill="none" />
-                    <path class="vn" d="M 230,204 C 218,196 206,192" stroke="rgba(255,255,255,0.12)" stroke-width="0.5"
-                        fill="none" />
-                    <path class="vn" d="M 214,196 C 202,190 192,188" stroke="rgba(255,255,255,0.1)" stroke-width="0.4"
-                        fill="none" />
-                </g>
+        <circle class="root-pulse p1" cx="250" cy="376" r="2.2" />
+        <circle class="root-pulse p2" cx="226" cy="366" r="2" />
+        <circle class="root-pulse p3" cx="274" cy="366" r="2" />
+      </g>
 
-                <!-- RIGHT LEAF – wide, oval, curved outward -->
-                <g class="lf lf-r">
-                    <path d="M 250,210
-                   C 258,200 278,178 298,166
-                   C 312,158 324,161 326,170
-                   C 328,180 318,196 300,206
-                   C 282,214 258,218 250,210 Z" fill="url(#lfB)" />
-                    <path class="vn" d="M 251,210 C 266,198 290,182 320,167" stroke="rgba(255,255,255,0.22)"
-                        stroke-width="0.8" fill="none" />
-                    <path class="vn" d="M 272,200 C 284,192 296,189" stroke="rgba(255,255,255,0.12)" stroke-width="0.5"
-                        fill="none" />
-                    <path class="vn" d="M 288,194 C 300,188 310,186" stroke="rgba(255,255,255,0.1)" stroke-width="0.4"
-                        fill="none" />
-                </g>
+      <g class="sprout-core">
+        <path class="sprout-stem" d="M 250 314 C 248 286 249 260 250 231" />
+        <path class="leaf-left" d="M 250 249 C 235 233 205 219 186 213 C 202 244 225 258 250 249 Z" />
+        <path class="leaf-right" d="M 250 242 C 269 224 296 211 317 205 C 302 236 276 251 250 242 Z" />
 
-                <!-- SMALL LEAF – lower left, wider -->
-                <g class="lf lf-s">
-                    <path d="M 249,252
-                   C 244,247 232,237 220,232
-                   C 212,228 206,230 205,235
-                   C 204,241 212,248 222,252
-                   C 232,255 246,255 249,252 Z" fill="url(#lfSm)" />
-                    <path class="vn" d="M 248,252 C 238,245 224,237 210,232" stroke="rgba(255,255,255,0.15)"
-                        stroke-width="0.5" fill="none" />
-                </g>
-            </g>
+        <path class="sprout-small-stem" d="M 233 316 C 232 304 233 293 235 282" />
+        <path class="leaf-small" d="M 235 289 C 227 283 216 279 208 278 C 215 289 225 293 235 289 Z" />
+      </g>
+    </svg>
 
+    <div class="brand-wrap">
+      <h1 class="brand-title">
+        <span class="word word-left" data-text="HUERT">HUERT</span>
+        <svg class="brand-leaf-o" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path
+            d="M16.9 8.2C10 9.8 6.8 14.6 5 19.8c4.1.8 8.7-.5 11.6-3.8 2.8-3.2 3.7-7.8 3.8-12.2-1.2 1.9-2.1 3.1-3.5 4.4z"
+          />
+          <path d="M10.2 19.7c1.8-2.9 4.2-5.4 8.3-7.3" />
         </svg>
-
-        <!-- Brand -->
-        <div class="brand">
-            <h1 class="brand-title">
-                <span class="wh">HUERTO</span>
-                <svg class="bl" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
-                    <path
-                        d="M17,8 C8,10 5.9,16.17 3.82,21.34 L5.71,22 L6.66,19.7 C7.14,19.87 7.64,20 8,20 C19,20 22,3 22,3 C21,5 14,5.25 9,6.25 C4,7.25 2,11.5 2,13.5 C2,15.5 3.75,17.25 3.75,17.25 C7,8 17,8 17,8Z"
-                        fill="#4CAF50" />
-                </svg>
-                <span class="wc">CONNECT</span>
-            </h1>
-        </div>
-
-        <!-- Loading -->
-        <div class="load-info">
-            <span class="lpct">{{loadPercent}}<span class="psym">%</span></span>
-            <span class="ltxt">{{loadingText}}</span>
-        </div>
+        <span class="word word-right" data-text="CONNECT">CONNECT</span>
+      </h1>
+      <p class="brand-subtitle">{{ loadingText }} · {{ loadPercent }}%</p>
     </div>
+  </div>
 </div>

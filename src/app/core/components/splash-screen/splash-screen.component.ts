@@ -1,91 +1,114 @@
 import {
-    Component,
-    OnInit,
-    OnDestroy,
-    Output,
-    EventEmitter,
-    ChangeDetectorRef,
-    NgZone
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  EventEmitter,
+  OnDestroy,
+  OnInit,
+  Output
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 @Component({
-    selector: 'app-splash-screen',
-    standalone: true,
-    imports: [CommonModule],
-    templateUrl: './splash-screen.component.html',
-    styleUrls: ['./splash-screen.component.scss']
+  selector: 'app-splash-screen',
+  standalone: true,
+  imports: [CommonModule],
+  templateUrl: './splash-screen.component.html',
+  styleUrls: ['./splash-screen.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class SplashScreenComponent implements OnInit, OnDestroy {
-    @Output() splashComplete = new EventEmitter<void>();
+  @Output() splashComplete = new EventEmitter<void>();
 
-    isHidden = false;
-    isFadingOut = false;
+  isHidden = false;
+  isFadingOut = false;
 
-    loadPercent = 0;
-    loadingText = 'INICIALIZANDO';
-    arcOffset = 1021; // full arc length (hidden)
-    private readonly ARC_TOTAL = 1021;
-    private intervalId: ReturnType<typeof setInterval> | null = null;
+  loadPercent = 0;
+  loadingText = 'AI INIT';
+  arcOffset = 1000;
+  private readonly ARC_TOTAL = 1000;
+  private readonly LOAD_DURATION_MS = 4600;
+  private readonly FADE_START_MS = 5200;
+  private readonly HIDE_MS = 6200;
 
-    constructor(
-        private cdr: ChangeDetectorRef,
-        private ngZone: NgZone
-    ) { }
+  private rafId: number | null = null;
+  private loadStartTs = 0;
+  private fadeTimeout: ReturnType<typeof setTimeout> | null = null;
+  private hideTimeout: ReturnType<typeof setTimeout> | null = null;
 
-    ngOnInit(): void {
-        // Smooth counter synced with arc (4.5s fill)
-        this.ngZone.run(() => {
-            this.intervalId = setInterval(() => {
-                if (this.loadPercent < 100) {
-                    if (this.loadPercent < 25) {
-                        this.loadPercent += 1;
-                    } else if (this.loadPercent < 55) {
-                        this.loadPercent += 2;
-                    } else if (this.loadPercent < 80) {
-                        this.loadPercent += 3;
-                    } else {
-                        this.loadPercent += 2;
-                    }
-                    this.loadPercent = Math.min(100, this.loadPercent);
-                    this.arcOffset = this.ARC_TOTAL * (1 - this.loadPercent / 100);
+  constructor(private readonly cdr: ChangeDetectorRef) {}
 
-                    if (this.loadPercent >= 20 && this.loadPercent < 23) {
-                        this.loadingText = 'CARGANDO MÓDULOS';
-                    } else if (this.loadPercent >= 50 && this.loadPercent < 53) {
-                        this.loadingText = 'CONECTANDO DATOS';
-                    } else if (this.loadPercent >= 80 && this.loadPercent < 83) {
-                        this.loadingText = 'CASI LISTO';
-                    } else if (this.loadPercent >= 100) {
-                        this.loadingText = 'LISTO';
-                        if (this.intervalId) {
-                            clearInterval(this.intervalId);
-                            this.intervalId = null;
-                        }
-                    }
-                    this.cdr.detectChanges();
-                }
-            }, 52);
-        });
+  ngOnInit(): void {
+    this.rafId = requestAnimationFrame((ts) => this.tick(ts));
 
-        // Cinematic fade-out
-        setTimeout(() => {
-            this.isFadingOut = true;
-            this.cdr.detectChanges();
-        }, 5200);
+    this.fadeTimeout = setTimeout(() => {
+      this.isFadingOut = true;
+      this.cdr.markForCheck();
+    }, this.FADE_START_MS);
 
-        // Remove from DOM
-        setTimeout(() => {
-            this.isHidden = true;
-            this.splashComplete.emit();
-            this.cdr.detectChanges();
-        }, 7000);
+    this.hideTimeout = setTimeout(() => {
+      this.isHidden = true;
+      this.splashComplete.emit();
+      this.cdr.markForCheck();
+    }, this.HIDE_MS);
+  }
+
+  ngOnDestroy(): void {
+    if (this.rafId !== null) {
+      cancelAnimationFrame(this.rafId);
+      this.rafId = null;
     }
 
-    ngOnDestroy(): void {
-        if (this.intervalId) {
-            clearInterval(this.intervalId);
-            this.intervalId = null;
-        }
+    if (this.fadeTimeout) {
+      clearTimeout(this.fadeTimeout);
+      this.fadeTimeout = null;
     }
+
+    if (this.hideTimeout) {
+      clearTimeout(this.hideTimeout);
+      this.hideTimeout = null;
+    }
+  }
+
+  private tick(timestamp: number): void {
+    if (!this.loadStartTs) {
+      this.loadStartTs = timestamp;
+    }
+
+    const elapsed = timestamp - this.loadStartTs;
+    const rawProgress = Math.min(elapsed / this.LOAD_DURATION_MS, 1);
+    const eased = this.easeInOutCubic(rawProgress);
+
+    this.loadPercent = Math.round(eased * 100);
+    this.arcOffset = this.ARC_TOTAL * (1 - eased);
+    this.loadingText = this.resolveLoadingText(this.loadPercent);
+    this.cdr.markForCheck();
+
+    if (rawProgress < 1) {
+      this.rafId = requestAnimationFrame((ts) => this.tick(ts));
+    }
+  }
+
+  private resolveLoadingText(progress: number): string {
+    if (progress < 24) {
+      return 'AI INIT';
+    }
+    if (progress < 48) {
+      return 'SYNC RINGS';
+    }
+    if (progress < 72) {
+      return 'NURTURING CORE';
+    }
+    if (progress < 100) {
+      return 'FINALIZING';
+    }
+    return 'READY';
+  }
+
+  private easeInOutCubic(value: number): number {
+    if (value < 0.5) {
+      return 4 * value * value * value;
+    }
+    return 1 - Math.pow(-2 * value + 2, 3) / 2;
+  }
 }
