@@ -7,6 +7,7 @@ import { ProcessComponent } from '../../components/process/process.component';
 import { TestimonialsComponent } from '../../components/testimonials/testimonials.component';
 import { FaqComponent } from '../../components/faq/faq.component';
 import { ContactComponent } from '../../components/contact/contact.component';
+import { ScrollRevealDirective } from '../../../../shared/directives/scroll-reveal.directive';
 
 @Component({
     selector: 'app-home',
@@ -19,11 +20,11 @@ import { ContactComponent } from '../../components/contact/contact.component';
         ProcessComponent,
         TestimonialsComponent,
         FaqComponent,
-        ContactComponent
+        ContactComponent,
+        ScrollRevealDirective
     ],
     templateUrl: './home.component.html',
     styleUrls: ['./home.component.scss']
 })
 export class HomeComponent {
 }
-

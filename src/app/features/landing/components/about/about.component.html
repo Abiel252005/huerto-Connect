@@ -6,8 +6,7 @@
                 [style.--leaf-duration]="leaf.duration + 's'" [style.--leaf-drift-x]="leaf.driftX + 'px'"
                 [style.--leaf-rotation]="leaf.rotate + 'deg'">
                 <svg viewBox="0 0 24 24" aria-hidden="true">
-                    <path
-                        d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z" />
+                    <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z" />
                     <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12" />
                 </svg>
             </span>
@@ -15,20 +14,20 @@
     </div>
 
     <div class="container">
-        <div class="section-header text-center">
+        <div class="section-header text-center" appScrollReveal>
             <span class="badge">Nuestra Historia</span>
             <h2>Quiénes Somos</h2>
             <p class="section-subtitle">Pioneros en la transformación digital del sector agrícola en México</p>
         </div>
 
         <div class="about-content">
-            <div class="about-image">
+            <div class="about-image" appScrollReveal revealDirection="left" [revealDelay]="200">
                 <div class="img-wrapper">
                     <img *ngIf="aboutImageLoaded" [src]="aboutImage" alt="Historia de Huerto Connect" loading="lazy"
                         (error)="onAboutImageError()">
                 </div>
             </div>
-            <div class="about-text">
+            <div class="about-text" appScrollReveal revealDirection="right" [revealDelay]="300">
                 <h3>De la Semilla a la Innovación</h3>
                 <p>Nacimos en Veracruz, tierra fértil con tradición agrícola milenaria. Entendemos que cada planta tiene
                     su propio lenguaje, y desarrollamos la tecnología para escucharlo.</p>

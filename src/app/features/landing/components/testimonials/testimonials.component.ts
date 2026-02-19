@@ -2,11 +2,12 @@ import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DataService, Testimonial } from '../../../../core/services/data.service';
 import { createFloatingLeaves, FloatingLeaf } from '../../../../shared/ui-effects/parallax-leaves.util';
+import { ScrollRevealDirective } from '../../../../shared/directives/scroll-reveal.directive';
 
 @Component({
     selector: 'app-testimonials',
     standalone: true,
-    imports: [CommonModule],
+    imports: [CommonModule, ScrollRevealDirective],
     templateUrl: './testimonials.component.html',
     styleUrls: ['./testimonials.component.scss']
 })

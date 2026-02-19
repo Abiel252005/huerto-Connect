@@ -1,10 +1,11 @@
 import { Component, ElementRef, ViewChild, AfterViewInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { ScrollRevealDirective } from '../../../../shared/directives/scroll-reveal.directive';
 
 @Component({
     selector: 'app-features',
     standalone: true,
-    imports: [CommonModule],
+    imports: [CommonModule, ScrollRevealDirective],
     templateUrl: './features.component.html',
     styleUrls: ['./features.component.scss']
 })

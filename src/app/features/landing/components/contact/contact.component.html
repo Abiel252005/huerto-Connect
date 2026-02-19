@@ -1,7 +1,7 @@
 <section class="contact-section" id="contact">
 
     <!-- CTA Banner Section -->
-    <div class="cta-banner">
+    <div class="cta-banner" appScrollReveal>
         <div class="container">
             <span class="badge-pill">Únete a la Revolución</span>
             <h2>Tu Cosecha del <span class="highlight">Futuro</span><br>Comienza Hoy</h2>
@@ -55,14 +55,14 @@
 
     <!-- Contact Form Section -->
     <div class="form-section-container">
-        <div class="section-title">
+        <div class="section-title" appScrollReveal>
             <h3>Conversemos sobre tu Proyecto</h3>
             <p>Estamos listos para ayudarte a llevar tu huerto al siguiente nivel</p>
         </div>
 
         <div class="contact-layout">
             <!-- Left Info Side -->
-            <div class="info-side">
+            <div class="info-side" appScrollReveal revealDirection="left" [revealDelay]="200">
                 <div class="info-group">
                     <div class="icon-wrapper">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -159,7 +159,7 @@
             </div>
 
             <!-- Right Form Side -->
-            <div class="form-card">
+            <div class="form-card" appScrollReveal revealDirection="right" [revealDelay]="300">
                 <div class="success-message" *ngIf="isSuccess">
                     <div class="success-icon">
                         <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor"
