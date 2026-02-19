@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DataService, FAQ } from '../../../../core/services/data.service';
+import { createFloatingLeaves, FloatingLeaf } from '../../../../shared/ui-effects/parallax-leaves.util';
 
 @Component({
     selector: 'app-faq',
@@ -10,6 +11,7 @@ import { DataService, FAQ } from '../../../../core/services/data.service';
     styleUrls: ['./faq.component.scss']
 })
 export class FaqComponent implements OnInit {
+    readonly leaves: FloatingLeaf[] = createFloatingLeaves(14, 9109);
     faqs: FAQ[] = [];
 
     constructor(private dataService: DataService) { }

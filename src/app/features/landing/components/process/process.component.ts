@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { createFloatingLeaves, FloatingLeaf } from '../../../../shared/ui-effects/parallax-leaves.util';
 
 @Component({
     selector: 'app-process',
@@ -9,6 +10,8 @@ import { CommonModule } from '@angular/common';
     styleUrls: ['./process.component.scss']
 })
 export class ProcessComponent {
+    readonly leaves: FloatingLeaf[] = createFloatingLeaves(14, 5203);
+
     steps = [
         {
             number: '01',

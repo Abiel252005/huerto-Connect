@@ -119,3 +119,84 @@ body {
 section {
   padding: 80px 0;
 }
+
+/* Falling leaves (without parallax) */
+.leaf-fall-section {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
+
+.leaf-fall-section .background-effects,
+.leaf-fall-section .bg-decoration {
+  z-index: 0;
+}
+
+.leaf-fall-section > .container {
+  position: relative;
+  z-index: 2;
+}
+
+.leaf-atmosphere {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  overflow: hidden;
+}
+
+.leaf-swarm {
+  position: absolute;
+  inset: -14% 0 0;
+}
+
+.floating-leaf {
+  position: absolute;
+  color: rgb(0, 168, 118);
+  transform: translate(-50%, -50%) rotate(var(--leaf-rotation, 0deg));
+  animation:
+    sectionLeafRain calc(var(--leaf-duration, 12s) * 1) linear var(--leaf-delay, 0s) infinite,
+    sectionLeafSway calc(var(--leaf-duration, 12s) * 0.58) ease-in-out var(--leaf-delay, 0s) infinite;
+  will-change: transform, opacity;
+}
+
+.floating-leaf svg {
+  display: block;
+  width: 1em;
+  height: 1em;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 0 5px rgba(0, 168, 126, 0.35));
+}
+
+@keyframes sectionLeafRain {
+  0% {
+    transform:
+      translate(-50%, calc(-50% - 12vh))
+      rotate(var(--leaf-rotation, 0deg));
+  }
+  100% {
+    transform:
+      translate(calc(-50% + (var(--leaf-drift-x, 0px) * 0.4)), calc(-50% + 116vh))
+      rotate(calc(var(--leaf-rotation, 0deg) + 26deg));
+  }
+}
+
+@keyframes sectionLeafSway {
+  0%,
+  100% {
+    margin-left: -2px;
+  }
+  50% {
+    margin-left: 3px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .floating-leaf {
+    animation: none;
+  }
+}
