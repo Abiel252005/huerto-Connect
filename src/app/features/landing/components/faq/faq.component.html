@@ -1,24 +1,8 @@
-<section class="faq-section parallax-leaf-section" id="faq" (pointermove)="onParallaxMove($event)"
-    (pointerleave)="onParallaxLeave()" [style.--parallax-x.px]="parallaxX" [style.--parallax-y.px]="parallaxY">
+<section class="faq-section" id="faq">
     <!-- Background decoration -->
     <div class="bg-decoration">
         <div class="glow-orb orb-1"></div>
         <div class="glow-orb orb-2"></div>
-    </div>
-
-    <div class="leaf-atmosphere" aria-hidden="true">
-        <div class="leaf-swarm">
-            <span class="floating-leaf" *ngFor="let leaf of leaves" [style.left.%]="leaf.x" [style.top.%]="leaf.y"
-                [style.fontSize.px]="leaf.size" [style.opacity]="leaf.opacity" [style.--leaf-delay]="leaf.delay + 's'"
-                [style.--leaf-duration]="leaf.duration + 's'" [style.--leaf-drift-x]="leaf.driftX + 'px'"
-                [style.--leaf-drift-y]="leaf.driftY + 'px'" [style.--leaf-rotation]="leaf.rotate + 'deg'">
-                <svg viewBox="0 0 24 24" aria-hidden="true">
-                    <path
-                        d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z" />
-                    <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12" />
-                </svg>
-            </span>
-        </div>
     </div>
 
     <div class="container">

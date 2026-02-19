@@ -1,7 +1,6 @@
 import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DataService, Testimonial } from '../../../../core/services/data.service';
-import { calculateParallaxOffset, createFloatingLeaves, FloatingLeaf } from '../../../../shared/ui-effects/parallax-leaves.util';
 
 @Component({
     selector: 'app-testimonials',
@@ -11,9 +10,6 @@ import { calculateParallaxOffset, createFloatingLeaves, FloatingLeaf } from '../
     styleUrls: ['./testimonials.component.scss']
 })
 export class TestimonialsComponent implements OnInit, OnDestroy {
-    readonly leaves: FloatingLeaf[] = createFloatingLeaves(12, 7307);
-    parallaxX = 0;
-    parallaxY = 0;
     testimonials: Testimonial[] = [];
     currentIndex = 0;
     private intervalId: ReturnType<typeof setInterval> | null = null;
@@ -68,16 +64,5 @@ export class TestimonialsComponent implements OnInit, OnDestroy {
         this.stopAutoplay();
         this.currentIndex = index;
         this.startAutoplay();
-    }
-
-    onParallaxMove(event: PointerEvent): void {
-        const offset = calculateParallaxOffset(event, 13);
-        this.parallaxX = offset.x;
-        this.parallaxY = offset.y;
-    }
-
-    onParallaxLeave(): void {
-        this.parallaxX = 0;
-        this.parallaxY = 0;
     }
 }

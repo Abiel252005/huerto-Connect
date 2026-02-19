@@ -25,6 +25,5 @@ import { ContactComponent } from '../../components/contact/contact.component';
     styleUrls: ['./home.component.scss']
 })
 export class HomeComponent {
-
 }
 
