@@ -4,13 +4,8 @@
     <small>Revision de imagenes, confianza y feedback al modelo</small>
   </header>
 
-  <app-selected-action-bar
-    [title]="'Deteccion seleccionada'"
-    [selected]="selectedDeteccion"
-    [actions]="actions"
-    [summaryTemplate]="deteccionSummary"
-    (clearSelection)="clearSelection()"
-  ></app-selected-action-bar>
+  <app-selected-action-bar [title]="'Deteccion seleccionada'" [selected]="selectedDeteccion" [actions]="actions"
+    [summaryTemplate]="deteccionSummary" (clearSelection)="clearSelection()"></app-selected-action-bar>
 
   <ng-template #deteccionSummary let-deteccion>
     <div class="summary">
@@ -22,12 +17,16 @@
     </div>
   </ng-template>
 
-  <app-admin-data-table
-    [rows]="detecciones"
-    [columns]="columns"
-    [selected]="selectedDeteccion"
-    [rowIdentity]="rowIdentity"
-    [emptyMessage]="'No hay detecciones disponibles.'"
-    (selectedChange)="onSelectedChange($event)"
-  ></app-admin-data-table>
+  <app-admin-data-table [rows]="detecciones" [columns]="columns" [selected]="selectedDeteccion"
+    [rowIdentity]="rowIdentity" [emptyMessage]="'No hay detecciones disponibles.'"
+    (selectedChange)="onSelectedChange($event)"></app-admin-data-table>
 </section>
+
+<!-- Edit Modal -->
+<app-edit-modal [visible]="editVisible" [title]="'Editar detección'" [fields]="editFields" [data]="editData"
+  (save)="onEditSave($event)" (cancel)="onEditCancel()"></app-edit-modal>
+
+<!-- Confirm Dialog -->
+<app-confirm-dialog [visible]="confirmVisible" [title]="confirmTitle" [message]="confirmMessage"
+  [variant]="confirmVariant" [icon]="confirmIcon" [confirmLabel]="confirmLabel" (confirm)="onConfirm()"
+  (cancel)="onCancelConfirm()"></app-confirm-dialog>

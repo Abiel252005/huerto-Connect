@@ -4,13 +4,8 @@
     <small>Gestion de cuentas, estado y actividad</small>
   </header>
 
-  <app-selected-action-bar
-    [title]="'Usuario seleccionado'"
-    [selected]="selectedUsuario"
-    [actions]="actions"
-    [summaryTemplate]="usuarioSummary"
-    (clearSelection)="clearSelection()"
-  ></app-selected-action-bar>
+  <app-selected-action-bar [title]="'Usuario seleccionado'" [selected]="selectedUsuario" [actions]="actions"
+    [summaryTemplate]="usuarioSummary" (clearSelection)="clearSelection()"></app-selected-action-bar>
 
   <ng-template #usuarioSummary let-usuario>
     <p>
@@ -18,20 +13,19 @@
     </p>
   </ng-template>
 
-  <app-filters-bar
-    [search]="search"
-    [fields]="fields"
-    searchPlaceholder="Buscar por nombre o correo"
-    (searchChange)="onSearch($event)"
-    (fieldsChange)="onFieldsChange($event)"
-  ></app-filters-bar>
+  <app-filters-bar [search]="search" [fields]="fields" searchPlaceholder="Buscar por nombre o correo"
+    (searchChange)="onSearch($event)" (fieldsChange)="onFieldsChange($event)"></app-filters-bar>
 
-  <app-admin-data-table
-    [rows]="usuarios"
-    [columns]="columns"
-    [selected]="selectedUsuario"
-    [rowIdentity]="rowIdentity"
+  <app-admin-data-table [rows]="usuarios" [columns]="columns" [selected]="selectedUsuario" [rowIdentity]="rowIdentity"
     [emptyMessage]="'No hay usuarios para este filtro.'"
-    (selectedChange)="onSelectedChange($event)"
-  ></app-admin-data-table>
+    (selectedChange)="onSelectedChange($event)"></app-admin-data-table>
 </section>
+
+<!-- Edit Modal -->
+<app-edit-modal [visible]="editVisible" [title]="'Editar usuario'" [fields]="editFields" [data]="editData"
+  (save)="onEditSave($event)" (cancel)="onEditCancel()"></app-edit-modal>
+
+<!-- Confirm Delete Dialog -->
+<app-confirm-dialog [visible]="confirmVisible" [title]="confirmTitle" [message]="confirmMessage" [variant]="'danger'"
+  [icon]="'trash-outline'" [confirmLabel]="'Eliminar'" (confirm)="onConfirmDelete()"
+  (cancel)="onCancelDelete()"></app-confirm-dialog>
