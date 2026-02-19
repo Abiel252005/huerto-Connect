@@ -42,9 +42,9 @@ export class SplashScreenComponent implements OnInit, OnDestroy {
   smallStemProgress = 0;
 
   private readonly ARC_TOTAL = 1000;
-  private readonly LOAD_DURATION_MS = 4800;
-  private readonly FADE_START_MS = 5400;
-  private readonly HIDE_MS = 6400;
+  private readonly LOAD_DURATION_MS = 3800;
+  private readonly FADE_START_MS = 4200;
+  private readonly HIDE_MS = 5000;
 
   private rafId: number | null = null;
   private loadStartTs = 0;
