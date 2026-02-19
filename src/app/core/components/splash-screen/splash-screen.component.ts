@@ -24,19 +24,34 @@ export class SplashScreenComponent implements OnInit, OnDestroy {
   isFadingOut = false;
 
   loadPercent = 0;
-  loadingText = 'AI INIT';
+  loadingText = 'INITIALIZING';
   arcOffset = 1000;
+
+  // Phase flags driven by percentage — everything starts from 0%
+  phaseRoots = true;      // 0% — roots visible immediately
+  phaseOrbits = true;     // 0% — orbits active immediately
+  phaseStem = true;       // 0% — stem starts growing
+  phaseLeaves = false;    // 50% — leaves unfold
+  phaseAlive = false;     // 85% — idle breathing
+  phaseReady = false;     // 100% — ready
+
+  // Continuous progress values (0 to 1)
+  stemProgress = 0;
+  leafOpacity = 0;
+  rootGlow = 0;
+  smallStemProgress = 0;
+
   private readonly ARC_TOTAL = 1000;
-  private readonly LOAD_DURATION_MS = 4600;
-  private readonly FADE_START_MS = 5200;
-  private readonly HIDE_MS = 6200;
+  private readonly LOAD_DURATION_MS = 3800;
+  private readonly FADE_START_MS = 4200;
+  private readonly HIDE_MS = 5000;
 
   private rafId: number | null = null;
   private loadStartTs = 0;
   private fadeTimeout: ReturnType<typeof setTimeout> | null = null;
   private hideTimeout: ReturnType<typeof setTimeout> | null = null;
 
-  constructor(private readonly cdr: ChangeDetectorRef) {}
+  constructor(private readonly cdr: ChangeDetectorRef) { }
 
   ngOnInit(): void {
     this.rafId = requestAnimationFrame((ts) => this.tick(ts));
@@ -78,10 +93,45 @@ export class SplashScreenComponent implements OnInit, OnDestroy {
     const elapsed = timestamp - this.loadStartTs;
     const rawProgress = Math.min(elapsed / this.LOAD_DURATION_MS, 1);
     const eased = this.easeInOutCubic(rawProgress);
+    const percent = Math.round(eased * 100);
 
-    this.loadPercent = Math.round(eased * 100);
+    this.loadPercent = percent;
     this.arcOffset = this.ARC_TOTAL * (1 - eased);
-    this.loadingText = this.resolveLoadingText(this.loadPercent);
+    this.loadingText = this.resolveLoadingText(percent);
+
+    // Root glow: 0% → 25% (fade in from start)
+    if (percent <= 25) {
+      this.rootGlow = percent / 25;
+    } else {
+      this.rootGlow = 1;
+    }
+
+    // Stem growth: 0% → 55% (grows from the very start)
+    if (percent <= 55) {
+      this.stemProgress = percent / 55;
+    } else {
+      this.stemProgress = 1;
+    }
+
+    // Leaves: 50% → 75%
+    this.phaseLeaves = percent >= 50;
+    if (percent >= 50 && percent <= 75) {
+      this.leafOpacity = (percent - 50) / 25;
+    } else if (percent > 75) {
+      this.leafOpacity = 1;
+    }
+
+    // Small stem: 65% → 80%
+    if (percent >= 65 && percent <= 80) {
+      this.smallStemProgress = (percent - 65) / 15;
+    } else if (percent > 80) {
+      this.smallStemProgress = 1;
+    }
+
+    // Alive phase (idle breathing): 85%+
+    this.phaseAlive = percent >= 85;
+    this.phaseReady = percent >= 100;
+
     this.cdr.markForCheck();
 
     if (rawProgress < 1) {
@@ -89,20 +139,36 @@ export class SplashScreenComponent implements OnInit, OnDestroy {
     }
   }
 
+  // Stem dashoffset: 126 = hidden, 0 = fully drawn
+  get stemDashOffset(): number {
+    return 126 * (1 - this.stemProgress);
+  }
+
+  // Small stem dashoffset: 44 = hidden, 0 = fully drawn
+  get smallStemDashOffset(): number {
+    return 44 * (1 - this.smallStemProgress);
+  }
+
   private resolveLoadingText(progress: number): string {
-    if (progress < 24) {
-      return 'AI INIT';
+    if (progress < 15) {
+      return 'INITIALIZING';
     }
-    if (progress < 48) {
-      return 'SYNC RINGS';
+    if (progress < 25) {
+      return 'SCANNING ROOTS';
     }
-    if (progress < 72) {
-      return 'NURTURING CORE';
+    if (progress < 40) {
+      return 'SYNCING ORBITS';
+    }
+    if (progress < 60) {
+      return 'GROWING CORE';
+    }
+    if (progress < 80) {
+      return 'NURTURING LIFE';
     }
     if (progress < 100) {
       return 'FINALIZING';
     }
-    return 'READY';
+    return 'SYSTEM READY';
   }
 
   private easeInOutCubic(value: number): number {
