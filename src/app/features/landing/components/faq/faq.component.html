@@ -1,34 +1,72 @@
 <section class="faq-section" id="faq">
+    <!-- Background decoration -->
+    <div class="bg-decoration">
+        <div class="glow-orb orb-1"></div>
+        <div class="glow-orb orb-2"></div>
+    </div>
+
     <div class="container">
-        <div class="section-header text-center">
-            <span class="badge">Preguntas Frecuentes</span>
-            <h2>¿Tienes Dudas?</h2>
-            <p class="section-subtitle">Respuestas a las preguntas más comunes</p>
+        <div class="section-header">
+            <span class="badge">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10" />
+                    <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
+                    <line x1="12" y1="17" x2="12.01" y2="17" />
+                </svg>
+                FAQ
+            </span>
+            <h2>Preguntas Frecuentes</h2>
+            <p class="section-subtitle">Todo lo que necesitas saber sobre Huerto Connect</p>
         </div>
 
-        <div class="faq-container">
-            <div class="faq-item" *ngFor="let item of faqs; let i = index" [class.active]="item.open"
-                (click)="toggle(i)">
-                <div class="faq-header">
-                    <h3>{{ item.question }}</h3>
-                    <span class="toggle-icon">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="chevron">
-                            <polyline points="6 9 12 15 18 9"></polyline>
-                        </svg>
-                    </span>
-                </div>
-                <div class="faq-body">
-                    <div class="content-wrapper">
-                        <p>{{ item.answer }}</p>
+        <div class="faq-wrapper">
+            <div class="faq-container">
+                <div class="faq-item" *ngFor="let item of faqs; let i = index" [class.active]="item.open"
+                    [attr.data-index]="i">
+
+                    <button class="faq-header" (click)="toggle(i)">
+                        <div class="question-content">
+                            <span class="question-number">{{ (i + 1).toString().padStart(2, '0') }}</span>
+                            <h3>{{ item.question }}</h3>
+                        </div>
+                        <span class="toggle-icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2.5">
+                                <line x1="12" y1="5" x2="12" y2="19" class="vertical" />
+                                <line x1="5" y1="12" x2="19" y2="12" />
+                            </svg>
+                        </span>
+                    </button>
+
+                    <div class="faq-body">
+                        <div class="answer-content">
+                            <p>{{ item.answer }}</p>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <div class="faq-footer">
-            <p>¿No encuentras tu respuesta?</p>
-            <a href="#contact" class="contact-link">Contáctanos directamente</a>
+            <!-- Side decoration -->
+            <div class="side-decoration">
+                <div class="deco-card">
+                    <div class="deco-icon">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="1.5">
+                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                        </svg>
+                    </div>
+                    <h4>¿Más preguntas?</h4>
+                    <p>Estamos aquí para ayudarte</p>
+                    <a href="#contact" class="contact-btn">
+                        Contáctanos
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <line x1="5" y1="12" x2="19" y2="12" />
+                            <polyline points="12 5 19 12 12 19" />
+                        </svg>
+                    </a>
+                </div>
+            </div>
         </div>
     </div>
 </section>
