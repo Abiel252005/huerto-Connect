@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DataService, FAQ } from '../../../../core/services/data.service';
+import { calculateParallaxOffset, createFloatingLeaves, FloatingLeaf } from '../../../../shared/ui-effects/parallax-leaves.util';
 
 @Component({
     selector: 'app-faq',
@@ -10,6 +11,9 @@ import { DataService, FAQ } from '../../../../core/services/data.service';
     styleUrls: ['./faq.component.scss']
 })
 export class FaqComponent implements OnInit {
+    readonly leaves: FloatingLeaf[] = createFloatingLeaves(14, 9109);
+    parallaxX = 0;
+    parallaxY = 0;
     faqs: FAQ[] = [];
 
     constructor(private dataService: DataService) { }
@@ -26,5 +30,16 @@ export class FaqComponent implements OnInit {
             if (i !== index) faq.open = false;
         });
         this.faqs[index].open = !this.faqs[index].open;
+    }
+
+    onParallaxMove(event: PointerEvent): void {
+        const offset = calculateParallaxOffset(event, 14);
+        this.parallaxX = offset.x;
+        this.parallaxY = offset.y;
+    }
+
+    onParallaxLeave(): void {
+        this.parallaxX = 0;
+        this.parallaxY = 0;
     }
 }

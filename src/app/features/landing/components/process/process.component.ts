@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { calculateParallaxOffset, createFloatingLeaves, FloatingLeaf } from '../../../../shared/ui-effects/parallax-leaves.util';
 
 @Component({
     selector: 'app-process',
@@ -9,6 +10,10 @@ import { CommonModule } from '@angular/common';
     styleUrls: ['./process.component.scss']
 })
 export class ProcessComponent {
+    readonly leaves: FloatingLeaf[] = createFloatingLeaves(14, 5203);
+    parallaxX = 0;
+    parallaxY = 0;
+
     steps = [
         {
             number: '01',
@@ -44,4 +49,15 @@ export class ProcessComponent {
         { value: 'Diario', label: 'Planificador', desc: 'Actividades diarias', icon: 'clock', color: 'purple' },
         { value: 'Red', label: 'Agricultores', desc: 'Aprende de otros', icon: 'users', color: 'cyan' }
     ];
+
+    onParallaxMove(event: PointerEvent): void {
+        const offset = calculateParallaxOffset(event, 17);
+        this.parallaxX = offset.x;
+        this.parallaxY = offset.y;
+    }
+
+    onParallaxLeave(): void {
+        this.parallaxX = 0;
+        this.parallaxY = 0;
+    }
 }
