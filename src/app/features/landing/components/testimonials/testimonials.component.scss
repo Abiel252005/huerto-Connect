@@ -1,167 +1,342 @@
+@use 'sass:color';
+
+// Project Colors (matching the rest of the site)
+$color-primary: #00d4a1;
+$color-primary-dark: #00a87e;
+$color-bg-light: #f8faf9;
+$color-text-dark: #1a1a1a;
+$color-text-grey: #666666;
+$glow-green: rgba(0, 212, 161, 0.3);
+
 .testimonials-section {
-    padding: 100px 0;
-    background-color: white;
-    /* Clean background per mockup */
+    padding: clamp(50px, 6vh, 80px) 0;
+    background: linear-gradient(180deg, white 0%, $color-bg-light 100%);
+    overflow: hidden;
 }
 
 .section-header {
-    margin-bottom: 60px;
     text-align: center;
+    margin-bottom: 50px;
 
     .badge {
-        background-color: #FFF8E1;
-        /* Light Yellow */
-        color: #FBC02D;
-        /* Deep Yellow/Orange text */
-        padding: 8px 18px;
-        border-radius: 20px;
-        margin-bottom: 20px;
         display: inline-block;
-        font-size: 0.8rem;
-        font-weight: 700;
+        background: rgba($color-primary, 0.1);
+        color: $color-primary-dark;
+        padding: 8px 20px;
+        border-radius: 50px;
+        font-size: 0.85rem;
+        font-weight: 600;
         text-transform: uppercase;
-        letter-spacing: 1px;
+        letter-spacing: 1.5px;
+        margin-bottom: 16px;
+        border: 1px solid rgba($color-primary, 0.2);
     }
 
     h2 {
-        font-size: 2.5rem;
-        color: var(--color-secondary);
-        margin-bottom: 15px;
+        font-size: clamp(1.8rem, 4vw, 2.4rem);
+        color: $color-text-dark;
+        margin-bottom: 12px;
+        font-weight: 700;
     }
 
     .section-subtitle {
-        color: #777;
-        font-size: 1.1rem;
+        color: $color-text-grey;
+        font-size: 1rem;
+        max-width: 500px;
+        margin: 0 auto;
     }
 }
 
-.testimonials-grid {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 30px;
+// ============ CAROUSEL ============
+.carousel-container {
+    position: relative;
+    max-width: 700px;
+    margin: 0 auto;
+    padding: 0 50px;
 
-    @media (min-width: 768px) {
-        grid-template-columns: repeat(3, 1fr);
+    @media (max-width: 576px) {
+        padding: 0 20px;
     }
 }
 
+.carousel-track {
+    position: relative;
+    height: 380px;
+    perspective: 1000px;
+
+    @media (max-width: 576px) {
+        height: 420px;
+    }
+}
+
+// ============ TESTIMONIAL CARD ============
 .testimonial-card {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.5s ease, visibility 0.5s ease;
+    pointer-events: none;
+
+    &.active {
+        opacity: 1;
+        visibility: visible;
+        pointer-events: auto;
+        z-index: 2;
+    }
+}
+
+.card-inner {
     background: white;
-    border-radius: 20px;
-    overflow: hidden;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
-    border: 1px solid rgba(0, 0, 0, 0.03);
-    display: flex;
-    flex-direction: column;
-    transition: transform 0.3s ease;
+    border-radius: 24px;
+    padding: 40px 35px;
+    text-align: center;
+    position: relative;
+
+    // Green gradient border
+    border: 2px solid transparent;
+    background-image:
+        linear-gradient(white, white),
+        linear-gradient(135deg, $color-primary 0%, $color-primary-dark 50%, rgba($color-primary, 0.3) 100%);
+    background-origin: border-box;
+    background-clip: padding-box, border-box;
+
+    // Enhanced shadow with green tint
+    box-shadow:
+        0 4px 20px rgba(0, 0, 0, 0.06),
+        0 8px 40px rgba($color-primary, 0.08),
+        0 0 0 1px rgba($color-primary, 0.05);
+
+    // Subtle glow on hover
+    transition: all 0.3s ease;
 
     &:hover {
-        transform: translateY(-5px);
+        box-shadow:
+            0 8px 30px rgba(0, 0, 0, 0.08),
+            0 12px 50px rgba($color-primary, 0.15),
+            0 0 0 1px rgba($color-primary, 0.1);
+        transform: translateY(-2px);
     }
 
-    .card-cover {
-        height: 180px;
-        background-size: cover;
-        background-position: center;
-        position: relative;
-
-        .quote-icon {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            font-size: 3rem;
-            line-height: 1;
-            color: rgba(255, 255, 255, 0.8);
-            font-family: serif;
-        }
-
-        /* Subtle overlay gradient at bottom if needed */
-        &::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 50%;
-            background: linear-gradient(transparent, rgba(0, 0, 0, 0.4));
-            opacity: 0.6;
-        }
+    @media (max-width: 576px) {
+        padding: 30px 24px;
+        border-radius: 20px;
     }
+}
 
-    .card-content {
-        padding: 30px;
-        display: flex;
-        flex-direction: column;
-        flex: 1;
+.quote-icon {
+    width: 50px;
+    height: 50px;
+    margin: 0 auto 20px;
+    background: linear-gradient(135deg, rgba($color-primary, 0.15) 0%, rgba($color-primary-dark, 0.1) 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    svg {
+        width: 24px;
+        height: 24px;
+        color: $color-primary;
     }
+}
 
-    .stars {
-        color: #FF6B00;
-        /* Deep Orange per mockup */
-        font-size: 1.2rem;
-        margin-bottom: 15px;
-        display: flex;
-        gap: 2px;
-    }
+.quote {
+    color: $color-text-dark;
+    font-size: 1.1rem;
+    line-height: 1.7;
+    margin: 0 0 25px 0;
+    font-weight: 400;
 
-    .quote {
-        color: #555;
+    @media (max-width: 576px) {
         font-size: 1rem;
-        line-height: 1.6;
-        font-style: italic;
-        /* Looks regular in mockup actually, but italic is standard for quotes. Mockup is regular font. */
-        font-style: normal;
-        margin-bottom: 30px;
-        flex: 1;
-        /* Pushes author down */
+        margin-bottom: 20px;
+    }
+}
+
+.stars {
+    display: flex;
+    justify-content: center;
+    gap: 4px;
+    margin-bottom: 25px;
+    color: $color-primary;
+
+    svg {
+        filter: drop-shadow(0 0 2px $glow-green);
+    }
+}
+
+.author-area {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    padding-top: 20px;
+    border-top: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.author-avatar {
+    width: 55px;
+    height: 55px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 3px solid $color-primary;
+    box-shadow: 0 0 15px $glow-green;
+    flex-shrink: 0;
+
+    img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+}
+
+.author-info {
+    text-align: left;
+
+    h4 {
+        margin: 0 0 4px 0;
+        font-size: 1.05rem;
+        color: $color-text-dark;
+        font-weight: 700;
     }
 
-    .author-area {
+    .role {
+        display: block;
+        font-size: 0.85rem;
+        color: $color-text-grey;
+    }
+
+    .location {
         display: flex;
         align-items: center;
-        gap: 15px;
-        border-top: 1px solid #f0f0f0;
-        padding-top: 20px;
+        gap: 5px;
+        font-size: 0.8rem;
+        color: $color-primary;
+        font-weight: 600;
+        margin-top: 3px;
 
-        .author-avatar {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            overflow: hidden;
-            flex-shrink: 0;
+        svg {
+            stroke: $color-primary;
+        }
+    }
+}
 
-            img {
-                width: 100%;
-                height: 100%;
-                object-fit: cover;
-            }
+// ============ NAVIGATION ARROWS ============
+.carousel-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: white;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: $color-text-dark;
+    transition: all 0.3s ease;
+    z-index: 10;
+
+    &:hover {
+        background: $color-primary;
+        color: white;
+        border-color: $color-primary;
+        box-shadow: 0 4px 20px $glow-green;
+    }
+
+    &.prev {
+        left: 0;
+
+        @media (max-width: 576px) {
+            left: -5px;
+            width: 38px;
+            height: 38px;
+        }
+    }
+
+    &.next {
+        right: 0;
+
+        @media (max-width: 576px) {
+            right: -5px;
+            width: 38px;
+            height: 38px;
+        }
+    }
+
+    svg {
+        width: 20px;
+        height: 20px;
+    }
+}
+
+// ============ DOTS NAVIGATION ============
+.carousel-dots {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 30px;
+}
+
+.dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    border: none;
+    background: rgba($color-primary, 0.2);
+    cursor: pointer;
+    padding: 0;
+    transition: all 0.3s ease;
+
+    &:hover {
+        background: rgba($color-primary, 0.4);
+    }
+
+    &.active {
+        width: 30px;
+        border-radius: 5px;
+        background: $color-primary;
+        box-shadow: 0 0 10px $glow-green;
+    }
+}
+
+// ============ RESPONSIVE ============
+@media (max-width: 576px) {
+    .testimonials-section {
+        padding: 40px 0;
+    }
+
+    .section-header {
+        margin-bottom: 35px;
+        padding: 0 15px;
+
+        .badge {
+            padding: 6px 16px;
+            font-size: 0.75rem;
         }
 
-        .author-info {
-            display: flex;
-            flex-direction: column;
-
-            h4 {
-                margin: 0;
-                font-size: 1rem;
-                color: var(--color-secondary);
-                font-weight: 700;
-            }
-
-            .role {
-                font-size: 0.8rem;
-                color: #777;
-            }
-
-            .location {
-                font-size: 0.75rem;
-                color: var(--color-primary);
-                display: flex;
-                align-items: center;
-                gap: 4px;
-                margin-top: 2px;
-                font-weight: 500;
-            }
+        h2 {
+            font-size: 1.5rem;
         }
+
+        .section-subtitle {
+            font-size: 0.9rem;
+        }
+    }
+
+    .carousel-dots {
+        margin-top: 25px;
+    }
+
+    .author-avatar {
+        width: 48px;
+        height: 48px;
     }
 }
