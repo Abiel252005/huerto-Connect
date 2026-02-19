@@ -2,41 +2,169 @@
   position: fixed;
   inset: 0;
   background: var(--admin-overlay);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
   display: grid;
   place-items: center;
-  z-index: 1000;
+  z-index: 2000;
+  animation: overlayFadeIn 0.25s ease forwards;
+}
+
+@keyframes overlayFadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 .dialog {
-  width: min(420px, 90vw);
+  width: min(440px, 92vw);
   border: 1px solid var(--admin-line);
   background: var(--admin-panel);
-  border-radius: 12px;
-  padding: 14px;
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border-radius: 16px;
+  padding: 24px;
+  text-align: center;
+  animation: dialogPop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  box-shadow:
+    0 16px 48px rgba(0, 0, 0, 0.18),
+    0 0 0 1px rgba(255, 255, 255, 0.04) inset;
 }
 
-h4 { margin-bottom: 6px; }
+@keyframes dialogPop {
+  from {
+    opacity: 0;
+    transform: scale(0.88) translateY(12px);
+  }
 
-p { color: var(--admin-text-dim); margin-bottom: 12px; }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.dialog-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  display: grid;
+  place-items: center;
+  font-size: 28px;
+  margin: 0 auto 14px;
+}
+
+.dialog.danger .dialog-icon {
+  color: var(--admin-danger);
+  background: color-mix(in srgb, var(--admin-danger) 14%, transparent);
+  border: 1px solid color-mix(in srgb, var(--admin-danger) 30%, transparent);
+  box-shadow: 0 0 24px color-mix(in srgb, var(--admin-danger) 12%, transparent);
+}
+
+.dialog.warning .dialog-icon {
+  color: var(--admin-warn);
+  background: color-mix(in srgb, var(--admin-warn) 14%, transparent);
+  border: 1px solid color-mix(in srgb, var(--admin-warn) 30%, transparent);
+  box-shadow: 0 0 24px color-mix(in srgb, var(--admin-warn) 12%, transparent);
+}
+
+.dialog.info .dialog-icon {
+  color: var(--admin-accent-2);
+  background: color-mix(in srgb, var(--admin-accent-2) 14%, transparent);
+  border: 1px solid color-mix(in srgb, var(--admin-accent-2) 30%, transparent);
+  box-shadow: 0 0 24px color-mix(in srgb, var(--admin-accent-2) 12%, transparent);
+}
+
+h4 {
+  font-size: 17px;
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: var(--admin-text-main);
+}
+
+p {
+  color: var(--admin-text-dim);
+  font-size: 13px;
+  line-height: 1.5;
+  margin-bottom: 20px;
+}
 
 .actions {
   display: flex;
-  justify-content: flex-end;
-  gap: 8px;
+  justify-content: center;
+  gap: 10px;
 }
 
-button {
+.btn-cancel,
+.btn-confirm {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 10px;
+  padding: 9px 18px;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: transform 120ms ease, box-shadow 160ms ease, border-color 160ms ease;
+}
+
+.btn-cancel {
   border: 1px solid var(--admin-line);
   background: transparent;
   color: var(--admin-text-main);
-  border-radius: 8px;
-  padding: 6px 10px;
-  cursor: pointer;
 }
 
-button.primary {
-  color: var(--admin-btn-main-text);
-  border-color: color-mix(in srgb, var(--admin-accent) 36%, transparent);
-  background: linear-gradient(130deg, var(--admin-accent), var(--admin-accent-2));
+.btn-cancel:hover {
+  background: color-mix(in srgb, var(--admin-surface-2) 80%, transparent);
+  border-color: color-mix(in srgb, var(--admin-line) 200%, transparent);
 }
 
+.btn-confirm.danger {
+  border: 1px solid color-mix(in srgb, var(--admin-danger) 40%, transparent);
+  background: linear-gradient(135deg, var(--admin-danger), color-mix(in srgb, var(--admin-danger) 80%, #600020));
+  color: #fff;
+  box-shadow: 0 4px 18px color-mix(in srgb, var(--admin-danger) 22%, transparent);
+}
+
+.btn-confirm.danger:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 24px color-mix(in srgb, var(--admin-danger) 34%, transparent);
+}
+
+.btn-confirm.warning {
+  border: 1px solid color-mix(in srgb, var(--admin-warn) 40%, transparent);
+  background: linear-gradient(135deg, var(--admin-warn), color-mix(in srgb, var(--admin-warn) 80%, #604000));
+  color: #1a1200;
+  box-shadow: 0 4px 18px color-mix(in srgb, var(--admin-warn) 22%, transparent);
+}
+
+.btn-confirm.warning:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 24px color-mix(in srgb, var(--admin-warn) 34%, transparent);
+}
+
+.btn-confirm.info {
+  border: 1px solid color-mix(in srgb, var(--admin-accent-2) 40%, transparent);
+  background: linear-gradient(135deg, var(--admin-accent-2), var(--admin-accent-3));
+  color: #001d14;
+  box-shadow: 0 4px 18px color-mix(in srgb, var(--admin-accent-2) 22%, transparent);
+}
+
+.btn-confirm.info:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 24px color-mix(in srgb, var(--admin-accent-2) 34%, transparent);
+}
+
+.btn-cancel:active,
+.btn-confirm:active {
+  transform: scale(0.97);
+}
+
+.btn-cancel ion-icon,
+.btn-confirm ion-icon {
+  font-size: 16px;
+}

@@ -1,0 +1,251 @@
+.overlay {
+    position: fixed;
+    inset: 0;
+    background: var(--admin-overlay);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    display: grid;
+    place-items: center;
+    z-index: 2000;
+    animation: overlayFadeIn 0.25s ease forwards;
+}
+
+@keyframes overlayFadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+.modal {
+    width: min(560px, 94vw);
+    max-height: 90vh;
+    overflow-y: auto;
+    border: 1px solid var(--admin-line);
+    background: var(--admin-panel);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border-radius: 18px;
+    animation: modalPop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    box-shadow:
+        0 20px 60px rgba(0, 0, 0, 0.18),
+        0 0 0 1px rgba(255, 255, 255, 0.04) inset;
+}
+
+@keyframes modalPop {
+    from {
+        opacity: 0;
+        transform: scale(0.88) translateY(18px);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+/* ── Header ── */
+.modal-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 20px 24px 16px;
+    border-bottom: 1px solid var(--admin-line-soft);
+}
+
+.modal-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    display: grid;
+    place-items: center;
+    font-size: 20px;
+    color: var(--admin-accent);
+    background: color-mix(in srgb, var(--admin-accent) 12%, transparent);
+    border: 1px solid color-mix(in srgb, var(--admin-accent) 28%, transparent);
+    flex-shrink: 0;
+}
+
+.modal-header h3 {
+    flex: 1;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--admin-text-main);
+}
+
+.close-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 9px;
+    border: 1px solid var(--admin-line);
+    background: transparent;
+    color: var(--admin-text-dim);
+    cursor: pointer;
+    display: grid;
+    place-items: center;
+    font-size: 18px;
+    transition: color 150ms ease, background 150ms ease;
+}
+
+.close-btn:hover {
+    color: var(--admin-text-main);
+    background: color-mix(in srgb, var(--admin-surface-2) 80%, transparent);
+}
+
+/* ── Body ── */
+.modal-body {
+    padding: 20px 24px 24px;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+}
+
+.form-group.full-width {
+    grid-column: 1 / -1;
+}
+
+.form-group label {
+    display: block;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--admin-text-dim);
+    margin-bottom: 6px;
+    letter-spacing: 0.3px;
+}
+
+.form-control {
+    width: 100%;
+    padding: 9px 12px;
+    border-radius: 10px;
+    border: 1px solid var(--admin-line);
+    background: var(--admin-surface);
+    color: var(--admin-text-main);
+    font-family: inherit;
+    font-size: 13px;
+    outline: none;
+    transition: border-color 180ms ease, box-shadow 180ms ease;
+}
+
+.form-control:focus {
+    border-color: color-mix(in srgb, var(--admin-accent) 55%, transparent);
+    box-shadow:
+        0 0 0 3px color-mix(in srgb, var(--admin-accent) 14%, transparent),
+        0 0 16px color-mix(in srgb, var(--admin-accent) 10%, transparent);
+}
+
+.form-control::placeholder {
+    color: var(--admin-text-dim);
+    opacity: 0.5;
+}
+
+select.form-control {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23a8c7dd' d='M3 4.5L6 8l3-3.5H3z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    padding-right: 28px;
+}
+
+/* Checkbox */
+.checkbox-wrap {
+    display: flex !important;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px !important;
+    color: var(--admin-text-main) !important;
+    cursor: pointer;
+    margin-bottom: 0 !important;
+}
+
+.checkbox-wrap input[type='checkbox'] {
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    border-radius: 6px;
+    border: 1px solid var(--admin-line);
+    background: var(--admin-surface);
+    cursor: pointer;
+    display: grid;
+    place-items: center;
+    transition: background 150ms ease, border-color 150ms ease;
+}
+
+.checkbox-wrap input[type='checkbox']:checked {
+    background: linear-gradient(135deg, var(--admin-accent), var(--admin-accent-2));
+    border-color: var(--admin-accent);
+}
+
+.checkbox-wrap input[type='checkbox']:checked::after {
+    content: '✓';
+    color: var(--admin-btn-main-text);
+    font-size: 11px;
+    font-weight: 700;
+}
+
+/* ── Footer ── */
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 20px;
+    padding-top: 16px;
+    border-top: 1px solid var(--admin-line-soft);
+}
+
+.btn-cancel,
+.btn-save {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border-radius: 10px;
+    padding: 9px 18px;
+    font-size: 13px;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    transition: transform 120ms ease, box-shadow 160ms ease;
+}
+
+.btn-cancel {
+    border: 1px solid var(--admin-line);
+    background: transparent;
+    color: var(--admin-text-main);
+}
+
+.btn-cancel:hover {
+    background: color-mix(in srgb, var(--admin-surface-2) 80%, transparent);
+}
+
+.btn-save {
+    border: 1px solid color-mix(in srgb, var(--admin-accent) 36%, transparent);
+    background: linear-gradient(130deg, var(--admin-accent), var(--admin-accent-2));
+    color: var(--admin-btn-main-text);
+    box-shadow: 0 4px 18px color-mix(in srgb, var(--admin-accent) 18%, transparent);
+}
+
+.btn-save:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 24px color-mix(in srgb, var(--admin-accent) 28%, transparent);
+}
+
+.btn-cancel:active,
+.btn-save:active {
+    transform: scale(0.97);
+}
+
+.btn-cancel ion-icon,
+.btn-save ion-icon {
+    font-size: 16px;
+}
+
+@media (max-width: 520px) {
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+}

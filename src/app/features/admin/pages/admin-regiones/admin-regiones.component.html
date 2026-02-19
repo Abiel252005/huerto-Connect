@@ -7,13 +7,8 @@
       <small>Usuarios, huertos y actividad por region</small>
     </header>
 
-    <app-selected-action-bar
-      [title]="'Region seleccionada'"
-      [selected]="selectedRegion"
-      [actions]="actions"
-      [summaryTemplate]="regionSummary"
-      (clearSelection)="clearSelection()"
-    ></app-selected-action-bar>
+    <app-selected-action-bar [title]="'Region seleccionada'" [selected]="selectedRegion" [actions]="actions"
+      [summaryTemplate]="regionSummary" (clearSelection)="clearSelection()"></app-selected-action-bar>
 
     <ng-template #regionSummary let-region>
       <p>
@@ -22,13 +17,17 @@
       </p>
     </ng-template>
 
-    <app-admin-data-table
-      [rows]="regiones"
-      [columns]="columns"
-      [selected]="selectedRegion"
-      [rowIdentity]="rowIdentity"
+    <app-admin-data-table [rows]="regiones" [columns]="columns" [selected]="selectedRegion" [rowIdentity]="rowIdentity"
       [emptyMessage]="'No hay regiones activas para mostrar.'"
-      (selectedChange)="onSelectedChange($event)"
-    ></app-admin-data-table>
+      (selectedChange)="onSelectedChange($event)"></app-admin-data-table>
   </section>
 </div>
+
+<!-- Edit Modal -->
+<app-edit-modal [visible]="editVisible" [title]="'Editar región'" [fields]="editFields" [data]="editData"
+  (save)="onEditSave($event)" (cancel)="onEditCancel()"></app-edit-modal>
+
+<!-- Confirm Dialog -->
+<app-confirm-dialog [visible]="confirmVisible" [title]="confirmTitle" [message]="confirmMessage"
+  [variant]="confirmVariant" [icon]="confirmIcon" [confirmLabel]="confirmLabel" (confirm)="onConfirm()"
+  (cancel)="onCancelConfirm()"></app-confirm-dialog>

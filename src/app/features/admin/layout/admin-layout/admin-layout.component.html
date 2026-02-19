@@ -1,4 +1,5 @@
 <div class="admin-shell" [attr.data-theme]="theme">
+  <app-toast-notification></app-toast-notification>
   <aside class="sidebar">
     <div class="brand">
       <div class="logo"><ion-icon name="leaf-outline"></ion-icon></div>
@@ -9,16 +10,9 @@
     </div>
 
     <nav class="menu">
-      <a
-        *ngFor="let item of navItems"
-        class="menu-item"
-        [routerLink]="item.route"
-        routerLinkActive="active"
-        #rla="routerLinkActive"
-        [style.--item-accent]="item.accent"
-        [style.--item-accent-light]="item.accentLight"
-        [attr.aria-current]="rla.isActive ? 'page' : null"
-      >
+      <a *ngFor="let item of navItems" class="menu-item" [routerLink]="item.route" routerLinkActive="active"
+        #rla="routerLinkActive" [style.--item-accent]="item.accent" [style.--item-accent-light]="item.accentLight"
+        [attr.aria-current]="rla.isActive ? 'page' : null">
         <ion-icon [name]="item.icon"></ion-icon>
         <span>{{ item.label }}</span>
         <i class="active-dot" *ngIf="rla.isActive" aria-hidden="true"></i>
