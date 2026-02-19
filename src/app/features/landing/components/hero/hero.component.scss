@@ -35,7 +35,7 @@
     // Subtle texture overlay or noise could go here
     background:
         radial-gradient(circle at 80% 20%, rgba(8, 54, 42, 0.5) 0%, transparent 50%),
-        linear-gradient(135deg, var(--color-secondary) 0%, #052b21 100%);
+        linear-gradient(135deg, var(--color-secondary) 0%, var(--color-dark-deep) 100%);
     z-index: 1;
 }
 

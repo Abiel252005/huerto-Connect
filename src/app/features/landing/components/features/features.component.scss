@@ -2,8 +2,7 @@
     padding: 60px 0;
     position: relative;
     overflow: hidden;
-    background: #022c22;
-    /* DEEP PREMIUM GREEN (Tailwind teal-950 equivalent) */
+    background: var(--color-dark-deep);
 }
 
 .section-header {

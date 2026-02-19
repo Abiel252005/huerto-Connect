@@ -1,14 +1,12 @@
 footer {
-    background-color: #031b14;
-    /* Deep, almost black green */
+    background-color: var(--color-dark-footer);
     color: white;
     font-size: 0.95rem;
 }
 
 /* Newsletter Section */
 .newsletter-section {
-    background-color: #052b21;
-    /* Slightly lighter header for footer */
+    background-color: var(--color-dark-footer-top);
     padding: 40px 0;
     border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 

@@ -1,11 +1,11 @@
 <app-splash-screen *ngIf="showSplash" (splashComplete)="onSplashComplete()"></app-splash-screen>
 
-<!-- Header is outside page-content because it has position:fixed -->
-<app-header *ngIf="!showSplash"></app-header>
+<!-- Header/Footer only on landing pages (not login/admin) -->
+<app-header *ngIf="!showSplash && showChrome"></app-header>
 
 <div class="page-content" [class.page-visible]="!showSplash">
   <main>
     <router-outlet></router-outlet>
   </main>
-  <app-footer></app-footer>
+  <app-footer *ngIf="showChrome"></app-footer>
 </div>
