@@ -1,0 +1,473 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Outfit", sans-serif;
+}
+
+:host {
+    width: 100%;
+    min-height: 100vh;
+    display: block;
+    overflow: hidden;
+    background: #d9f1e8;
+}
+
+.login-scene {
+    --wind-x: 0px;
+    --wind-y: 0px;
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 24px;
+}
+
+.back-home {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    z-index: 3;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    border-radius: 999px;
+    text-decoration: none;
+    color: #0f2c24;
+    background: linear-gradient(135deg, #7be0b7, #56c89d);
+    border: 1px solid #8adfba;
+    box-shadow: 0 6px 20px rgba(15, 78, 55, 0.28);
+    transition: transform 140ms ease, background-color 140ms ease, color 140ms ease;
+    animation: backHomeToneSync 13s ease-in-out infinite;
+}
+
+.back-home ion-icon {
+    font-size: 18px;
+}
+
+.back-home:hover {
+    transform: translateX(-2px);
+    background: rgba(255, 255, 255, 0.95);
+    color: inherit;
+}
+
+.dynamic-bg {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(128deg, #1f6a54, #3f8a74, #8f9796, #d3dad9, #6fb08d);
+    background-size: 240% 240%;
+    animation: gradientShift 13s ease-in-out infinite;
+}
+
+.sprout-field {
+    position: absolute;
+    inset: 0;
+}
+
+.sprout {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(245, 251, 248, 0.92);
+    transform: translate(-50%, -50%) rotate(var(--base-rotation, 0deg));
+    animation:
+        leafRain calc(var(--float-duration, 10s) * 1) linear var(--delay, 0s) infinite,
+        leafSway calc(var(--float-duration, 10s) * 0.58) ease-in-out var(--delay, 0s) infinite,
+        sproutPulse calc(var(--float-duration, 10s) * 1.1) ease-in-out var(--delay, 0s) infinite,
+        sproutToneSync 13s ease-in-out infinite;
+    transition: transform 220ms cubic-bezier(0.23, 0.7, 0.3, 1);
+    will-change: transform, color, opacity;
+}
+
+.sprout ion-icon {
+    width: 100%;
+    height: 100%;
+    filter: drop-shadow(0 0 3px rgba(228, 242, 236, 0.38));
+    will-change: filter;
+}
+
+.container {
+    width: 960px;
+    max-width: 100%;
+    height: 570px;
+    display: flex;
+    position: relative;
+    background: linear-gradient(145deg, rgba(243, 252, 248, 0.95), rgba(227, 246, 238, 0.92));
+    backdrop-filter: blur(4px);
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 20px 36px rgba(21, 77, 64, 0.2);
+    z-index: 2;
+}
+
+.container-form {
+    width: 50%;
+    flex: 0 0 50%;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 32px;
+}
+
+.container-form form {
+    width: min(420px, 100%);
+    max-width: 420px;
+    height: auto;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: stretch;
+    gap: 8px;
+    padding: 0;
+    border: none;
+    background: transparent;
+    box-shadow: none;
+    transition: transform 0.5s ease-in, opacity 0.4s ease-in;
+}
+
+.container-form h2 {
+    font-size: 42px;
+    margin-bottom: 10px;
+    color: #16503f;
+    font-weight: 700;
+    letter-spacing: -0.4px;
+    text-align: center;
+}
+
+.social-networks {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 10px;
+    justify-content: center;
+}
+
+.social-networks ion-icon {
+    border: 1px solid #a6b6b0;
+    border-radius: 10px;
+    padding: 8px;
+    cursor: pointer;
+    color: #1f5b49;
+    background: linear-gradient(150deg, rgba(255, 255, 255, 0.7), rgba(232, 247, 239, 0.75));
+    transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
+}
+
+.social-networks ion-icon:hover {
+    transform: translateY(-2px);
+    border-color: #77bda2;
+    box-shadow: 0 8px 14px rgba(32, 105, 78, 0.14);
+}
+
+.container-form span {
+    font-size: 17px;
+    margin-bottom: 10px;
+    color: #2f6855;
+    font-weight: 400;
+    text-align: center;
+}
+
+.container-input {
+    width: 100%;
+    height: 46px;
+    margin-bottom: 6px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    padding: 0 15px;
+    background: linear-gradient(155deg, #f8fdfb, #e8f6ef);
+    border: 1px solid #b8d8ca;
+    border-radius: 10px;
+    transition: border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
+}
+
+.container-input:focus-within {
+    border-color: #6fbea0;
+    box-shadow: 0 0 0 3px rgba(111, 190, 160, 0.18);
+    transform: translateY(-1px);
+}
+
+.container-input ion-icon {
+    color: #3f7261;
+    font-size: 20px;
+}
+
+.container-input input {
+    border: none;
+    outline: none;
+    width: 100%;
+    height: 100%;
+    background-color: inherit;
+    color: #1a4a3c;
+    font-size: 16px;
+}
+
+.container-form a {
+    color: #1f6a54;
+    font-size: 14px;
+    margin: 8px auto 10px;
+    text-underline-offset: 3px;
+    text-align: center;
+}
+
+.button {
+    width: 220px;
+    height: 45px;
+    font-size: 16px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    margin: 4px auto 0;
+    background: linear-gradient(135deg, #1ea97a, #35bb8c, #59cfa3);
+    color: #fff;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    transition: transform 170ms ease, box-shadow 170ms ease, filter 170ms ease;
+}
+
+.button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 18px rgba(29, 128, 97, 0.28);
+    filter: brightness(1.03);
+}
+
+.sign-up {
+    transform: translateX(-120%);
+    opacity: 0;
+    pointer-events: none;
+}
+
+.container.toggle .sign-in {
+    transform: translateX(120%);
+    opacity: 0;
+    pointer-events: none;
+}
+
+.container.toggle .sign-up {
+    transform: translateX(0);
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.container-welcome {
+    position: absolute;
+    width: 50%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    transform: translateX(100%);
+    background: linear-gradient(145deg, #1a8e6a, #2ca87f, #43ba92);
+    transition: transform 0.5s ease-in-out, border-radius 0.5s ease-in-out;
+    overflow: hidden;
+    border-radius: 50% 0 0 50%;
+}
+
+.container.toggle .container-welcome {
+    transform: translateX(0);
+    border-radius: 0 50% 50% 0;
+    background: linear-gradient(145deg, #157e63, #229572, #34ac87);
+}
+
+.container-welcome .welcome {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    padding: 0 50px;
+    color: #fff;
+    transition: transform 0.5s ease-in-out;
+}
+
+.welcome-sign-in {
+    transform: translateX(100%);
+}
+
+.container-welcome h3 {
+    font-size: 44px;
+    letter-spacing: -0.6px;
+}
+
+.container-welcome p {
+    font-size: 18px;
+    text-align: center;
+    line-height: 1.4;
+}
+
+.mode-link {
+    border: none;
+    background: transparent;
+    color: #1f6a54;
+    font-size: 14px;
+    margin: 4px auto 0;
+    display: block;
+    text-align: center;
+    cursor: pointer;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    transition: color 150ms ease;
+}
+
+.mode-link:hover {
+    color: #0f7959;
+}
+
+.container-welcome .button {
+    border: 2px solid currentColor;
+    background-color: transparent;
+}
+
+.container.toggle .welcome-sign-in {
+    transform: translateX(0);
+}
+
+.container.toggle .welcome-sign-up {
+    transform: translateX(-100%);
+}
+
+@keyframes gradientShift {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+@keyframes leafRain {
+    0% {
+        transform:
+            translate(
+                calc(-50% + (var(--wind-x) * 0.03)),
+                calc(-50% - 8vh + (var(--wind-y) * 0.02))
+            )
+            rotate(var(--base-rotation, 0deg));
+    }
+    100% {
+        transform:
+            translate(
+                calc(-50% + (var(--drift-x) * 0.3) + (var(--wind-x) * 0.11)),
+                calc(-50% + 108vh + (var(--wind-y) * 0.05))
+            )
+            rotate(calc(var(--base-rotation, 0deg) + 26deg));
+    }
+}
+
+@keyframes leafSway {
+    0%,
+    100% {
+        margin-left: -2px;
+    }
+    50% {
+        margin-left: 3px;
+    }
+}
+
+@keyframes sproutPulse {
+    0%,
+    100% {
+        opacity: 0.7;
+    }
+    50% {
+        opacity: 0.9;
+    }
+}
+
+@keyframes sproutToneSync {
+    0%,
+    100% {
+        color: rgba(245, 251, 248, 0.92);
+    }
+    50% {
+        color: rgba(11, 70, 42, 0.95);
+    }
+}
+
+@keyframes sproutGlowSync {
+    0%,
+    100% {
+        filter: drop-shadow(0 0 6px rgba(229, 248, 239, 0.42));
+    }
+    50% {
+        filter: drop-shadow(0 0 8px rgba(36, 143, 86, 0.66));
+    }
+}
+
+@keyframes backHomeToneSync {
+    0%,
+    100% {
+        background: linear-gradient(135deg, #7be0b7, #56c89d);
+        border-color: #8adfba;
+        box-shadow: 0 6px 20px rgba(15, 78, 55, 0.28);
+    }
+    50% {
+        background: linear-gradient(135deg, #69d8ae, #4fbf94);
+        border-color: #7fd7b1;
+        box-shadow: 0 6px 20px rgba(23, 99, 70, 0.24);
+    }
+}
+
+@media (max-width: 900px) {
+    .back-home {
+        top: 12px;
+        left: 12px;
+    }
+
+    .container {
+        width: 100%;
+        height: auto;
+        min-height: 700px;
+        flex-direction: column;
+    }
+
+    .container-form {
+        width: 100%;
+        flex: 0 0 auto;
+        min-height: 350px;
+        padding: 0 20px;
+        justify-content: center;
+    }
+
+    .container-welcome {
+        position: relative;
+        width: 100%;
+        min-height: 260px;
+        transform: none;
+        border-radius: 30% 30% 0 0;
+    }
+
+    .container.toggle .container-welcome {
+        border-radius: 0 0 30% 30%;
+    }
+
+    .container-welcome .welcome {
+        position: relative;
+        transform: none;
+        width: 100%;
+        padding: 34px 24px;
+    }
+
+    .container.toggle .welcome-sign-up,
+    .container.toggle .welcome-sign-in,
+    .welcome-sign-in {
+        transform: none;
+    }
+
+    .container-form h2 {
+        font-size: 36px;
+    }
+
+    .container-form span {
+        font-size: 22px;
+    }
+}

@@ -1,0 +1,27 @@
+<section class="panel">
+  <header class="head"><h2>Alertas</h2><small>Incidentes y estado de atencion</small></header>
+
+  <app-selected-action-bar
+    [title]="'Alerta seleccionada'"
+    [selected]="selectedAlerta"
+    [actions]="actions"
+    [summaryTemplate]="alertaSummary"
+    (clearSelection)="clearSelection()"
+  ></app-selected-action-bar>
+
+  <ng-template #alertaSummary let-alerta>
+    <p>
+      {{ alerta.titulo }} · {{ alerta.tipo }} · {{ alerta.region }} · Severidad:
+      {{ alerta.severidad }} · Estado: {{ alerta.estado }}
+    </p>
+  </ng-template>
+
+  <app-admin-data-table
+    [rows]="alertas"
+    [columns]="columns"
+    [selected]="selectedAlerta"
+    [rowIdentity]="rowIdentity"
+    [emptyMessage]="'No hay alertas activas.'"
+    (selectedChange)="onSelectedChange($event)"
+  ></app-admin-data-table>
+</section>

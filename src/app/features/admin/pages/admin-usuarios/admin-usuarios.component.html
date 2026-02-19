@@ -1,0 +1,37 @@
+<section class="panel">
+  <header class="head">
+    <h2>Usuarios</h2>
+    <small>Gestion de cuentas, estado y actividad</small>
+  </header>
+
+  <app-selected-action-bar
+    [title]="'Usuario seleccionado'"
+    [selected]="selectedUsuario"
+    [actions]="actions"
+    [summaryTemplate]="usuarioSummary"
+    (clearSelection)="clearSelection()"
+  ></app-selected-action-bar>
+
+  <ng-template #usuarioSummary let-usuario>
+    <p>
+      {{ usuario.nombre }} · {{ usuario.correo }} · {{ usuario.region }} · Estado: {{ usuario.estado }}
+    </p>
+  </ng-template>
+
+  <app-filters-bar
+    [search]="search"
+    [fields]="fields"
+    searchPlaceholder="Buscar por nombre o correo"
+    (searchChange)="onSearch($event)"
+    (fieldsChange)="onFieldsChange($event)"
+  ></app-filters-bar>
+
+  <app-admin-data-table
+    [rows]="usuarios"
+    [columns]="columns"
+    [selected]="selectedUsuario"
+    [rowIdentity]="rowIdentity"
+    [emptyMessage]="'No hay usuarios para este filtro.'"
+    (selectedChange)="onSelectedChange($event)"
+  ></app-admin-data-table>
+</section>

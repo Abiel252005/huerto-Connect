@@ -1,0 +1,39 @@
+<div class="table-wrap">
+  <table>
+    <thead>
+      <tr>
+        <th
+          *ngFor="let column of columns; trackBy: trackByColumn"
+          [style.width]="column.width || null"
+          [style.text-align]="column.align || 'left'"
+        >
+          {{ column.header }}
+        </th>
+      </tr>
+    </thead>
+
+    <tbody>
+      <tr
+        *ngFor="let row of rows; trackBy: trackByRow"
+        (click)="selectRow(row)"
+        (keydown)="onRowKeydown($event, row)"
+        [class.selected]="isSelected(row)"
+        [attr.aria-selected]="isSelected(row)"
+        tabindex="0"
+      >
+        <td
+          *ngFor="let column of columns; trackBy: trackByColumn"
+          [style.text-align]="column.align || 'left'"
+        >
+          {{ column.cell(row) }}
+        </td>
+      </tr>
+
+      <tr *ngIf="rows.length === 0">
+        <td class="empty" [attr.colspan]="columns.length">
+          {{ emptyMessage }}
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>

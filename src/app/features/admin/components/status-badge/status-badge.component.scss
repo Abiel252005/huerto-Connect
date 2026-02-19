@@ -1,0 +1,24 @@
+.badge {
+  border: 1px solid var(--admin-line);
+  border-radius: 999px;
+  padding: 3px 9px;
+  font-size: 11px;
+  color: var(--admin-text-main);
+  background: var(--admin-line-soft);
+}
+
+.badge.ok {
+  color: var(--admin-accent);
+  border-color: color-mix(in srgb, var(--admin-accent) 46%, transparent);
+}
+
+.badge.warn {
+  color: var(--admin-warn);
+  border-color: color-mix(in srgb, var(--admin-warn) 46%, transparent);
+}
+
+.badge.bad {
+  color: var(--admin-danger);
+  border-color: color-mix(in srgb, var(--admin-danger) 44%, transparent);
+}
+

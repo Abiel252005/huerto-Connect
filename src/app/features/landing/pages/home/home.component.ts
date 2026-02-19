@@ -8,6 +8,8 @@ import { StatsComponent } from '../../components/stats/stats.component';
 import { TestimonialsComponent } from '../../components/testimonials/testimonials.component';
 import { FaqComponent } from '../../components/faq/faq.component';
 import { ContactComponent } from '../../components/contact/contact.component';
+import { HeaderComponent } from '../../../../core/components/header/header.component';
+import { FooterComponent } from '../../../../core/components/footer/footer.component';
 
 @Component({
     selector: 'app-home',
@@ -21,7 +23,9 @@ import { ContactComponent } from '../../components/contact/contact.component';
         StatsComponent,
         TestimonialsComponent,
         FaqComponent,
-        ContactComponent
+        ContactComponent,
+        HeaderComponent,
+        FooterComponent
     ],
     templateUrl: './home.component.html',
     styleUrls: ['./home.component.scss']

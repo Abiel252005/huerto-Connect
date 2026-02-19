@@ -1,0 +1,30 @@
+<section class="panel">
+  <header class="head">
+    <h2>Huertos</h2>
+    <small>Control operativo y salud por huerto</small>
+  </header>
+
+  <app-selected-action-bar
+    [title]="'Huerto seleccionado'"
+    [selected]="selectedHuerto"
+    [actions]="actions"
+    [summaryTemplate]="huertoSummary"
+    (clearSelection)="clearSelection()"
+  ></app-selected-action-bar>
+
+  <ng-template #huertoSummary let-huerto>
+    <p>
+      {{ huerto.nombre }} · {{ huerto.usuario }} · {{ huerto.municipio }} · Estado:
+      {{ huerto.estado }} · Salud: {{ huerto.salud }}%
+    </p>
+  </ng-template>
+
+  <app-admin-data-table
+    [rows]="huertos"
+    [columns]="columns"
+    [selected]="selectedHuerto"
+    [rowIdentity]="rowIdentity"
+    [emptyMessage]="'No hay huertos disponibles.'"
+    (selectedChange)="onSelectedChange($event)"
+  ></app-admin-data-table>
+</section>

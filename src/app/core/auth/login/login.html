@@ -1,0 +1,132 @@
+<div
+    class="login-scene"
+    (pointermove)="onPointerMove($event)"
+    (pointerleave)="onPointerLeave()"
+    [style.--wind-x]="windXPx + 'px'"
+    [style.--wind-y]="windYPx + 'px'"
+>
+    <a class="back-home" routerLink="/" aria-label="Volver al inicio">
+        <ion-icon name="arrow-back-outline"></ion-icon>
+        <span>Volver</span>
+    </a>
+
+    <div class="dynamic-bg" aria-hidden="true">
+        <div class="sprout-field">
+            <div
+                class="sprout"
+                *ngFor="let sprout of sprouts"
+                [style.left.%]="sprout.x"
+                [style.top.%]="sprout.y"
+                [style.width.px]="sprout.size"
+                [style.height.px]="sprout.size"
+                [style.--delay]="sprout.delay + 's'"
+                [style.--float-duration]="sprout.duration + 's'"
+                [style.--drift-x.px]="sprout.driftX"
+                [style.--drift-y.px]="sprout.driftY"
+                [style.opacity]="sprout.opacity"
+                [style.--base-rotation]="sprout.rotate + 'deg'"
+            >
+                <ion-icon name="leaf-outline"></ion-icon>
+            </div>
+        </div>
+    </div>
+
+    <div class="container" [class.toggle]="isRegister">
+        <div class="container-form">
+            <form class="sign-in" (ngSubmit)="onLogin()" autocomplete="off">
+                <h2>Iniciar Sesión</h2>
+                <div class="social-networks">
+                    <ion-icon name="logo-twitch"></ion-icon>
+                    <ion-icon name="logo-twitter"></ion-icon>
+                    <ion-icon name="logo-instagram"></ion-icon>
+                    <ion-icon name="logo-tiktok"></ion-icon>
+                </div>
+                <span>Use su correo y contraseña</span>
+                <div class="container-input">
+                    <ion-icon name="mail-outline"></ion-icon>
+                    <input
+                        type="email"
+                        name="loginEmail"
+                        [(ngModel)]="loginEmail"
+                        placeholder="Email"
+                        autocomplete="off"
+                        required
+                    >
+                </div>
+                <div class="container-input">
+                    <ion-icon name="lock-closed-outline"></ion-icon>
+                    <input
+                        type="password"
+                        name="loginPassword"
+                        [(ngModel)]="loginPassword"
+                        placeholder="Password"
+                        autocomplete="off"
+                        required
+                    >
+                </div>
+                <a href="#">¿Olvidaste tu contraseña?</a>
+                <button class="button" type="submit">INICIAR SESIÓN</button>
+            </form>
+        </div>
+
+        <div class="container-form">
+            <form class="sign-up" (ngSubmit)="onRegister()" autocomplete="off">
+                <h2>Registrarse</h2>
+                <div class="social-networks">
+                    <ion-icon name="logo-twitch"></ion-icon>
+                    <ion-icon name="logo-twitter"></ion-icon>
+                    <ion-icon name="logo-instagram"></ion-icon>
+                    <ion-icon name="logo-tiktok"></ion-icon>
+                </div>
+                <span>Use su correo electrónico para registrarse</span>
+                <div class="container-input">
+                    <ion-icon name="person-outline"></ion-icon>
+                    <input
+                        type="text"
+                        name="registerName"
+                        [(ngModel)]="registerName"
+                        placeholder="Nombre"
+                        autocomplete="off"
+                        required
+                    >
+                </div>
+                <div class="container-input">
+                    <ion-icon name="mail-outline"></ion-icon>
+                    <input
+                        type="email"
+                        name="registerEmail"
+                        [(ngModel)]="registerEmail"
+                        placeholder="Email"
+                        autocomplete="off"
+                        required
+                    >
+                </div>
+                <div class="container-input">
+                    <ion-icon name="lock-closed-outline"></ion-icon>
+                    <input
+                        type="password"
+                        name="registerPassword"
+                        [(ngModel)]="registerPassword"
+                        placeholder="Password"
+                        autocomplete="off"
+                        required
+                    >
+                </div>
+                <button class="button" type="submit">REGISTRARSE</button>
+            </form>
+        </div>
+
+        <div class="container-welcome">
+            <div class="welcome-sign-up welcome">
+                <h3>¡Bienvenido!</h3>
+                <p>Ingrese sus datos personales para usar todas las funciones del sitio</p>
+                <button class="button" id="btn-sign-up" type="button" (click)="toggleMode()">Registrarse</button>
+            </div>
+            <div class="welcome-sign-in welcome">
+                <h3>¡Hola!</h3>
+                <p>Regístrese con sus datos personales para usar todas las funciones del sitio</p>
+                <button class="button" id="btn-sign-in" type="button" (click)="toggleMode()">Iniciar Sesión</button>
+            </div>
+        </div>
+    </div>
+</div>

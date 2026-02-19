@@ -1,0 +1,21 @@
+<div class="grid">
+  <section class="panel">
+    <header class="head"><h2>Chatbot IA</h2><small>Consultas por tema</small></header>
+    <div class="topic-row" *ngFor="let topic of metricas">
+      <div class="meta">
+        <strong>{{ topic.tema }}</strong>
+        <span>{{ topic.total }} consultas</span>
+      </div>
+      <div class="bar"><i [style.width.%]="topic.porcentaje"></i></div>
+    </div>
+  </section>
+
+  <section class="panel">
+    <header class="head"><h2>Conversaciones recientes</h2><small>Vista estilo chat</small></header>
+    <div class="chat-row" *ngFor="let chat of conversaciones">
+      <strong>{{ chat.usuario }} · {{ chat.region }}</strong>
+      <span>{{ chat.tema }}: {{ chat.ultimoMensaje }}</span>
+      <small>{{ chat.fecha }}</small>
+    </div>
+  </section>
+</div>
