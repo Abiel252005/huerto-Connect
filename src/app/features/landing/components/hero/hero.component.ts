@@ -24,4 +24,12 @@ export class HeroComponent {
         { value: '98%', label: 'Satisfacción' },
         { value: '24/7', label: 'Monitoreo' }
     ];
+
+    scrollToAbout(event: Event) {
+        event.preventDefault();
+        const el = document.getElementById('about');
+        if (el) {
+            el.scrollIntoView({ behavior: 'smooth' });
+        }
+    }
 }
