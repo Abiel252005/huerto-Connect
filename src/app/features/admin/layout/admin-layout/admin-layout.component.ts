@@ -11,6 +11,8 @@ interface NavItem {
   label: string;
   icon: string;
   route: string;
+  accent: string;
+  accentLight: string;
 }
 
 @Component({
@@ -29,20 +31,14 @@ export class AdminLayoutComponent {
   theme: 'dark' | 'light' = this.loadTheme();
 
   navItems: NavItem[] = [
-    { label: 'Dashboard', icon: 'grid-outline', route: '/admin/dashboard' },
-    { label: 'Usuarios', icon: 'people-outline', route: '/admin/usuarios' },
-    { label: 'Huertos', icon: 'leaf-outline', route: '/admin/huertos' },
-    { label: 'Cultivos', icon: 'flower-outline', route: '/admin/cultivos' },
-    { label: 'Regiones y Ubicacion', icon: 'earth-outline', route: '/admin/regiones' },
-    { label: 'Deteccion de Plagas (IA)', icon: 'bug-outline', route: '/admin/plagas' },
-    { label: 'Chatbot IA', icon: 'chatbubbles-outline', route: '/admin/chatbot' },
-    { label: 'Recomendaciones', icon: 'bulb-outline', route: '/admin/recomendaciones' },
-    { label: 'Alertas', icon: 'alert-circle-outline', route: '/admin/alertas' },
-    { label: 'Estadisticas', icon: 'stats-chart-outline', route: '/admin/estadisticas' },
-    { label: 'Reportes', icon: 'document-text-outline', route: '/admin/reportes' },
-    { label: 'Integraciones', icon: 'link-outline', route: '/admin/integraciones' },
-    { label: 'Configuracion', icon: 'settings-outline', route: '/admin/configuracion' },
-    { label: 'Auditoria', icon: 'shield-checkmark-outline', route: '/admin/auditoria' }
+    { label: 'Dashboard', icon: 'grid-outline', route: '/admin/dashboard', accent: '#00f7ff', accentLight: '#0f6c77' },
+    { label: 'Usuarios', icon: 'people-outline', route: '/admin/usuarios', accent: '#2d8bff', accentLight: '#1e5e9d' },
+    { label: 'Huertos', icon: 'leaf-outline', route: '/admin/huertos', accent: '#00ffa3', accentLight: '#0a8e5f' },
+    { label: 'Regiones y Ubicacion', icon: 'earth-outline', route: '/admin/regiones', accent: '#8f7bff', accentLight: '#5f4fb8' },
+    { label: 'Deteccion de Plagas (IA)', icon: 'bug-outline', route: '/admin/plagas', accent: '#22e48e', accentLight: '#0f8a54' },
+    { label: 'Chatbot IA', icon: 'chatbubbles-outline', route: '/admin/chatbot', accent: '#3cd1ff', accentLight: '#1474a7' },
+    { label: 'Estadisticas', icon: 'stats-chart-outline', route: '/admin/estadisticas', accent: '#ffc857', accentLight: '#9a7112' },
+    { label: 'Reportes', icon: 'document-text-outline', route: '/admin/reportes', accent: '#5ef2d6', accentLight: '#0e7f68' }
   ];
 
   statuses = [

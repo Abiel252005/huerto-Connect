@@ -15,12 +15,19 @@
         [routerLink]="item.route"
         routerLinkActive="active"
         #rla="routerLinkActive"
+        [style.--item-accent]="item.accent"
+        [style.--item-accent-light]="item.accentLight"
         [attr.aria-current]="rla.isActive ? 'page' : null"
       >
         <ion-icon [name]="item.icon"></ion-icon>
         <span>{{ item.label }}</span>
         <i class="active-dot" *ngIf="rla.isActive" aria-hidden="true"></i>
       </a>
+
+      <button type="button" class="menu-item menu-logout" (click)="logout()">
+        <ion-icon name="log-out-outline"></ion-icon>
+        <span>Cerrar sesión</span>
+      </button>
     </nav>
   </aside>
 
@@ -42,9 +49,8 @@
           <ion-icon [name]="themeIcon"></ion-icon>
           <span>{{ themeLabel }}</span>
         </button>
-        <button type="button" class="logout-btn" (click)="logout()">
-          <ion-icon name="log-out-outline"></ion-icon>
-          <span>Cerrar sesión</span>
+        <button type="button" class="icon-btn config-btn" routerLink="/admin/configuracion" aria-label="Configuracion">
+          <ion-icon name="settings-outline"></ion-icon>
         </button>
         <button type="button" class="icon-btn"><ion-icon name="notifications-outline"></ion-icon></button>
         <div class="profile">
