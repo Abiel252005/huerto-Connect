@@ -1,107 +1,107 @@
-// Import variables if needed, though usually they are global in Angular if imported in styles.scss
-// However, since we are using CSS variables, we don't strictly need SCSS imports unless we use SCSS variables.
-// We will use the CSS variables defined in styles.scss.
-
 .contact-section {
+    padding: 0;
     position: relative;
-    background-color: var(--color-secondary);
-    color: var(--color-text-light);
-    overflow: hidden; // Prevent overflow from pseudo-elements
+    background-color: #052b21;
+    color: white;
 }
 
-/* CTA Banner Part */
+/* ═══════════════════════════════════════
+   CTA Banner
+   ═══════════════════════════════════════ */
 .cta-banner {
     position: relative;
-    padding: 120px 0;
+    padding: 60px 20px;
     text-align: center;
-    background: linear-gradient(180deg, rgba(8, 45, 36, 0.9) 0%, var(--color-secondary) 100%),
+    background: linear-gradient(180deg, rgba(8, 45, 36, 0.85) 0%, #052b21 100%),
         url('https://images.unsplash.com/photo-1530836369250-ef72a3f5cda8?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&q=80') no-repeat center center;
     background-size: cover;
-    background-attachment: fixed; // Parallax feel
+
+    .container {
+        max-width: 800px;
+        margin: 0 auto;
+    }
 
     .badge-pill {
         display: inline-block;
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        padding: 8px 20px;
+        border: 1px solid rgba(255, 255, 255, 0.25);
+        padding: 6px 18px;
         border-radius: 50px;
-        font-size: 0.85rem;
-        letter-spacing: 2px;
-        margin-bottom: 24px;
+        font-size: 0.75rem;
+        letter-spacing: 1.5px;
+        margin-bottom: 16px;
         text-transform: uppercase;
-        background: rgba(255, 255, 255, 0.05);
-        backdrop-filter: blur(5px);
-        font-weight: 600;
+        background: rgba(0, 212, 161, 0.08);
         color: var(--color-primary);
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        font-weight: 500;
     }
 
     h2 {
-        font-size: 3.5rem;
-        line-height: 1.1;
-        margin-bottom: 24px;
+        font-size: clamp(2rem, 5vw, 3rem);
+        line-height: 1.15;
+        margin-bottom: 12px;
         font-weight: 600;
 
-        @media (max-width: 768px) {
-            font-size: 2.5rem;
-        }
-
         .highlight {
-            background: linear-gradient(120deg, var(--color-primary), #4ade80);
-            -webkit-background-clip: text;
-            background-clip: text;
-            -webkit-text-fill-color: transparent;
+            color: var(--color-primary);
             font-weight: 700;
         }
     }
 
     p {
-        font-size: 1.25rem;
-        color: var(--color-text-muted);
-        margin-bottom: 48px;
-        max-width: 600px;
+        font-size: 1.05rem;
+        color: rgba(255, 255, 255, 0.75);
+        margin-bottom: 28px;
+        max-width: 520px;
         margin-left: auto;
         margin-right: auto;
-        line-height: 1.8;
+        line-height: 1.5;
     }
 
     .cta-actions {
         display: flex;
         justify-content: center;
-        gap: 20px;
         flex-wrap: wrap;
-
-        .btn {
-            padding: 14px 32px;
-            font-size: 1rem;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
+        gap: 12px;
+        margin-bottom: 28px;
 
         .btn-white {
-            background-color: var(--color-primary);
-            color: var(--color-secondary);
-            border: none;
-            box-shadow: 0 4px 15px rgba(0, 212, 161, 0.4);
+            background-color: white;
+            color: #052b21;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 28px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
 
             &:hover {
-                background-color: var(--color-primary-hover);
-                color: white;
-                transform: translateY(-3px);
-                box-shadow: 0 8px 25px rgba(0, 212, 161, 0.5);
+                background-color: #f0f0f0;
+                transform: translateY(-2px);
+                box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
             }
         }
 
         .btn-outline-green {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            border: 1.5px solid var(--color-primary);
             color: white;
-            backdrop-filter: blur(5px);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 28px;
+            border-radius: 8px;
+            font-weight: 500;
+            font-size: 0.95rem;
+            text-decoration: none;
+            background: transparent;
+            transition: all 0.3s ease;
 
             &:hover {
-                background-color: rgba(255, 255, 255, 0.15);
-                border-color: var(--color-primary);
-                transform: translateY(-3px);
+                background-color: rgba(0, 212, 161, 0.12);
+                transform: translateY(-2px);
             }
         }
     }
@@ -109,186 +109,193 @@
     .guarantees {
         display: flex;
         justify-content: center;
-        gap: 40px;
-        font-size: 0.95rem;
-        color: var(--color-text-muted);
         flex-wrap: wrap;
-        margin-top: 40px;
+        gap: 20px;
+        font-size: 0.85rem;
+        color: rgba(255, 255, 255, 0.65);
 
         span {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 6px;
+
+            svg {
+                color: var(--color-primary);
+                flex-shrink: 0;
+            }
 
             &::before {
-                content: '';
-                display: block;
-                width: 8px;
-                height: 8px;
-                border-radius: 50%;
-                background-color: var(--color-primary);
-                box-shadow: 0 0 10px var(--color-primary);
+                display: none;
             }
         }
     }
 }
 
-/* Contact Form Section */
+/* ═══════════════════════════════════════
+   Contact Form Section
+   ═══════════════════════════════════════ */
 .form-section-container {
-    padding: 100px 0;
-    max-width: 1200px;
+    padding: 50px 20px 60px;
+    max-width: 1100px;
     margin: 0 auto;
-    position: relative;
-
-    // Ambient background lights
-    &::before {
-        content: '';
-        position: absolute;
-        top: 20%;
-        left: -100px;
-        width: 300px;
-        height: 300px;
-        background: var(--color-primary);
-        opacity: 0.05;
-        filter: blur(100px);
-        border-radius: 50%;
-        z-index: 0;
-    }
 }
 
 .section-title {
     text-align: center;
-    margin-bottom: 80px;
-    position: relative; // Above ambient light
+    margin-bottom: 36px;
 
     h3 {
-        font-size: 2.8rem;
-        margin-bottom: 16px;
-        font-weight: 700;
+        font-size: clamp(1.6rem, 3.5vw, 2.2rem);
+        margin-bottom: 8px;
+        font-weight: 600;
     }
 
     p {
-        color: var(--color-text-muted);
-        font-size: 1.1rem;
+        color: rgba(255, 255, 255, 0.6);
+        font-size: 0.95rem;
     }
 }
 
 .contact-layout {
     display: grid;
     grid-template-columns: 1fr;
-    gap: 80px;
-    position: relative; // Above ambient light
+    gap: 30px;
 
-    @media (min-width: 900px) {
-        grid-template-columns: 0.8fr 1.2fr;
+    @media (min-width: 768px) {
+        grid-template-columns: 1fr 1.4fr;
+        gap: 40px;
+        align-items: start;
     }
 }
 
+/* ─── Info Side ─── */
 .info-side {
     color: white;
-    padding-top: 20px;
 
     .info-group {
-        margin-bottom: 50px;
+        margin-bottom: 24px;
         display: flex;
-        gap: 20px;
+        align-items: flex-start;
+        gap: 14px;
+        padding: 16px;
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        transition: all 0.3s ease;
 
-        .icon {
-            color: var(--color-primary);
-            font-size: 1.5rem;
+        &:hover {
+            background: rgba(0, 212, 161, 0.05);
+            border-color: rgba(0, 212, 161, 0.15);
+        }
+
+        &:last-child {
+            margin-bottom: 0;
+        }
+
+        .icon-wrapper {
+            width: 40px;
+            height: 40px;
+            min-width: 40px;
+            border-radius: 10px;
             background: rgba(0, 212, 161, 0.1);
-            width: 50px;
-            height: 50px;
-            border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
-            flex-shrink: 0;
+            color: var(--color-primary);
+            transition: all 0.3s ease;
+        }
+
+        &:hover .icon-wrapper {
+            background: rgba(0, 212, 161, 0.18);
+            transform: scale(1.05);
         }
 
         h4 {
-            font-size: 0.85rem;
-            color: var(--color-text-muted);
-            margin-bottom: 8px;
+            font-size: 0.78rem;
+            color: rgba(255, 255, 255, 0.45);
+            margin-bottom: 4px;
+            font-weight: 500;
             text-transform: uppercase;
-            letter-spacing: 1px;
-            font-weight: 600;
+            letter-spacing: 0.5px;
         }
 
         .info-content {
-            font-size: 1.1rem;
-            line-height: 1.6;
+            font-size: 0.95rem;
+            line-height: 1.5;
 
-            p,
+            p {
+                margin: 0;
+            }
+
+            .address {
+                opacity: 0.85;
+                font-size: 0.9rem;
+            }
+
             .highlight-text {
-                color: var(--color-text-light);
-                font-weight: 500;
+                color: white;
+                display: block;
+                font-size: 0.9rem;
             }
 
             .sub-text {
-                font-size: 0.9rem;
-                color: var(--color-text-muted);
+                font-size: 0.8rem;
+                color: rgba(255, 255, 255, 0.4);
                 display: block;
-                margin-top: 5px;
+                margin-top: 2px;
             }
         }
     }
 
     .social-icons-contact {
         display: flex;
-        gap: 16px;
-        margin-top: 40px;
+        gap: 10px;
+        margin-top: 10px;
 
         a {
-            background-color: rgba(255, 255, 255, 0.05);
-            width: 48px;
-            height: 48px;
-            border-radius: 12px;
+            background-color: rgba(255, 255, 255, 0.08);
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: var(--color-text-muted);
+            color: rgba(255, 255, 255, 0.7);
             transition: all 0.3s ease;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            text-decoration: none;
 
             &:hover {
                 background-color: var(--color-primary);
-                color: var(--color-secondary);
-                transform: translateY(-3px);
-                border-color: var(--color-primary);
-                box-shadow: 0 5px 15px rgba(0, 212, 161, 0.3);
+                color: #052b21;
+                transform: translateY(-2px);
             }
 
             svg {
-                width: 22px;
-                height: 22px;
+                width: 16px;
+                height: 16px;
             }
         }
     }
 }
 
+/* ─── Form Card ─── */
 .form-card {
-    background: rgba(255, 255, 255, 0.03);
-    backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 24px;
-    padding: 50px;
-    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
-
-    @media (max-width: 600px) {
-        padding: 30px;
-    }
+    background: linear-gradient(145deg, #0a3d2e 0%, #073425 100%);
+    border: 1px solid rgba(0, 212, 161, 0.12);
+    border-radius: 16px;
+    padding: 30px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
 
     h4 {
-        margin-bottom: 30px;
-        font-size: 1.8rem;
-        font-weight: 600;
-        color: var(--color-text-light);
+        margin-bottom: 20px;
+        font-size: 1.3rem;
+        font-weight: 500;
+        color: white;
     }
 
     .form-grid {
         display: grid;
-        gap: 24px;
+        gap: 16px;
     }
 
     .input-group {
@@ -296,85 +303,212 @@
         flex-direction: column;
 
         label {
-            font-size: 0.9rem;
-            margin-bottom: 10px;
-            color: var(--color-text-muted);
+            font-size: 0.8rem;
+            margin-bottom: 6px;
+            color: rgba(255, 255, 255, 0.55);
             font-weight: 500;
+            letter-spacing: 0.3px;
+        }
+
+        .input-with-icon {
+            position: relative;
+
+            svg {
+                position: absolute;
+                left: 12px;
+                top: 50%;
+                transform: translateY(-50%);
+                color: rgba(255, 255, 255, 0.3);
+                pointer-events: none;
+                transition: color 0.3s ease;
+            }
+
+            input {
+                padding-left: 38px !important;
+            }
+
+            &:focus-within svg {
+                color: var(--color-primary);
+            }
         }
 
         input,
         textarea {
-            background-color: rgba(0, 0, 0, 0.2);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            background-color: rgba(5, 43, 33, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.08);
             color: white;
-            padding: 16px 20px;
-            border-radius: 12px;
+            padding: 11px 14px;
+            border-radius: 10px;
             font-family: inherit;
-            font-size: 1rem;
+            font-size: 0.9rem;
             transition: all 0.3s ease;
+
+            &::placeholder {
+                color: rgba(255, 255, 255, 0.25);
+            }
 
             &:focus {
                 outline: none;
                 border-color: var(--color-primary);
-                background-color: rgba(0, 0, 0, 0.3);
-                box-shadow: 0 0 0 4px rgba(0, 212, 161, 0.1);
-            }
-
-            &::placeholder {
-                color: rgba(255, 255, 255, 0.3);
+                background-color: rgba(5, 43, 33, 0.9);
+                box-shadow: 0 0 0 3px rgba(0, 212, 161, 0.1);
             }
         }
 
         textarea {
             resize: vertical;
-            min-height: 150px;
+            min-height: 100px;
         }
     }
 
     .row-2 {
         display: grid;
         grid-template-columns: 1fr;
-        gap: 24px;
+        gap: 16px;
 
-        @media(min-width: 600px) {
+        @media(min-width: 500px) {
             grid-template-columns: 1fr 1fr;
         }
     }
 
     .submit-btn {
-        background: linear-gradient(135deg, var(--color-primary) 0%, #00b386 100%);
-        color: white;
+        background: linear-gradient(135deg, var(--color-primary), #00b386);
+        color: #052b21;
         border: none;
-        padding: 18px;
-        border-radius: 12px;
+        padding: 13px 24px;
+        border-radius: 10px;
         font-weight: 600;
-        font-size: 1.1rem;
+        font-size: 0.95rem;
         cursor: pointer;
-        display: flex;
+        display: inline-flex;
         align-items: center;
         justify-content: center;
-        gap: 12px;
+        gap: 8px;
         transition: all 0.3s ease;
-        margin-top: 10px;
-        box-shadow: 0 10px 20px rgba(0, 212, 161, 0.2);
+        margin-top: 4px;
+        box-shadow: 0 4px 15px rgba(0, 212, 161, 0.2);
+
+        .btn-text {
+            display: inline-block;
+        }
+
+        &:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 212, 161, 0.3);
+        }
+
+        &:active:not(:disabled) {
+            transform: translateY(0);
+        }
 
         &:disabled {
             opacity: 0.7;
             cursor: not-allowed;
         }
 
-        &:hover:not(:disabled) {
-            transform: translateY(-3px);
-            box-shadow: 0 15px 30px rgba(0, 212, 161, 0.3);
-            filter: brightness(1.1);
+        .spinner-icon {
+            animation: spin 1s linear infinite;
+        }
+    }
+}
+
+/* ─── Success Message ─── */
+.success-message {
+    text-align: center;
+    padding: 40px 20px;
+
+    .success-icon {
+        width: 64px;
+        height: 64px;
+        border-radius: 50%;
+        background: rgba(0, 212, 161, 0.15);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 16px;
+        color: var(--color-primary);
+        animation: scaleIn 0.4s ease-out;
+    }
+
+    h3 {
+        color: white;
+        font-size: 1.4rem;
+        margin-bottom: 8px;
+    }
+
+    p {
+        color: rgba(255, 255, 255, 0.6);
+        font-size: 0.95rem;
+    }
+}
+
+/* ─── Animations ─── */
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes scaleIn {
+    from {
+        opacity: 0;
+        transform: scale(0.5);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* ═══════════════════════════════════════
+   Responsive
+   ═══════════════════════════════════════ */
+@media (max-width: 767px) {
+    .cta-banner {
+        padding: 40px 16px;
+
+        h2 {
+            font-size: 1.8rem;
         }
 
-        svg {
-            transition: transform 0.3s ease;
+        .cta-actions {
+            flex-direction: column;
+            align-items: center;
+
+            .btn-white,
+            .btn-outline-green {
+                width: 100%;
+                max-width: 300px;
+                justify-content: center;
+            }
         }
 
-        &:hover svg {
-            transform: translateX(3px) translateY(-3px);
+        .guarantees {
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
         }
+    }
+
+    .form-section-container {
+        padding: 30px 16px 40px;
+    }
+
+    .section-title {
+        margin-bottom: 24px;
+    }
+
+    .form-card {
+        padding: 24px 20px;
+    }
+
+    .info-side .info-group {
+        padding: 12px;
+        margin-bottom: 12px;
     }
 }

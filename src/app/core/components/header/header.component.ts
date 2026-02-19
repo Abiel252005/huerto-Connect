@@ -19,7 +19,8 @@ export class HeaderComponent {
         { label: 'Servicios', sectionId: 'services' },
         { label: 'Proceso', sectionId: 'process' },
         { label: 'Testimonios', sectionId: 'testimonials' },
-        { label: 'FAQ', sectionId: 'faq' }
+        { label: 'FAQ', sectionId: 'faq' },
+        { label: 'Contáctanos', sectionId: 'contact' }
     ];
 
     @HostListener('window:scroll', [])
