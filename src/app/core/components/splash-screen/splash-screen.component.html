@@ -1,0 +1,136 @@
+<div class="splash-screen" [class.fade-out]="isFadingOut" [class.hidden]="isHidden">
+  <div class="ambient-grid" aria-hidden="true"></div>
+  <div class="ambient-glow glow-a" aria-hidden="true"></div>
+  <div class="ambient-glow glow-b" aria-hidden="true"></div>
+
+  <div class="splash-center">
+    <svg class="ai-logo" viewBox="0 0 500 520" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <defs>
+        <filter id="neon-blur" x="-50%" y="-50%" width="200%" height="200%">
+          <feGaussianBlur stdDeviation="5" />
+        </filter>
+        <linearGradient id="ring-blue" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#00f7ff" />
+          <stop offset="100%" stop-color="#2d6bff" />
+        </linearGradient>
+        <linearGradient id="ring-green" x1="0%" y1="100%" x2="100%" y2="0%">
+          <stop offset="0%" stop-color="#00ff6a" />
+          <stop offset="100%" stop-color="#00ffa3" />
+        </linearGradient>
+        <linearGradient id="stem-green" x1="0%" y1="100%" x2="100%" y2="0%">
+          <stop offset="0%" stop-color="#1db75a" />
+          <stop offset="100%" stop-color="#44d471" />
+        </linearGradient>
+        <linearGradient id="leaf-green" x1="0%" y1="100%" x2="100%" y2="0%">
+          <stop offset="0%" stop-color="#2fbc62" />
+          <stop offset="100%" stop-color="#70df8d" />
+        </linearGradient>
+        <linearGradient id="soil-brown" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#8f6a50" />
+          <stop offset="100%" stop-color="#5d3e2d" />
+        </linearGradient>
+        <linearGradient id="root-blue" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#4dd9ff" />
+          <stop offset="100%" stop-color="#2d6bff" />
+        </linearGradient>
+      </defs>
+
+      <g class="orbit orbit-green">
+        <path class="orbit-path" d="M 130 300 A 120 120 0 0 1 370 300" />
+        <path class="orbit-flow" d="M 130 300 A 120 120 0 0 1 370 300" />
+        <circle class="node n1" cx="130" cy="300" r="3.8" />
+        <circle class="node n2" cx="170" cy="216" r="3.2" />
+        <circle class="node n3" cx="250" cy="180" r="3.6" />
+        <circle class="node n4" cx="330" cy="216" r="3.2" />
+        <circle class="node n5" cx="370" cy="300" r="3.8" />
+      </g>
+
+      <g class="orbit orbit-blue">
+        <path class="orbit-path" d="M 355 300 A 105 105 0 0 1 145 300" />
+        <path class="orbit-flow" d="M 355 300 A 105 105 0 0 1 145 300" />
+        <circle class="node b1" cx="355" cy="300" r="3.5" />
+        <circle class="node b2" cx="320" cy="370" r="3" />
+        <circle class="node b3" cx="250" cy="405" r="3.4" />
+        <circle class="node b4" cx="180" cy="370" r="3" />
+        <circle class="node b5" cx="145" cy="300" r="3.5" />
+      </g>
+
+      <path
+        class="outer-arc-track"
+        pathLength="1000"
+        d="M 14 404 A 236 236 0 1 1 486 404"
+        [attr.stroke-dashoffset]="arcOffset"
+      />
+      <path
+        class="outer-arc-halo"
+        pathLength="1000"
+        d="M 14 404 A 236 236 0 1 1 486 404"
+        [attr.stroke-dashoffset]="arcOffset"
+      />
+      <path
+        class="outer-arc-energy"
+        pathLength="1000"
+        d="M 14 404 A 236 236 0 1 1 486 404"
+        [attr.stroke-dashoffset]="arcOffset"
+      />
+      <path
+        class="outer-arc-progress"
+        pathLength="1000"
+        d="M 14 404 A 236 236 0 1 1 486 404"
+        [attr.stroke-dashoffset]="arcOffset"
+      />
+
+      <path class="soil-layer" d="M 170 314 Q 250 286 330 314 Q 250 338 170 314 Z" />
+      <path class="soil-highlight" d="M 182 312 Q 250 294 318 312" />
+
+      <g class="root-system">
+        <path class="root-bowl" d="M 170 316 A 80 58 0 0 0 330 316" />
+        <line class="root-line r1" x1="190" y1="317" x2="190" y2="358" />
+        <line class="root-line r2" x1="208" y1="317" x2="208" y2="368" />
+        <line class="root-line r3" x1="226" y1="317" x2="226" y2="378" />
+        <line class="root-line r4" x1="250" y1="317" x2="250" y2="386" />
+        <line class="root-line r5" x1="274" y1="317" x2="274" y2="378" />
+        <line class="root-line r6" x1="292" y1="317" x2="292" y2="368" />
+        <line class="root-line r7" x1="310" y1="317" x2="310" y2="358" />
+
+        <line class="root-link" x1="208" y1="350" x2="250" y2="362" />
+        <line class="root-link" x1="292" y1="350" x2="250" y2="362" />
+
+        <circle class="root-node" cx="190" cy="358" r="2.6" />
+        <circle class="root-node" cx="208" cy="368" r="2.6" />
+        <circle class="root-node" cx="226" cy="378" r="2.6" />
+        <circle class="root-node" cx="250" cy="386" r="3.2" />
+        <circle class="root-node" cx="274" cy="378" r="2.6" />
+        <circle class="root-node" cx="292" cy="368" r="2.6" />
+        <circle class="root-node" cx="310" cy="358" r="2.6" />
+
+        <circle class="root-pulse p1" cx="250" cy="376" r="2.2" />
+        <circle class="root-pulse p2" cx="226" cy="366" r="2" />
+        <circle class="root-pulse p3" cx="274" cy="366" r="2" />
+      </g>
+
+      <g class="sprout-core">
+        <path class="sprout-stem" d="M 250 314 C 248 286 249 260 250 231" />
+        <path class="leaf-left" d="M 250 249 C 235 233 205 219 186 213 C 202 244 225 258 250 249 Z" />
+        <path class="leaf-right" d="M 250 242 C 269 224 296 211 317 205 C 302 236 276 251 250 242 Z" />
+
+        <path class="sprout-small-stem" d="M 233 316 C 232 304 233 293 235 282" />
+        <path class="leaf-small" d="M 235 289 C 227 283 216 279 208 278 C 215 289 225 293 235 289 Z" />
+      </g>
+    </svg>
+
+    <div class="brand-wrap">
+      <h1 class="brand-title">
+        <span class="word word-left" data-text="HUERT">HUERT</span>
+        <svg class="brand-leaf-o" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path
+            d="M16.9 8.2C10 9.8 6.8 14.6 5 19.8c4.1.8 8.7-.5 11.6-3.8 2.8-3.2 3.7-7.8 3.8-12.2-1.2 1.9-2.1 3.1-3.5 4.4z"
+          />
+          <path d="M10.2 19.7c1.8-2.9 4.2-5.4 8.3-7.3" />
+        </svg>
+        <span class="word word-right" data-text="CONNECT">CONNECT</span>
+      </h1>
+      <p class="brand-subtitle">{{ loadingText }} · {{ loadPercent }}%</p>
+    </div>
+  </div>
+</div>
