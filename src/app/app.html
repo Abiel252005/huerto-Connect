@@ -1,7 +1,9 @@
 <app-splash-screen *ngIf="showSplash" (splashComplete)="onSplashComplete()"></app-splash-screen>
 
+<!-- Header is outside page-content because it has position:fixed -->
+<app-header *ngIf="!showSplash"></app-header>
+
 <div class="page-content" [class.page-visible]="!showSplash">
-  <app-header></app-header>
   <main>
     <router-outlet></router-outlet>
   </main>

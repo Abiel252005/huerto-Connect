@@ -14,11 +14,6 @@
         opacity: 1;
         visibility: visible;
 
-        /* Header slides down from top */
-        app-header {
-            animation: reveal-header 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.1s both;
-        }
-
         /* Hero fades in and scales subtly */
         app-hero {
             animation: reveal-hero 1s cubic-bezier(0.16, 1, 0.3, 1) 0.2s both;
@@ -60,18 +55,6 @@
 }
 
 /* ─── Reveal Keyframes ─── */
-
-@keyframes reveal-header {
-    from {
-        opacity: 0;
-        transform: translateY(-30px);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
 
 @keyframes reveal-hero {
     from {
