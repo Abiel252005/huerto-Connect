@@ -4,13 +4,14 @@
   background: var(--admin-surface);
   padding: 10px;
   margin-bottom: 10px;
-  display: grid;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
   gap: 10px;
 }
 
 .summary {
-  display: grid;
-  gap: 4px;
+  display: none;
 }
 
 h3 {

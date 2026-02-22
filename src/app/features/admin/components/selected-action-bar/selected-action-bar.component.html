@@ -1,26 +1,9 @@
 <section class="selected-bar">
-  <div class="summary">
-    <h3>{{ title }}</h3>
-    <ng-container *ngIf="selected; else noSelection">
-      <ng-container
-        *ngIf="summaryTemplate"
-        [ngTemplateOutlet]="summaryTemplate"
-        [ngTemplateOutletContext]="{ $implicit: selected }"
-      ></ng-container>
-    </ng-container>
-    <ng-template #noSelection>
-      <p>Selecciona un registro de la tabla para habilitar acciones.</p>
-    </ng-template>
-  </div>
+  <div class="summary"></div>
 
   <div class="actions">
-    <button
-      *ngFor="let action of actions; trackBy: trackByAction"
-      type="button"
-      [class]="action.variant || 'ghost'"
-      [disabled]="isDisabled(action)"
-      (click)="run(action)"
-    >
+    <button *ngFor="let action of actions; trackBy: trackByAction" type="button" [class]="action.variant || 'ghost'"
+      [disabled]="isDisabled(action)" (click)="run(action)">
       <ion-icon *ngIf="action.icon" [name]="action.icon"></ion-icon>
       <span>{{ action.label }}</span>
     </button>

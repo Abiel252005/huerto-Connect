@@ -42,12 +42,7 @@ export class AdminLayoutComponent {
     { label: 'Reportes', icon: 'document-text-outline', route: '/admin/reportes', accent: '#5ef2d6', accentLight: '#0e7f68' }
   ];
 
-  statuses = [
-    'AI Engine Online',
-    'Chatbot Active',
-    'Detection System Running',
-    'Data Pipeline Active'
-  ];
+
 
   get themeIcon(): string {
     return this.theme === 'dark' ? 'sunny-outline' : 'moon-outline';

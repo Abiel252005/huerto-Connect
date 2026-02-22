@@ -9,6 +9,14 @@
       </div>
     </div>
 
+    <div class="sidebar-profile">
+      <div class="avatar">AR</div>
+      <div class="profile-info">
+        <strong>Admin Root</strong>
+        <span>Supervision Global</span>
+      </div>
+    </div>
+
     <nav class="menu">
       <a *ngFor="let item of navItems" class="menu-item" [routerLink]="item.route" routerLinkActive="active"
         #rla="routerLinkActive" [style.--item-accent]="item.accent" [style.--item-accent-light]="item.accentLight"
@@ -32,12 +40,6 @@
         <input type="text" placeholder="Buscar usuarios, huertos, plagas o reportes..." />
       </label>
 
-      <div class="status-row">
-        <span class="status-pill" *ngFor="let status of statuses">
-          <i></i>{{ status }}
-        </span>
-      </div>
-
       <div class="top-actions">
         <button type="button" class="theme-btn" (click)="toggleTheme()">
           <ion-icon [name]="themeIcon"></ion-icon>
@@ -47,13 +49,6 @@
           <ion-icon name="settings-outline"></ion-icon>
         </button>
         <button type="button" class="icon-btn"><ion-icon name="notifications-outline"></ion-icon></button>
-        <div class="profile">
-          <div class="avatar">AR</div>
-          <div>
-            <strong>Admin Root</strong>
-            <span>Supervision Global</span>
-          </div>
-        </div>
       </div>
     </header>
 

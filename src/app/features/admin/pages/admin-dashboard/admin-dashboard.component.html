@@ -1,17 +1,10 @@
 <div class="dashboard" *ngIf="vm$ | async as vm">
   <section class="kpi-grid panel">
-    <app-kpi-card
-      *ngFor="let card of kpis; trackBy: trackByIndex"
-      [label]="card.label"
-      [value]="card.value"
-      [delta]="card.delta"
-      [tone]="card.tone"
-      [icon]="card.icon"
-      [spark]="card.spark"
-    ></app-kpi-card>
+    <app-kpi-card *ngFor="let card of kpis; trackBy: trackByIndex" [label]="card.label" [value]="card.value"
+      [delta]="card.delta" [tone]="card.tone" [icon]="card.icon" [spark]="card.spark"></app-kpi-card>
   </section>
 
-  <section class="row row-map">
+  <section class="row row-map" *ngIf="vm.currentFilter === 'all' || vm.currentFilter === 'map'">
     <app-map-veracruz></app-map-veracruz>
 
     <article class="panel">
@@ -30,7 +23,7 @@
     </article>
   </section>
 
-  <section class="row row-two">
+  <section class="row row-two" *ngIf="vm.currentFilter === 'all' || vm.currentFilter === 'ai'">
     <article class="panel">
       <header class="panel-head">
         <h3>Deteccion de plagas IA</h3>
@@ -62,7 +55,7 @@
     </article>
   </section>
 
-  <section class="row row-two">
+  <section class="row row-two" *ngIf="vm.currentFilter === 'all' || vm.currentFilter === 'stats'">
     <article class="panel">
       <header class="panel-head">
         <h3>Crecimiento de usuarios</h3>
@@ -81,4 +74,25 @@
       </div>
     </article>
   </section>
+
+  <!-- Floating Filter Menu -->
+  <div class="fab-container">
+    <div class="fab-menu" *ngIf="isMenuOpen">
+      <button (click)="setFilter('all')" [class.active]="vm.currentFilter === 'all'">
+        <ion-icon name="apps-outline"></ion-icon> Dashboard Completo
+      </button>
+      <button (click)="setFilter('map')" [class.active]="vm.currentFilter === 'map'">
+        <ion-icon name="map-outline"></ion-icon> Mapa y Alertas
+      </button>
+      <button (click)="setFilter('ai')" [class.active]="vm.currentFilter === 'ai'">
+        <ion-icon name="hardware-chip-outline"></ion-icon> Detección IA y Chatbot
+      </button>
+      <button (click)="setFilter('stats')" [class.active]="vm.currentFilter === 'stats'">
+        <ion-icon name="stats-chart-outline"></ion-icon> Gráficas y Crecimiento
+      </button>
+    </div>
+    <button class="fab-btn" [class.active]="isMenuOpen" (click)="toggleMenu()" aria-label="Filtros del Dashboard">
+      <ion-icon name="options-outline"></ion-icon>
+    </button>
+  </div>
 </div>

@@ -3,7 +3,7 @@
 <!-- Header/Footer only on landing pages (not login/admin) -->
 <app-header *ngIf="!showSplash && showChrome"></app-header>
 
-<div class="page-content" [class.page-visible]="!showSplash">
+<div class="page-content" [class.page-visible]="!showSplash || isDashboard">
   <main>
     <router-outlet></router-outlet>
   </main>

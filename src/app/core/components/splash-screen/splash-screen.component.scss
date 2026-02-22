@@ -18,7 +18,7 @@
     radial-gradient(ellipse at 50% 75%, rgba(0, 255, 163, 0.08) 0%, transparent 55%),
     radial-gradient(circle at 30% 50%, rgba(0, 100, 255, 0.06) 0%, transparent 40%),
     radial-gradient(circle at 70% 50%, rgba(0, 200, 150, 0.06) 0%, transparent 40%),
-    linear-gradient(170deg, #021a12 0%, #031210 40%, #011008 100%);
+    linear-gradient(170deg, rgba(2, 26, 18, 0.88) 0%, rgba(3, 18, 16, 0.88) 40%, rgba(1, 16, 8, 0.88) 100%);
   transition: opacity 1.2s cubic-bezier(0.4, 0, 0.2, 1), visibility 1.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -180,7 +180,7 @@
    ═══════════════════════════════════════════════════════ */
 .outer-arc-track {
   fill: none;
-  stroke: rgba(200, 230, 255, 0.08);
+  stroke: rgba(0, 212, 161, 0.1);
   stroke-width: 2.5;
   stroke-dasharray: 1000;
   /* Shows full arc as a dim track */
@@ -189,7 +189,7 @@
 
 .outer-arc-halo {
   fill: none;
-  stroke: rgba(220, 240, 255, 0.2);
+  stroke: rgba(0, 212, 161, 0.25);
   stroke-width: 12;
   stroke-dasharray: 1000;
   transition: stroke-dashoffset 80ms linear;
@@ -200,7 +200,7 @@
 
 .outer-arc-energy {
   fill: none;
-  stroke: rgba(255, 255, 255, 0.95);
+  stroke: #00D4A1;
   stroke-width: 2.8;
   stroke-linecap: round;
   stroke-dasharray: 1000;
@@ -209,7 +209,7 @@
 
 .outer-arc-traveler {
   fill: none;
-  stroke: rgba(255, 255, 255, 0.85);
+  stroke: #00ffea;
   stroke-width: 3.5;
   stroke-linecap: round;
   stroke-dasharray: 30 970;

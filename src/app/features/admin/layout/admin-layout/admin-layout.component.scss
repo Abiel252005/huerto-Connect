@@ -126,10 +126,10 @@
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
-  gap: 7px;
+  gap: 4px;
   min-height: 0;
   flex: 1;
-  margin-top: 10px;
+  margin-top: 4px;
 }
 
 .menu-item {
@@ -234,13 +234,15 @@
   border-radius: 14px;
   background: var(--admin-panel);
   padding: 12px;
-  display: grid;
-  grid-template-columns: minmax(200px, 420px) 1fr auto;
-  gap: 12px;
+  display: flex;
+  justify-content: space-between;
   align-items: center;
+  gap: 12px;
 }
 
 .search {
+  flex: 1;
+  max-width: 420px;
   display: flex;
   align-items: center;
   gap: 9px;
@@ -339,39 +341,50 @@
   box-shadow: 0 0 0 1px color-mix(in srgb, var(--admin-accent) 22%, transparent);
 }
 
-.profile {
-  border: 1px solid var(--admin-line);
-  border-radius: 10px;
-  background: var(--admin-surface);
-  padding: 6px 8px;
+.sidebar-profile {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 8px;
+  text-align: center;
+  margin: 6px 0;
+  padding: 12px;
+  background: color-mix(in srgb, var(--admin-surface) 40%, transparent);
+  border-radius: 12px;
+  border: 1px solid var(--admin-line-soft);
 }
 
-.avatar {
-  width: 30px;
-  height: 30px;
-  border-radius: 8px;
+.sidebar-profile .avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
   display: grid;
   place-items: center;
-  font-size: 12px;
+  font-size: 18px;
   font-weight: 700;
+  margin-bottom: 8px;
+  color: var(--admin-text-main);
   background: linear-gradient(145deg,
       color-mix(in srgb, var(--admin-accent) 22%, transparent),
       color-mix(in srgb, var(--admin-accent-2) 22%, transparent));
-  border: 1px solid color-mix(in srgb, var(--admin-accent) 40%, transparent);
+  border: 2px solid color-mix(in srgb, var(--admin-accent) 50%, transparent);
+  box-shadow: 0 4px 12px color-mix(in srgb, var(--admin-accent) 20%, transparent);
 }
 
-.profile strong {
+.sidebar-profile strong {
   display: block;
-  font-size: 12px;
-  line-height: 1.1;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--admin-text-main);
+  line-height: 1.2;
 }
 
-.profile span {
-  color: var(--admin-text-dim);
-  font-size: 11px;
+.sidebar-profile span {
+  display: block;
+  color: var(--admin-accent-2);
+  font-size: 10px;
+  margin-top: 3px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .content {
@@ -397,7 +410,16 @@
   }
 
   .topbar {
-    grid-template-columns: 1fr;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .search {
+    max-width: 100%;
+  }
+
+  .top-actions {
+    justify-content: flex-end;
   }
 }
 
