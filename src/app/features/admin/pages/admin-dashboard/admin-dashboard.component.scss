@@ -9,13 +9,24 @@
 
 .panel {
   border: 1px solid var(--admin-line);
-  border-radius: 14px;
-  background: var(--admin-panel);
-  padding: 14px;
+  border-radius: 20px;
+  background: var(--admin-surface);
+  padding: 24px;
+  box-shadow: 0 4px 24px rgba(5, 31, 32, 0.04);
 }
 
 .panel-head {
-  margin-bottom: 10px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.panel-head h3 {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--admin-text-main);
+  margin: 0;
 }
 
 .kpi-grid {
@@ -39,26 +50,42 @@
 
 .stack,
 .topic-list {
-  display: grid;
-  gap: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
 .list-card,
 .topic-row {
-  border: 1px solid var(--admin-line);
-  border-radius: 10px;
-  padding: 8px;
-  background: var(--admin-surface-2);
+  border: 1px solid var(--admin-line-soft);
+  border-radius: 14px;
+  padding: 16px;
+  background: var(--admin-surface);
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 8px;
+  gap: 16px;
+  transition: transform 0.2s, box-shadow 0.2s, background 0.2s;
 }
 
-.list-card span,
-.topic-meta span {
-  color: var(--admin-text-dim);
+.list-card:hover,
+.topic-row:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(5, 31, 32, 0.05);
+  background: var(--admin-surface-2);
+}
+
+.list-card div strong {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--admin-text-main);
+  margin-bottom: 4px;
+}
+
+.list-card div span {
   font-size: 12px;
+  color: var(--admin-text-dim);
 }
 
 .topic-row {
@@ -69,33 +96,51 @@
   display: flex;
   justify-content: space-between;
   gap: 8px;
+  margin-bottom: 8px;
+}
+
+.topic-meta strong {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--admin-text-main);
+}
+
+.topic-meta span {
+  font-size: 12px;
+  color: var(--admin-text-dim);
 }
 
 .bar {
-  height: 8px;
+  height: 6px;
   border-radius: 999px;
   background: var(--admin-line-soft);
-  margin-top: 6px;
   overflow: hidden;
 }
 
 .bar i {
   display: block;
   height: 100%;
+  border-radius: 999px;
   background: linear-gradient(90deg, var(--admin-accent-2), var(--admin-accent));
 }
 
 .line-bars {
-  height: 120px;
+  height: 140px;
   display: flex;
   align-items: flex-end;
-  gap: 4px;
+  gap: 8px;
 }
 
 .line-bars span {
   flex: 1;
-  border-radius: 999px;
-  background: linear-gradient(180deg, var(--admin-accent-2), var(--admin-accent-3));
+  border-radius: 6px 6px 0 0;
+  background: linear-gradient(180deg, var(--admin-accent-2), var(--admin-accent));
+  opacity: 0.8;
+  transition: opacity 0.2s, height 0.3s ease-out;
+}
+
+.line-bars span:hover {
+  opacity: 1;
 }
 
 .line-bars.danger span {

@@ -4,12 +4,13 @@ import { IntegracionItem } from '../../mock/reportes.mock';
 import { ReportesService } from '../../services/reportes.service';
 import { AdminDataTableComponent } from '../../components/admin-data-table/admin-data-table.component';
 import { SelectedActionBarComponent } from '../../components/selected-action-bar/selected-action-bar.component';
+import { StatusBadgeComponent } from '../../components/status-badge/status-badge.component';
 import { ActionDef, ColumnDef } from '../../models/table-def.model';
 
 @Component({
   selector: 'app-admin-integraciones',
   standalone: true,
-  imports: [CommonModule, AdminDataTableComponent, SelectedActionBarComponent],
+  imports: [CommonModule, AdminDataTableComponent, SelectedActionBarComponent, StatusBadgeComponent],
   templateUrl: './admin-integraciones.component.html',
   styleUrls: ['./admin-integraciones.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -20,7 +21,7 @@ export class AdminIntegracionesComponent implements OnInit {
   readonly rowIdentity = (item: IntegracionItem): string => item.nombre;
   readonly columns: ColumnDef<IntegracionItem>[] = [
     { key: 'nombre', header: 'Integracion', cell: (row) => row.nombre },
-    { key: 'estado', header: 'Estado', cell: (row) => row.estado, align: 'center', width: '130px' },
+    { key: 'estado', header: 'Estado', cell: (row) => row.estado, align: 'center', width: '130px', isCustom: true },
     { key: 'ultimaRevision', header: 'Ultima revision', cell: (row) => row.ultimaRevision, width: '160px' }
   ];
   readonly actions: ActionDef<IntegracionItem>[] = [
@@ -43,7 +44,7 @@ export class AdminIntegracionesComponent implements OnInit {
   constructor(
     private readonly reportesService: ReportesService,
     private readonly cdr: ChangeDetectorRef
-  ) {}
+  ) { }
 
   ngOnInit() {
     this.reportesService.getIntegraciones().subscribe((integraciones) => {

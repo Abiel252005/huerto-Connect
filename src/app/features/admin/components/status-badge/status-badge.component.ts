@@ -14,7 +14,7 @@ export class StatusBadgeComponent {
 
   get toneClass(): string {
     const value = this.status.toLowerCase();
-    if (['activo', 'optimo', 'conectado', 'seguro', 'resuelta', 'confirmada', 'generado'].includes(value)) {
+    if (['activo', 'optimo', 'conectado', 'seguro', 'resuelta', 'confirmada', 'generado', 'baja'].includes(value)) {
       return 'ok';
     }
     if (['advertencia', 'atencion', 'degradado', 'en progreso', 'pendiente', 'inactivo', 'media'].includes(value)) {

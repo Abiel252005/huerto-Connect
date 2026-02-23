@@ -5,6 +5,7 @@ import { SelectedActionBarComponent } from '../../components/selected-action-bar
 import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
 import { EditModalComponent, EditField } from '../../components/edit-modal/edit-modal.component';
 import { ToastService } from '../../components/toast-notification/toast-notification.component';
+import { StatusBadgeComponent } from '../../components/status-badge/status-badge.component';
 import { ActionDef, ColumnDef } from '../../models/table-def.model';
 import { HuertosService } from '../../services/huertos.service';
 import { Huerto } from '../../models/huerto.model';
@@ -17,7 +18,8 @@ import { Huerto } from '../../models/huerto.model';
     AdminDataTableComponent,
     SelectedActionBarComponent,
     ConfirmDialogComponent,
-    EditModalComponent
+    EditModalComponent,
+    StatusBadgeComponent
   ],
   templateUrl: './admin-huertos.component.html',
   styleUrls: ['./admin-huertos.component.scss'],
@@ -56,7 +58,7 @@ export class AdminHuertosComponent implements OnInit {
     { key: 'usuario', header: 'Usuario', cell: (row) => row.usuario },
     { key: 'municipio', header: 'Municipio', cell: (row) => row.municipio, width: '120px' },
     { key: 'cultivosActivos', header: 'Cultivos', cell: (row) => row.cultivosActivos, align: 'center', width: '90px' },
-    { key: 'estado', header: 'Estado', cell: (row) => row.estado, align: 'center', width: '110px' },
+    { key: 'estado', header: 'Estado', cell: (row) => row.estado, align: 'center', width: '120px', isCustom: true },
     { key: 'salud', header: 'Salud', cell: (row) => `${row.salud}%`, align: 'center', width: '90px' },
     { key: 'alertas', header: 'Alertas', cell: (row) => row.alertas, align: 'center', width: '90px' }
   ];

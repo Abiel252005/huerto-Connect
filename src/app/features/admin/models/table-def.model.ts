@@ -1,9 +1,10 @@
 export type ColumnDef<T> = {
   key: string;
   header: string;
-  cell: (row: T) => string | number;
+  cell?: (row: T) => string | number;
   width?: string;
   align?: 'left' | 'center' | 'right';
+  isCustom?: boolean;
 };
 
 export type ActionDef<T> = {

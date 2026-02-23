@@ -6,6 +6,7 @@ import { SelectedActionBarComponent } from '../../components/selected-action-bar
 import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
 import { EditModalComponent, EditField } from '../../components/edit-modal/edit-modal.component';
 import { ToastService } from '../../components/toast-notification/toast-notification.component';
+import { StatusBadgeComponent } from '../../components/status-badge/status-badge.component';
 import { Usuario } from '../../models/usuario.model';
 import { ActionDef, ColumnDef } from '../../models/table-def.model';
 import { UsuariosService } from '../../services/usuarios.service';
@@ -19,7 +20,8 @@ import { UsuariosService } from '../../services/usuarios.service';
     AdminDataTableComponent,
     SelectedActionBarComponent,
     ConfirmDialogComponent,
-    EditModalComponent
+    EditModalComponent,
+    StatusBadgeComponent
   ],
   templateUrl: './admin-usuarios.component.html',
   styleUrls: ['./admin-usuarios.component.scss'],
@@ -63,7 +65,7 @@ export class AdminUsuariosComponent implements OnInit {
     { key: 'region', header: 'Region', cell: (row) => row.region },
     { key: 'rol', header: 'Rol', cell: (row) => row.rol, align: 'center', width: '110px' },
     { key: 'huertos', header: 'Huertos', cell: (row) => row.huertos, align: 'center', width: '90px' },
-    { key: 'estado', header: 'Estado', cell: (row) => row.estado, align: 'center', width: '110px' },
+    { key: 'estado', header: 'Estado', cell: (row) => row.estado, align: 'center', width: '120px', isCustom: true },
     { key: 'ultimaActividad', header: 'Ultima actividad', cell: (row) => row.ultimaActividad, width: '130px' }
   ];
 

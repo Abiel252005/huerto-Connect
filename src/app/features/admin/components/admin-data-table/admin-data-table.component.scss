@@ -1,41 +1,68 @@
 .table-wrap {
   overflow: auto;
+  border-radius: 12px;
+  border: 1px solid var(--admin-line-soft);
+  background: var(--admin-surface);
 }
 
 table {
   width: 100%;
-  border-collapse: collapse;
+  border-collapse: separate;
+  border-spacing: 0;
   min-width: 720px;
 }
 
 th,
 td {
-  padding: 9px 8px;
-  font-size: 12px;
+  padding: 12px 16px;
+  font-size: 13.5px;
+  text-align: left;
 }
 
 th {
+  position: sticky;
+  top: 0;
   color: var(--admin-text-dim);
   font-weight: 500;
+  background: var(--admin-panel);
   border-bottom: 1px solid var(--admin-line);
+  z-index: 10;
+  backdrop-filter: blur(8px);
 }
 
 td {
   color: var(--admin-text-main);
   border-bottom: 1px solid var(--admin-line-soft);
+  transition: color 0.2s;
 }
 
 tbody tr {
   cursor: pointer;
-  transition: background 130ms ease;
+  background: transparent;
+  transition: background 0.15s ease;
 }
 
 tbody tr:hover {
-  background: color-mix(in srgb, var(--admin-accent) 7%, transparent);
+  background: var(--admin-surface-2);
 }
 
 tbody tr.selected {
-  background: color-mix(in srgb, var(--admin-accent) 15%, transparent);
+  background: rgba(35, 83, 71, 0.1);
+  position: relative;
+}
+
+tbody tr.selected td:first-child::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: var(--admin-accent);
+}
+
+tbody tr:last-child td {
+  border-bottom: none;
 }
 
 tbody tr:focus-visible {
@@ -46,5 +73,6 @@ tbody tr:focus-visible {
 .empty {
   text-align: center;
   color: var(--admin-text-dim);
-  padding: 16px 10px;
+  padding: 32px 16px;
+  font-size: 14px;
 }

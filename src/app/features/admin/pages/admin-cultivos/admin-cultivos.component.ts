@@ -5,6 +5,7 @@ import { SelectedActionBarComponent } from '../../components/selected-action-bar
 import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
 import { EditModalComponent, EditField } from '../../components/edit-modal/edit-modal.component';
 import { ToastService } from '../../components/toast-notification/toast-notification.component';
+import { StatusBadgeComponent } from '../../components/status-badge/status-badge.component';
 import { Cultivo } from '../../models/cultivo.model';
 import { ActionDef, ColumnDef } from '../../models/table-def.model';
 import { HuertosService } from '../../services/huertos.service';
@@ -17,7 +18,8 @@ import { HuertosService } from '../../services/huertos.service';
     AdminDataTableComponent,
     SelectedActionBarComponent,
     ConfirmDialogComponent,
-    EditModalComponent
+    EditModalComponent,
+    StatusBadgeComponent
   ],
   templateUrl: './admin-cultivos.component.html',
   styleUrls: ['./admin-cultivos.component.scss'],
@@ -52,10 +54,10 @@ export class AdminCultivosComponent implements OnInit {
   readonly columns: ColumnDef<Cultivo>[] = [
     { key: 'nombre', header: 'Cultivo', cell: (row) => row.nombre },
     { key: 'temporada', header: 'Temporada', cell: (row) => row.temporada },
-    { key: 'dificultad', header: 'Dificultad', cell: (row) => row.dificultad, align: 'center', width: '90px' },
+    { key: 'dificultad', header: 'Dificultad', cell: (row) => row.dificultad, align: 'center', width: '90px', isCustom: true },
     { key: 'riego', header: 'Riego', cell: (row) => row.riego, align: 'center', width: '120px' },
     { key: 'fertilizacion', header: 'Fertilizacion', cell: (row) => row.fertilizacion },
-    { key: 'estado', header: 'Estado', cell: (row) => (row.activo ? 'Activo' : 'Inactivo'), align: 'center', width: '100px' }
+    { key: 'estado', header: 'Estado', cell: (row) => (row.activo ? 'Activo' : 'Inactivo'), align: 'center', width: '130px', isCustom: true }
   ];
 
   readonly actions: ActionDef<Cultivo>[] = [

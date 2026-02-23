@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ContentChild, EventEmitter, Input, Output, TemplateRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ColumnDef } from '../../models/table-def.model';
 
@@ -17,6 +17,8 @@ export class AdminDataTableComponent<T extends object> {
   @Input() rowIdentity: ((row: T) => string | number) | null = null;
   @Input() emptyMessage = 'No hay registros para mostrar.';
   @Output() selectedChange = new EventEmitter<T | null>();
+
+  @ContentChild('customCellTemplate') customCellTemplate?: TemplateRef<{ $implicit: T, column: ColumnDef<T> }>;
 
   selectRow(row: T): void {
     this.selectedChange.emit(row);

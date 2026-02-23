@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit } from '@
 import { CommonModule } from '@angular/common';
 import { AdminDataTableComponent } from '../../components/admin-data-table/admin-data-table.component';
 import { SelectedActionBarComponent } from '../../components/selected-action-bar/selected-action-bar.component';
+import { StatusBadgeComponent } from '../../components/status-badge/status-badge.component';
 import { ActionDef, ColumnDef } from '../../models/table-def.model';
 import { ReportesService } from '../../services/reportes.service';
 import { ReporteItem } from '../../mock/reportes.mock';
@@ -9,7 +10,7 @@ import { ReporteItem } from '../../mock/reportes.mock';
 @Component({
   selector: 'app-admin-reportes',
   standalone: true,
-  imports: [CommonModule, AdminDataTableComponent, SelectedActionBarComponent],
+  imports: [CommonModule, AdminDataTableComponent, SelectedActionBarComponent, StatusBadgeComponent],
   templateUrl: './admin-reportes.component.html',
   styleUrls: ['./admin-reportes.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -22,7 +23,7 @@ export class AdminReportesComponent implements OnInit {
     { key: 'nombre', header: 'Reporte', cell: (row) => row.nombre },
     { key: 'tipo', header: 'Tipo', cell: (row) => row.tipo, width: '140px' },
     { key: 'fecha', header: 'Fecha', cell: (row) => row.fecha, width: '120px' },
-    { key: 'estado', header: 'Estado', cell: (row) => row.estado, align: 'center', width: '120px' }
+    { key: 'estado', header: 'Estado', cell: (row) => row.estado, align: 'center', width: '130px', isCustom: true }
   ];
   readonly actions: ActionDef<ReporteItem>[] = [
     {
@@ -44,7 +45,7 @@ export class AdminReportesComponent implements OnInit {
   constructor(
     private readonly reportesService: ReportesService,
     private readonly cdr: ChangeDetectorRef
-  ) {}
+  ) { }
 
   ngOnInit() {
     this.reportesService.getReportes().subscribe((reportes) => {

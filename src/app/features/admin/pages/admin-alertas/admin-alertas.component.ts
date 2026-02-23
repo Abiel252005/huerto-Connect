@@ -7,6 +7,7 @@ import { SelectedActionBarComponent } from '../../components/selected-action-bar
 import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
 import { EditModalComponent, EditField } from '../../components/edit-modal/edit-modal.component';
 import { ToastService } from '../../components/toast-notification/toast-notification.component';
+import { StatusBadgeComponent } from '../../components/status-badge/status-badge.component';
 import { AlertasService } from '../../services/alertas.service';
 
 @Component({
@@ -17,7 +18,8 @@ import { AlertasService } from '../../services/alertas.service';
     AdminDataTableComponent,
     SelectedActionBarComponent,
     ConfirmDialogComponent,
-    EditModalComponent
+    EditModalComponent,
+    StatusBadgeComponent
   ],
   templateUrl: './admin-alertas.component.html',
   styleUrls: ['./admin-alertas.component.scss'],
@@ -56,8 +58,8 @@ export class AdminAlertasComponent implements OnInit {
     { key: 'titulo', header: 'Alerta', cell: (row) => row.titulo },
     { key: 'tipo', header: 'Tipo', cell: (row) => row.tipo, align: 'center', width: '120px' },
     { key: 'region', header: 'Region', cell: (row) => row.region, width: '150px' },
-    { key: 'severidad', header: 'Severidad', cell: (row) => row.severidad, align: 'center', width: '120px' },
-    { key: 'estado', header: 'Estado', cell: (row) => row.estado, align: 'center', width: '120px' },
+    { key: 'severidad', header: 'Severidad', cell: (row) => row.severidad, align: 'center', width: '120px', isCustom: true },
+    { key: 'estado', header: 'Estado', cell: (row) => row.estado, align: 'center', width: '120px', isCustom: true },
     { key: 'fecha', header: 'Fecha', cell: (row) => row.fecha, width: '130px' }
   ];
 
