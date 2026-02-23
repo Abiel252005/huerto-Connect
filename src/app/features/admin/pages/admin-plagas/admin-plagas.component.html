@@ -1,18 +1,22 @@
 <section class="panel">
   <header class="head">
-    <h2>Deteccion de Plagas (IA)</h2>
-    <small>Revision de imagenes, confianza y feedback al modelo</small>
+    <h2>Detección de Plagas (IA)</h2>
+    <small>Revisión de imágenes, confianza y feedback al modelo</small>
   </header>
 
-  <app-selected-action-bar [title]="'Deteccion seleccionada'" [selected]="selectedDeteccion" [actions]="actions"
+  <app-selected-action-bar [title]="'Detección seleccionada'" [selected]="selectedDeteccion" [actions]="actions"
     [summaryTemplate]="deteccionSummary" (clearSelection)="clearSelection()"></app-selected-action-bar>
 
   <ng-template #deteccionSummary let-deteccion>
     <div class="summary">
-      <img [src]="deteccion.imagenUrl" [alt]="deteccion.plaga" />
+      <div class="img-wrapper" (click)="abrirDrawer(deteccion)" title="Ver evidencia">
+        <img [src]="deteccion.imagenUrl" [alt]="deteccion.plaga" />
+        <div class="overlay"><ion-icon name="contract-outline"></ion-icon></div>
+      </div>
       <p>
-        {{ deteccion.plaga }} · {{ deteccion.cultivo }} · {{ deteccion.ubicacion }} ·
-        Confianza: {{ deteccion.confianza }}% · Estado: {{ deteccion.estado }}
+        <strong>{{ deteccion.plaga }}</strong><br>
+        {{ deteccion.cultivo }} · {{ deteccion.ubicacion }}<br>
+        Confianza: {{ deteccion.confianza }}%
       </p>
     </div>
   </ng-template>
@@ -21,6 +25,50 @@
     [rowIdentity]="rowIdentity" [emptyMessage]="'No hay detecciones disponibles.'"
     (selectedChange)="onSelectedChange($event)"></app-admin-data-table>
 </section>
+
+<!-- Drawer UI -->
+<div class="drawer-backdrop" [class.visible]="drawerVisible" (click)="cerrarDrawer()"></div>
+<div class="drawer" [class.visible]="drawerVisible" *ngIf="drawerItem">
+  <div class="drawer-header">
+    <h3>Inspector de evidencia</h3>
+    <button class="close-btn" (click)="cerrarDrawer()"><ion-icon name="close-outline"></ion-icon></button>
+  </div>
+  <div class="drawer-content">
+    <img [src]="drawerItem.imagenUrl" [alt]="drawerItem.plaga" class="drawer-img">
+    <div class="info-grid">
+      <div class="info-item">
+        <span class="info-label">Plaga Identificada</span>
+        <span class="info-val">{{ drawerItem.plaga }}</span>
+      </div>
+      <div class="info-item">
+        <span class="info-label">Confianza</span>
+        <span class="info-val">{{ drawerItem.confianza }}%</span>
+        <div class="confidence-bar">
+          <div class="confidence-fill" [style.width.%]="drawerItem.confianza"></div>
+        </div>
+      </div>
+      <div class="info-item">
+        <span class="info-label">Cultivo & Ubicación</span>
+        <span class="info-val">{{ drawerItem.cultivo }} · {{ drawerItem.ubicacion }}</span>
+      </div>
+      <div class="info-item">
+        <span class="info-label">Fecha del reporte</span>
+        <span class="info-val">{{ drawerItem.fecha }}</span>
+      </div>
+    </div>
+  </div>
+  <div class="drawer-footer">
+    <button class="btn-d edit" (click)="editarDeteccion(drawerItem)" title="Editar información">
+      <ion-icon name="create-outline"></ion-icon>
+    </button>
+    <button class="btn-d primary" (click)="confirmarMarcar(drawerItem, 'Confirmada')">
+      <ion-icon name="checkmark-outline"></ion-icon> Correcta
+    </button>
+    <button class="btn-d danger" (click)="confirmarMarcar(drawerItem, 'Descartada')">
+      <ion-icon name="close-outline"></ion-icon> Incorrecta
+    </button>
+  </div>
+</div>
 
 <!-- Edit Modal -->
 <app-edit-modal [visible]="editVisible" [title]="'Editar detección'" [fields]="editFields" [data]="editData"

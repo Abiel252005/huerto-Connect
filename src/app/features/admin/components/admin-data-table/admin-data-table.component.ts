@@ -1,11 +1,12 @@
 import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ColumnDef } from '../../models/table-def.model';
+import { StatusBadgeComponent } from '../status-badge/status-badge.component';
 
 @Component({
   selector: 'app-admin-data-table',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, StatusBadgeComponent],
   templateUrl: './admin-data-table.component.html',
   styleUrls: ['./admin-data-table.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush

@@ -1,6 +1,9 @@
 <div class="grid">
   <section class="panel">
-    <header class="head"><h2>Chatbot IA</h2><small>Consultas por tema</small></header>
+    <header class="head">
+      <h2>Chatbot IA</h2>
+      <small>Consultas por tema</small>
+    </header>
     <div class="topic-row" *ngFor="let topic of metricas">
       <div class="meta">
         <strong>{{ topic.tema }}</strong>
@@ -11,11 +14,24 @@
   </section>
 
   <section class="panel">
-    <header class="head"><h2>Conversaciones recientes</h2><small>Vista estilo chat</small></header>
-    <div class="chat-row" *ngFor="let chat of conversaciones">
-      <strong>{{ chat.usuario }} · {{ chat.region }}</strong>
-      <span>{{ chat.tema }}: {{ chat.ultimoMensaje }}</span>
-      <small>{{ chat.fecha }}</small>
+    <header class="head">
+      <h2>Conversaciones recientes</h2>
+      <small>Historial de interacciones con el modelo</small>
+    </header>
+    <div class="chat-list">
+      <div class="chat-row" *ngFor="let chat of conversaciones">
+        <div class="chat-avatar">{{ chat.usuario.charAt(0) | uppercase }}</div>
+        <div class="chat-content">
+          <div class="chat-header">
+            <strong>{{ chat.usuario }}</strong>
+            <span class="chat-region">{{ chat.region }}</span>
+            <small class="chat-time">{{ chat.fecha }}</small>
+          </div>
+          <div class="chat-message">
+            <span class="chat-topic">[{{ chat.tema }}]</span> {{ chat.ultimoMensaje }}
+          </div>
+        </div>
+      </div>
     </div>
   </section>
 </div>

@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit, inject, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AdminDataTableComponent } from '../../components/admin-data-table/admin-data-table.component';
 import { SelectedActionBarComponent } from '../../components/selected-action-bar/selected-action-bar.component';
@@ -21,7 +21,8 @@ import { PlagasService } from '../../services/plagas.service';
   ],
   templateUrl: './admin-plagas.component.html',
   styleUrls: ['./admin-plagas.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class AdminPlagasComponent implements OnInit {
   private readonly toast = inject(ToastService);
@@ -41,6 +42,10 @@ export class AdminPlagasComponent implements OnInit {
   // ── Edit modal state ──
   editVisible = false;
   editData: Record<string, unknown> | null = null;
+
+  // ── Drawer state ──
+  drawerVisible = false;
+  drawerItem: PlagaDeteccion | null = null;
   readonly editFields: EditField[] = [
     { key: 'plaga', label: 'Plaga', type: 'text', required: true },
     { key: 'confianza', label: 'Confianza (%)', type: 'number' },
@@ -69,13 +74,6 @@ export class AdminPlagasComponent implements OnInit {
       icon: 'create-outline',
       variant: 'primary',
       handler: (selected) => this.editarDeteccion(selected)
-    },
-    {
-      id: 'evidencia',
-      label: 'Ver evidencia',
-      icon: 'image-outline',
-      variant: 'ghost',
-      handler: (selected) => this.verEvidencia(selected)
     },
     {
       id: 'correcta',
@@ -115,7 +113,7 @@ export class AdminPlagasComponent implements OnInit {
   }
 
   // ── Edit ──
-  private editarDeteccion(selected: PlagaDeteccion | null) {
+  editarDeteccion(selected: PlagaDeteccion | null) {
     if (!selected) { return; }
     this.editData = { ...selected } as unknown as Record<string, unknown>;
     this.editVisible = true;
@@ -140,7 +138,7 @@ export class AdminPlagasComponent implements OnInit {
   }
 
   // ── Marcar con confirm ──
-  private confirmarMarcar(selected: PlagaDeteccion | null, estado: PlagaDeteccion['estado']) {
+  confirmarMarcar(selected: PlagaDeteccion | null, estado: PlagaDeteccion['estado']) {
     if (!selected) { return; }
     const isDescartar = estado === 'Descartada';
     this.confirmTitle = isDescartar ? 'Descartar detección' : 'Confirmar detección';
@@ -181,9 +179,16 @@ export class AdminPlagasComponent implements OnInit {
     });
   }
 
-  private verEvidencia(selected: PlagaDeteccion | null) {
+  abrirDrawer(selected: PlagaDeteccion | null) {
     if (!selected) { return; }
-    window.open(selected.imagenUrl, '_blank', 'noopener,noreferrer');
+    this.drawerItem = selected;
+    this.drawerVisible = true;
+    this.cdr.markForCheck();
+  }
+
+  cerrarDrawer() {
+    this.drawerVisible = false;
+    this.cdr.markForCheck();
   }
 
   private syncSelectedDeteccion() {

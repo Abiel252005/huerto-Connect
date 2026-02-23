@@ -1,50 +1,105 @@
 .table-wrap {
   overflow: auto;
+  max-height: 500px;
+  border-radius: 12px;
+  border: 1px solid var(--admin-panel-border);
+  background: rgba(255, 255, 255, 0.4);
+}
+
+.table-wrap::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.table-wrap::-webkit-scrollbar-thumb {
+  background: rgba(23, 56, 49, 0.2);
+  border-radius: 4px;
 }
 
 table {
   width: 100%;
-  border-collapse: collapse;
+  border-collapse: separate;
+  border-spacing: 0;
   min-width: 720px;
 }
 
 th,
 td {
-  padding: 9px 8px;
-  font-size: 12px;
+  padding: 12px 16px;
+  font-size: 13px;
+  text-align: left;
 }
 
 th {
-  color: var(--admin-text-dim);
-  font-weight: 500;
-  border-bottom: 1px solid var(--admin-line);
+  color: var(--color-secondary-dark);
+  font-weight: 600;
+  position: sticky;
+  top: 0;
+  background: rgba(219, 240, 221, 0.95);
+  backdrop-filter: blur(8px);
+  z-index: 10;
+  border-bottom: 1px solid var(--admin-panel-border);
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.05);
 }
 
 td {
-  color: var(--admin-text-main);
-  border-bottom: 1px solid var(--admin-line-soft);
+  color: var(--color-primary-dark);
+  border-bottom: 1px solid rgba(23, 56, 49, 0.08);
+  font-weight: 500;
 }
 
 tbody tr {
   cursor: pointer;
-  transition: background 130ms ease;
+  transition: all 150ms ease;
+  background: transparent;
 }
 
 tbody tr:hover {
-  background: color-mix(in srgb, var(--admin-accent) 7%, transparent);
+  background: rgba(255, 255, 255, 0.6);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(5, 31, 32, 0.03);
 }
 
 tbody tr.selected {
-  background: color-mix(in srgb, var(--admin-accent) 15%, transparent);
+  background: rgba(140, 183, 155, 0.15);
 }
 
 tbody tr:focus-visible {
-  outline: 2px solid var(--admin-accent);
+  outline: 2px solid var(--color-green-deep);
   outline-offset: -2px;
 }
 
 .empty {
   text-align: center;
-  color: var(--admin-text-dim);
-  padding: 16px 10px;
+  color: var(--color-secondary-dark);
+  padding: 32px 16px;
+  font-weight: 500;
+}
+
+.salud-bar-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.salud-val {
+  font-size: 13px;
+  font-weight: 600;
+  min-width: 40px;
+}
+
+.salud-bar {
+  flex: 1;
+  height: 6px;
+  border-radius: 100px;
+  background: rgba(23, 56, 49, 0.1);
+  overflow: hidden;
+  max-width: 100px;
+}
+
+.salud-bar i {
+  display: block;
+  height: 100%;
+  border-radius: 100px;
+  background: linear-gradient(90deg, var(--color-green-soft), var(--color-green-deep));
 }
