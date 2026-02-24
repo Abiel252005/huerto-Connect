@@ -469,6 +469,7 @@
     .container-form form {
         width: 100%;
         max-width: 360px;
+        transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.15), opacity 0.5s ease;
     }
 
     .container-welcome {
@@ -515,27 +516,44 @@
 
     /* Vertical slide transition for mobile welcome message */
     .welcome-sign-up {
-        transform: translateY(0) !important;
+        transform: translateY(0) scale(1) !important;
         opacity: 1;
         pointer-events: auto;
     }
 
     .welcome-sign-in {
-        transform: translateY(40px) !important;
+        transform: translateY(40px) scale(0.9) !important;
         opacity: 0;
         pointer-events: none;
     }
 
     .container.toggle .welcome-sign-up {
-        transform: translateY(-40px) !important;
+        transform: translateY(-40px) scale(0.9) !important;
         opacity: 0;
         pointer-events: none;
     }
 
     .container.toggle .welcome-sign-in {
-        transform: translateY(0) !important;
+        transform: translateY(0) scale(1) !important;
         opacity: 1;
         pointer-events: auto;
+    }
+
+    /* Override horizontal desktop form sliding with vertical slides and scaling */
+    .sign-in {
+        transform: translateY(0) scale(1) !important;
+    }
+
+    .container.toggle .sign-in {
+        transform: translateY(60px) scale(0.95) !important;
+    }
+
+    .sign-up {
+        transform: translateY(-60px) scale(0.95) !important;
+    }
+
+    .container.toggle .sign-up {
+        transform: translateY(0) scale(1) !important;
     }
 
     .container-form h2 {
