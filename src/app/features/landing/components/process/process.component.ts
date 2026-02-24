@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, OnDestroy, NgZone, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 
@@ -10,7 +10,7 @@ import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
     styleUrls: ['./process.component.scss'],
     schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
-export class ProcessComponent {
+export class ProcessComponent implements OnInit, OnDestroy {
     screens = [
         {
             id: 'perfil',
@@ -19,9 +19,9 @@ export class ProcessComponent {
             title: 'Define tu Perfil',
             desc: 'Indica tu nivel de experiencia agrícola para que la Inteligencia Artificial adapte sus recomendaciones y consejos técnicos a tus conocimientos previos.',
             features: [
-                'Adaptación de lenguaje técnico',
-                'Recomendaciones personalizadas',
-                'Curva de aprendizaje guiada'
+                { text: 'Adaptación de lenguaje técnico', icon: 'language-outline' },
+                { text: 'Recomendaciones personalizadas', icon: 'bulb-outline' },
+                { text: 'Curva de aprendizaje guiada', icon: 'school-outline' }
             ]
         },
         {
@@ -31,9 +31,9 @@ export class ProcessComponent {
             title: 'Área de Cultivo',
             desc: 'Establece las dimensiones exactas de tu huerto. Esto le permite al sistema calcular requerimientos de agua, semillas y fertilizantes de forma automática.',
             features: [
-                'Cálculo de insumos automático',
-                'Estimación de rendimiento',
-                'Distribución espacial óptima'
+                { text: 'Cálculo de insumos automático', icon: 'calculator-outline' },
+                { text: 'Estimación de rendimiento', icon: 'trending-up-outline' },
+                { text: 'Distribución espacial óptima', icon: 'map-outline' }
             ]
         },
         {
@@ -43,21 +43,21 @@ export class ProcessComponent {
             title: 'Contexto Ambiental',
             desc: 'La disponibilidad de agua y tu ubicación geográfica definen qué cultivos serán viables. Huerto Connect ajusta el cronograma según tu clima y tipo de riego.',
             features: [
-                'Gestión eficiente de recursos',
-                'Prevención de estrés hídrico',
-                'Alertas meteorológicas'
+                { text: 'Gestión eficiente de recursos', icon: 'water-outline' },
+                { text: 'Prevención de estrés hídrico', icon: 'shield-checkmark-outline' },
+                { text: 'Alertas meteorológicas', icon: 'thunderstorm-outline' }
             ]
         },
         {
             id: 'inicio',
-            label: 'Dashboard',
-            icon: 'apps-outline',
+            label: 'Inicio',
+            icon: 'home-outline',
             title: 'Tu Panel Central',
             desc: 'Un espacio centralizado que resume la salud general de tu cultivo, te notifica sobre acciones importantes y te da acceso inmediato al motor gráfico de análisis.',
             features: [
-                'Rastreo de actividades diarias',
-                'Notificaciones oportunas',
-                'Visión integral del huerto'
+                { text: 'Rastreo de actividades diarias', icon: 'clipboard-outline' },
+                { text: 'Notificaciones oportunas', icon: 'notifications-outline' },
+                { text: 'Visión integral del huerto', icon: 'eye-outline' }
             ]
         }
     ];
@@ -91,15 +91,66 @@ export class ProcessComponent {
         }
     ];
 
+    activeStepIndex = 0;
+    private stepInterval: any;
+    private screenInterval: any;
+
+    constructor(private ngZone: NgZone, private cdr: ChangeDetectorRef) { }
+
+    ngOnInit() {
+        this.startStepCycle();
+        this.startScreenCycle();
+    }
+
+    private startStepCycle() {
+        this.stepInterval = setTimeout(() => {
+            this.ngZone.run(() => {
+                this.activeStepIndex = (this.activeStepIndex + 1) % this.steps.length;
+                this.cdr.detectChanges();
+                this.startStepCycle();
+            });
+        }, 3000);
+    }
+
+    private startScreenCycle() {
+        this.screenInterval = setTimeout(() => {
+            this.ngZone.run(() => {
+                const currentIndex = this.screens.findIndex(s => s.id === this.activeScreenId);
+                const nextIndex = (currentIndex + 1) % this.screens.length;
+                this.activeScreenId = this.screens[nextIndex].id;
+                this.cdr.detectChanges();
+                this.startScreenCycle();
+            });
+        }, 5000);
+    }
+
+    ngOnDestroy() {
+        if (this.stepInterval) {
+            clearTimeout(this.stepInterval);
+        }
+        if (this.screenInterval) {
+            clearTimeout(this.screenInterval);
+        }
+    }
+
     setActiveScreen(id: string) {
         this.activeScreenId = id;
+        // Reset screen cycle when user clicks manually
+        if (this.screenInterval) {
+            clearTimeout(this.screenInterval);
+        }
+        this.startScreenCycle();
     }
 
     nextScreen() {
         const currentIndex = this.screens.findIndex(s => s.id === this.activeScreenId);
-        if (currentIndex < this.screens.length - 1) {
-            this.activeScreenId = this.screens[currentIndex + 1].id;
+        const nextIndex = (currentIndex + 1) % this.screens.length;
+        this.activeScreenId = this.screens[nextIndex].id;
+        // Reset screen cycle
+        if (this.screenInterval) {
+            clearTimeout(this.screenInterval);
         }
+        this.startScreenCycle();
     }
 
     get activeScreen() {

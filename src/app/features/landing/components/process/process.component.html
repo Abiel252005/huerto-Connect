@@ -7,7 +7,31 @@
 
     <div class="container-fluid">
 
-        <!-- TOP SECTION: APP MOCKUP SHOWCASE -->
+        <!-- TOP SECTION: STEPPER -->
+        <div class="stepper-section">
+            <div class="stepper-header">
+                <h2>Cómo Funciona <span>Huerto Connect</span></h2>
+                <p>Tu asistente agrícola impulsado por IA en 4 simples pasos</p>
+            </div>
+
+            <div class="stepper-container">
+                <div class="step-card" *ngFor="let step of steps; let i = index"
+                    [class.step-active]="i === activeStepIndex">
+                    <div class="step-marker">
+                        <span class="step-num">{{ step.number }}</span>
+                        <div class="step-icon-wrap">
+                            <ion-icon [name]="step.icon"></ion-icon>
+                        </div>
+                    </div>
+                    <div class="step-content">
+                        <h4>{{ step.title }}</h4>
+                        <p>{{ step.desc }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- APP MOCKUP SHOWCASE -->
         <div class="showcase-container">
 
             <!-- LEFT TABS -->
@@ -164,7 +188,7 @@
                                 </div>
 
                                 <h3 class="dash-h3">¡Bienvenido a tu huerto!</h3>
-                                <p class="dash-p">Aun no tienes cultivos regitrados<br>Agrega tu primer cultivo para
+                                <p class="dash-p">Aún no tienes cultivos registrados<br>Agrega tu primer cultivo para
                                     continuar</p>
 
                                 <button class="dash-btn-solid">+ Agregar mi primer cultivo</button>
@@ -182,7 +206,7 @@
 
                                 <div class="nav-fab-wrap">
                                     <div class="nav-fab">
-                                        <ion-icon name="scan-outline"></ion-icon>
+                                        <ion-icon name="logo-android"></ion-icon>
                                     </div>
                                     <small>Análisis</small>
                                 </div>
@@ -211,36 +235,14 @@
                 <p>{{ activeScreen.desc }}</p>
                 <ul class="feature-list">
                     <li *ngFor="let feat of activeScreen.features">
-                        <ion-icon name="checkmark-outline"></ion-icon> {{ feat }}
+                        <div class="feat-icon">
+                            <ion-icon [name]="feat.icon"></ion-icon>
+                        </div>
+                        {{ feat.text }}
                     </li>
                 </ul>
             </article>
 
-        </div>
-
-        <!-- BOTTOM SECTION: STEPPER -->
-        <div class="stepper-section">
-            <div class="stepper-header">
-                <h2>Cómo Funciona <span>Huerto Connect</span></h2>
-                <p>Tu asistente agrícola impulsado por IA en 4 simples pasos</p>
-            </div>
-
-            <div class="stepper-container">
-
-                <div class="step-card" *ngFor="let step of steps">
-                    <div class="step-marker">
-                        <span class="step-num">{{ step.number }}</span>
-                        <div class="step-icon-wrap">
-                            <ion-icon [name]="step.icon"></ion-icon>
-                        </div>
-                    </div>
-                    <div class="step-content">
-                        <h4>{{ step.title }}</h4>
-                        <p>{{ step.desc }}</p>
-                    </div>
-                </div>
-
-            </div>
         </div>
 
     </div>
