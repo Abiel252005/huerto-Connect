@@ -1,195 +1,247 @@
-<section class="process-section" id="process">
-    <div class="background-effects">
-        <div class="glow-orb orb-1"></div>
-        <div class="glow-orb orb-2"></div>
+<section class="proceso-section" id="process">
+    <!-- Dynamic Space/Particles Background -->
+    <div class="space-bg">
+        <div class="stars"></div>
+        <div class="twinkling"></div>
     </div>
 
-    <div class="container">
-        <div class="section-header text-center">
-            <span class="badge">Tu Camino al Éxito</span>
-            <h2>Cómo Funciona</h2>
-            <p class="section-subtitle">De tu perfil a la cosecha: inteligencia artificial que te guía en cada paso</p>
-        </div>
+    <div class="container-fluid">
 
+        <!-- TOP SECTION: APP MOCKUP SHOWCASE -->
+        <div class="showcase-container">
 
-        <div class="steps-grid">
-            <div class="step-card" *ngFor="let step of steps; let i = index">
-                <!-- Glow effect behind card -->
-                <div class="card-glow"></div>
+            <!-- LEFT TABS -->
+            <aside class="app-sidebar">
+                <button class="nav-btn" *ngFor="let screen of screens" [class.active]="activeScreenId === screen.id"
+                    (click)="setActiveScreen(screen.id)">
+                    <ion-icon [name]="screen.icon"></ion-icon> {{ screen.label }}
+                </button>
+            </aside>
 
-                <div class="card-content">
-                    <!-- Scanner line effect -->
-                    <div class="scanner-line"></div>
+            <!-- CENTER PHONE MOCKUP -->
+            <main class="phone-mockup-wrapper">
+                <div class="phone-mockup">
+                    <div class="phone-notch"></div>
 
-                    <!-- Progress bar at top -->
-                    <div class="progress-bar">
-                        <div class="progress-fill"></div>
-                    </div>
+                    <div class="phone-screen light-theme-app" [ngSwitch]="activeScreenId">
 
-                    <div class="step-number-wrapper">
-                        <span class="step-number">{{ step.number }}</span>
-                        <div class="pulse-ring"></div>
-                    </div>
+                        <!-- SCREEN 1: Perfil (Agricultor) -->
+                        <div *ngSwitchCase="'perfil'" class="mockup-view view-perfil">
+                            <h2 class="mc-title">¿Cuál es tu perfil de agricultor?</h2>
 
-                    <div class="icon-wrapper">
-                        <!-- Orbiting particles -->
-                        <div class="orbit-ring">
-                            <div class="orbit-particle"></div>
-                        </div>
-                        <!-- Icons based on step -->
-                        <ng-container [ngSwitch]="step.icon">
-                            <!-- User with spinning gear icon -->
-                            <svg *ngSwitchCase="'user-cog'" class="icon-user-cog" xmlns="http://www.w3.org/2000/svg"
-                                width="32" height="32" viewBox="0 0 32 32" fill="none" stroke="currentColor"
-                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <!-- User silhouette -->
-                                <circle cx="12" cy="10" r="5" />
-                                <path d="M20 28a8 8 0 1 0-16 0" />
-                                <!-- Spinning gear (separate group) -->
-                                <g class="spinning-gear">
-                                    <circle cx="24" cy="12" r="3" fill="none" />
-                                    <path d="M24 7v2" />
-                                    <path d="M24 15v2" />
-                                    <path d="M19.5 9.5l1.4 1.4" />
-                                    <path d="M27.1 13.1l1.4 1.4" />
-                                    <path d="M19.5 14.5l1.4-1.4" />
-                                    <path d="M27.1 10.9l1.4-1.4" />
-                                    <path d="M19 12h2" />
-                                    <path d="M27 12h2" />
-                                </g>
-                            </svg>
-                            <!-- Brain with IA text -->
-                            <svg *ngSwitchCase="'brain'" class="icon-brain" xmlns="http://www.w3.org/2000/svg"
-                                width="32" height="32" viewBox="0 0 32 32" fill="none" stroke="currentColor"
-                                stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                                <!-- Brain shape -->
-                                <path d="M10 8c-2.5 0-4 1.5-4 3.5 0 1.5 1 2.5 1 4s-1 3-1 4.5c0 2 2 3.5 4 3.5" />
-                                <path d="M22 8c2.5 0 4 1.5 4 3.5 0 1.5-1 2.5-1 4s1 3 1 4.5c0 2-2 3.5-4 3.5" />
-                                <path d="M10 8c0-2 2-4 6-4s6 2 6 4" />
-                                <path d="M10 23.5c0 2 2 4.5 6 4.5s6-2.5 6-4.5" />
-                                <path d="M16 4v6" />
-                                <!-- IA text inside brain -->
-                                <text x="16" y="19" text-anchor="middle" fill="currentColor" stroke="none" font-size="7"
-                                    font-weight="bold" font-family="Arial, sans-serif">IA</text>
-                            </svg>
-                            <!-- Seedling icon -->
-                            <svg *ngSwitchCase="'seedling'" class="icon-power" xmlns="http://www.w3.org/2000/svg"
-                                width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M12 10a4 4 0 0 0 4-4V2a9.16 9.16 0 0 0-8 4" />
-                                <path d="M12 10c-4 0-8-2-8-6a8 8 0 0 1 8 6" />
-                                <path d="M12 10v12" />
-                            </svg>
-                            <!-- Calendar icon -->
-                            <svg *ngSwitchCase="'calendar'" class="icon-trending" xmlns="http://www.w3.org/2000/svg"
-                                width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <rect x="3" y="4" width="18" height="18" rx="2" />
-                                <line x1="16" y1="2" x2="16" y2="6" />
-                                <line x1="8" y1="2" x2="8" y2="6" />
-                                <line x1="3" y1="10" x2="21" y2="10" />
-                                <path d="m9 16 2 2 4-4" />
-                            </svg>
-                            <svg *ngSwitchDefault width="24" height="24" viewBox="0 0 24 24" fill="none"
-                                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <circle cx="12" cy="12" r="10"></circle>
-                            </svg>
-                        </ng-container>
-                    </div>
+                            <div class="mc-cards-stack">
+                                <div class="mc-card">
+                                    <div class="mc-icon-circle"><ion-icon name="leaf-outline"></ion-icon></div>
+                                    <div class="mc-text">
+                                        <h5>Agricultor Novato</h5>
+                                        <p>Estoy empezando mi primer huerto.</p>
+                                    </div>
+                                </div>
 
-                    <h3>{{ step.title }}</h3>
-                    <p>{{ step.desc }}</p>
-                </div>
-            </div>
-        </div>
+                                <div class="mc-card active-card">
+                                    <div class="mc-icon-circle"><ion-icon name="nutrition-outline"></ion-icon></div>
+                                    <div class="mc-text">
+                                        <h5>Productor Intermedio</h5>
+                                        <p>Tengo algo de experiencia y busco optimizar.</p>
+                                    </div>
+                                </div>
 
-        <!-- ============ STATISTICS SECTION ============ -->
-        <div class="stats-section">
-            <div class="stats-header">
-                <span class="stats-badge">Lo Que Ofrecemos</span>
-                <h3>Tu Asistente Agrícola</h3>
-                <p>Tecnología que se adapta a tus necesidades y te acompaña siempre</p>
-            </div>
+                                <div class="mc-card">
+                                    <div class="mc-icon-circle"><ion-icon name="car-sport-outline"></ion-icon></div>
+                                    <div class="mc-text">
+                                        <h5>Cultivador a Gran Escala</h5>
+                                        <p>Gestiono cultivos extensos y busco análisis.</p>
+                                    </div>
+                                </div>
+                            </div>
 
-            <div class="stats-grid">
-                <div class="stat-card" *ngFor="let stat of stats; let i = index" [attr.data-index]="i">
-                    <!-- Animated background -->
-                    <div class="stat-bg"></div>
-
-                    <!-- Glow effect -->
-                    <div class="stat-glow" [ngClass]="'glow-' + stat.color"></div>
-
-                    <!-- Content -->
-                    <div class="stat-content">
-                        <!-- Animated icon -->
-                        <div class="stat-icon" [ngClass]="'icon-' + stat.color">
-                            <ng-container [ngSwitch]="stat.icon">
-                                <!-- Robot/AI icon -->
-                                <svg *ngSwitchCase="'robot'" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <rect x="3" y="11" width="18" height="10" rx="2" />
-                                    <circle cx="12" cy="5" r="2" />
-                                    <path d="M12 7v4" />
-                                    <line x1="8" y1="16" x2="8" y2="16" />
-                                    <line x1="16" y1="16" x2="16" y2="16" />
-                                </svg>
-                                <!-- Leaf icon -->
-                                <svg *ngSwitchCase="'leaf'" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path
-                                        d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z" />
-                                    <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12" />
-                                </svg>
-                                <!-- Target icon -->
-                                <svg *ngSwitchCase="'target'" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <circle cx="12" cy="12" r="10" />
-                                    <circle cx="12" cy="12" r="6" />
-                                    <circle cx="12" cy="12" r="2" />
-                                </svg>
-                                <!-- Lightbulb icon -->
-                                <svg *ngSwitchCase="'lightbulb'" xmlns="http://www.w3.org/2000/svg" width="24"
-                                    height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path
-                                        d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5" />
-                                    <path d="M9 18h6" />
-                                    <path d="M10 22h4" />
-                                </svg>
-                                <!-- Clock icon -->
-                                <svg *ngSwitchCase="'clock'" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <circle cx="12" cy="12" r="10" />
-                                    <polyline points="12 6 12 12 16 14" />
-                                </svg>
-                                <!-- Users icon -->
-                                <svg *ngSwitchCase="'users'" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-                                    <circle cx="9" cy="7" r="4" />
-                                    <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
-                                    <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-                                </svg>
-                            </ng-container>
+                            <div class="mc-spacer"></div>
+                            <button class="mc-gradient-btn" (click)="nextScreen()">Siguiente</button>
                         </div>
 
-                        <!-- Value with counter animation -->
-                        <div class="stat-value">
-                            <span class="value-number">{{ stat.value }}</span>
-                            <span class="value-label">{{ stat.label }}</span>
+                        <!-- SCREEN 2: Área de Cultivo -->
+                        <div *ngSwitchCase="'area'" class="mockup-view view-area">
+                            <div class="mc-header">
+                                <ion-icon name="arrow-back-outline" class="mc-back-btn"
+                                    (click)="setActiveScreen('perfil')"></ion-icon>
+                            </div>
+                            <h2 class="mc-title-small">Define tu área de cultivo</h2>
+
+                            <div class="mc-white-container">
+                                <div class="mc-inputs-row">
+                                    <div class="mc-input-group">
+                                        <label>Largo (m)</label>
+                                        <div class="fake-input-box">10</div>
+                                    </div>
+                                    <div class="mc-input-group">
+                                        <label>Ancho (m)</label>
+                                        <div class="fake-input-box">10</div>
+                                    </div>
+                                </div>
+
+                                <p class="mc-label-muted">Vista cenital de tu terreno:</p>
+
+                                <div class="mc-map-area">
+                                    <div class="mc-box-dotted">
+                                        <strong>10m × 10m</strong>
+                                        <small>100 m²</small>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mc-spacer"></div>
+                            <button class="mc-gradient-btn" (click)="nextScreen()">Siguiente</button>
                         </div>
 
-                        <!-- Description -->
-                        <p class="stat-desc">{{ stat.desc }}</p>
+                        <!-- SCREEN 3: Agua y Ubicación -->
+                        <div *ngSwitchCase="'agua'" class="mockup-view view-agua">
+                            <div class="mc-header">
+                                <ion-icon name="arrow-back-outline" class="mc-back-btn"
+                                    (click)="setActiveScreen('area')"></ion-icon>
+                            </div>
+                            <h2 class="mc-title-small">Ubicación y Acceso al Agua</h2>
 
-                        <!-- Progress indicator -->
-                        <div class="stat-progress">
-                            <div class="progress-track">
-                                <div class="progress-bar-fill" [ngClass]="'bar-' + stat.color"></div>
+                            <div class="mc-white-container">
+                                <h4 class="section-heading"><ion-icon name="location-outline"
+                                        style="color: #ef4444;"></ion-icon> Ubicación del huerto</h4>
+                                <div class="mc-pill-green">
+                                    <ion-icon name="location-outline"></ion-icon> Usar mi ubicación actual
+                                </div>
+                                <div class="mc-divider"><span>O ingresa manualmente</span></div>
+                                <div class="mc-fake-input">Ej: Cuitlahuac Ver</div>
+                            </div>
+
+                            <div class="mc-white-container mt-gap">
+                                <h4 class="section-heading"><ion-icon name="water-outline"
+                                        style="color: #3b82f6;"></ion-icon> Acceso al agua</h4>
+                                <p class="mc-sub-text">¿Cómo obtienes agua para tu huerto?</p>
+
+                                <div class="mc-option active-option">
+                                    <div class="mc-icon-circ"><ion-icon name="water-outline"></ion-icon></div>
+                                    <div class="mc-opt-text">
+                                        <h6>Flujo Constante</h6>
+                                        <small>Acceso a agua corriente ilimitado.</small>
+                                    </div>
+                                </div>
+
+                                <div class="mc-option">
+                                    <div class="mc-icon-circ"><ion-icon name="calendar-outline"></ion-icon></div>
+                                    <div class="mc-opt-text">
+                                        <h6>Riego por Tandeo</h6>
+                                        <small>Acceso programado o por días.</small>
+                                    </div>
+                                </div>
+
+                                <div class="mc-option">
+                                    <div class="mc-icon-circ"><ion-icon name="cloudy-outline"></ion-icon></div>
+                                    <div class="mc-opt-text">
+                                        <h6>Dependiente de Temporal</h6>
+                                        <small>Mi riego principal es la lluvia.</small>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mc-spacer"></div>
+                            <button class="mc-gradient-btn" (click)="nextScreen()">Siguiente</button>
+                        </div>
+
+                        <!-- SCREEN 4: Inicio (Dashboard) -->
+                        <div *ngSwitchCase="'inicio'" class="mockup-view view-inicio">
+                            <div class="dash-header">
+                                <div class="greeting">
+                                    <span class="light-text">Hola,</span><br>
+                                    <strong class="dark-text">Agricultor</strong>
+                                </div>
+                                <div class="dash-bell">
+                                    <ion-icon name="notifications-outline"></ion-icon>
+                                    <span class="badge">3</span>
+                                </div>
+                            </div>
+
+                            <div class="dash-center-wrapper">
+                                <div class="dash-empty-icon">
+                                    <ion-icon name="leaf-outline"></ion-icon>
+                                </div>
+
+                                <h3 class="dash-h3">¡Bienvenido a tu huerto!</h3>
+                                <p class="dash-p">Aun no tienes cultivos regitrados<br>Agrega tu primer cultivo para
+                                    continuar</p>
+
+                                <button class="dash-btn-solid">+ Agregar mi primer cultivo</button>
+                            </div>
+
+                            <div class="dash-bottom-nav">
+                                <div class="nav-item active">
+                                    <ion-icon name="home-outline"></ion-icon>
+                                    <small>Inicio</small>
+                                </div>
+                                <div class="nav-item">
+                                    <ion-icon name="trending-up-outline"></ion-icon>
+                                    <small>Seguimiento</small>
+                                </div>
+
+                                <div class="nav-fab-wrap">
+                                    <div class="nav-fab">
+                                        <ion-icon name="scan-outline"></ion-icon>
+                                    </div>
+                                    <small>Análisis</small>
+                                </div>
+
+                                <div class="nav-item">
+                                    <ion-icon name="people-outline"></ion-icon>
+                                    <small>Comunidad</small>
+                                </div>
+                                <div class="nav-item">
+                                    <ion-icon name="person-outline"></ion-icon>
+                                    <small>Perfil</small>
+                                </div>
                             </div>
                         </div>
+
                     </div>
                 </div>
+            </main>
+
+            <!-- RIGHT DETAILS PANEL -->
+            <article class="details-panel">
+                <div class="panel-icon">
+                    <ion-icon [name]="activeScreen.icon"></ion-icon>
+                </div>
+                <h2>{{ activeScreen.title }}</h2>
+                <p>{{ activeScreen.desc }}</p>
+                <ul class="feature-list">
+                    <li *ngFor="let feat of activeScreen.features">
+                        <ion-icon name="checkmark-outline"></ion-icon> {{ feat }}
+                    </li>
+                </ul>
+            </article>
+
+        </div>
+
+        <!-- BOTTOM SECTION: STEPPER -->
+        <div class="stepper-section">
+            <div class="stepper-header">
+                <h2>Cómo Funciona <span>Huerto Connect</span></h2>
+                <p>Tu asistente agrícola impulsado por IA en 4 simples pasos</p>
+            </div>
+
+            <div class="stepper-container">
+
+                <div class="step-card" *ngFor="let step of steps">
+                    <div class="step-marker">
+                        <span class="step-num">{{ step.number }}</span>
+                        <div class="step-icon-wrap">
+                            <ion-icon [name]="step.icon"></ion-icon>
+                        </div>
+                    </div>
+                    <div class="step-content">
+                        <h4>{{ step.title }}</h4>
+                        <p>{{ step.desc }}</p>
+                    </div>
+                </div>
+
             </div>
         </div>
+
     </div>
 </section>
