@@ -336,9 +336,11 @@
     0% {
         background-position: 0% 50%;
     }
+
     50% {
         background-position: 100% 50%;
     }
+
     100% {
         background-position: 0% 50%;
     }
@@ -347,69 +349,74 @@
 @keyframes leafRain {
     0% {
         transform:
-            translate(
-                calc(-50% + (var(--wind-x) * 0.03)),
-                calc(-50% - 8vh + (var(--wind-y) * 0.02))
-            )
-            rotate(var(--base-rotation, 0deg));
+            translate(calc(-50% + (var(--wind-x) * 0.03)),
+                calc(-50% - 8vh + (var(--wind-y) * 0.02))) rotate(var(--base-rotation, 0deg));
     }
+
     100% {
         transform:
-            translate(
-                calc(-50% + (var(--drift-x) * 0.3) + (var(--wind-x) * 0.11)),
-                calc(-50% + 108vh + (var(--wind-y) * 0.05))
-            )
-            rotate(calc(var(--base-rotation, 0deg) + 26deg));
+            translate(calc(-50% + (var(--drift-x) * 0.3) + (var(--wind-x) * 0.11)),
+                calc(-50% + 108vh + (var(--wind-y) * 0.05))) rotate(calc(var(--base-rotation, 0deg) + 26deg));
     }
 }
 
 @keyframes leafSway {
+
     0%,
     100% {
         margin-left: -2px;
     }
+
     50% {
         margin-left: 3px;
     }
 }
 
 @keyframes sproutPulse {
+
     0%,
     100% {
         opacity: 0.7;
     }
+
     50% {
         opacity: 0.9;
     }
 }
 
 @keyframes sproutToneSync {
+
     0%,
     100% {
         color: rgba(245, 251, 248, 0.92);
     }
+
     50% {
         color: rgba(11, 70, 42, 0.95);
     }
 }
 
 @keyframes sproutGlowSync {
+
     0%,
     100% {
         filter: drop-shadow(0 0 6px rgba(229, 248, 239, 0.42));
     }
+
     50% {
         filter: drop-shadow(0 0 8px rgba(36, 143, 86, 0.66));
     }
 }
 
 @keyframes backHomeToneSync {
+
     0%,
     100% {
         background: linear-gradient(135deg, #7be0b7, #56c89d);
         border-color: #8adfba;
         box-shadow: 0 6px 20px rgba(15, 78, 55, 0.28);
     }
+
     50% {
         background: linear-gradient(135deg, #69d8ae, #4fbf94);
         border-color: #7fd7b1;
@@ -418,56 +425,147 @@
 }
 
 @media (max-width: 900px) {
+    .login-scene {
+        padding: 16px;
+    }
+
     .back-home {
-        top: 12px;
-        left: 12px;
+        top: 16px;
+        left: 16px;
+        padding: 6px 10px;
+        font-size: 14px;
+
+        ion-icon {
+            font-size: 16px;
+        }
     }
 
     .container {
         width: 100%;
-        height: auto;
-        min-height: 700px;
+        height: calc(100vh - 32px);
+        height: calc(100dvh - 32px);
+        min-height: 600px;
+        max-height: 800px;
         flex-direction: column;
+        border-radius: 20px;
     }
 
     .container-form {
+        position: absolute;
+        top: 0;
+        left: 0;
         width: 100%;
-        flex: 0 0 auto;
-        min-height: 350px;
-        padding: 0 20px;
+        height: calc(100% - 240px);
+        flex: none;
+        padding: 0 24px;
         justify-content: center;
+        transition: top 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.15);
+    }
+
+    .container.toggle .container-form {
+        top: 240px;
+    }
+
+    .container-form form {
+        width: 100%;
+        max-width: 360px;
     }
 
     .container-welcome {
-        position: relative;
+        position: absolute;
+        top: calc(100% - 240px);
+        left: 0;
         width: 100%;
-        min-height: 260px;
-        transform: none;
-        border-radius: 30% 30% 0 0;
+        height: 240px;
+        transform: none !important;
+        border-radius: 40px 40px 20px 20px !important;
+        flex: none;
+        z-index: 10;
+        transition: top 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.15), border-radius 0.6s ease !important;
     }
 
     .container.toggle .container-welcome {
-        border-radius: 0 0 30% 30%;
+        top: 0;
+        border-radius: 20px 20px 40px 40px !important;
     }
 
     .container-welcome .welcome {
-        position: relative;
-        transform: none;
+        position: absolute;
         width: 100%;
-        padding: 34px 24px;
+        height: 100%;
+        padding: 24px;
+        justify-content: center;
+        gap: 12px;
+        transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.5s ease;
     }
 
-    .container.toggle .welcome-sign-up,
-    .container.toggle .welcome-sign-in,
+    .container-welcome h3 {
+        font-size: 32px;
+    }
+
+    .container-welcome p {
+        font-size: 15px;
+        line-height: 1.4;
+        padding: 0 10px;
+    }
+
+    .container-welcome .button {
+        margin-top: 8px;
+    }
+
+    /* Vertical slide transition for mobile welcome message */
+    .welcome-sign-up {
+        transform: translateY(0) !important;
+        opacity: 1;
+        pointer-events: auto;
+    }
+
     .welcome-sign-in {
-        transform: none;
+        transform: translateY(40px) !important;
+        opacity: 0;
+        pointer-events: none;
+    }
+
+    .container.toggle .welcome-sign-up {
+        transform: translateY(-40px) !important;
+        opacity: 0;
+        pointer-events: none;
+    }
+
+    .container.toggle .welcome-sign-in {
+        transform: translateY(0) !important;
+        opacity: 1;
+        pointer-events: auto;
     }
 
     .container-form h2 {
-        font-size: 36px;
+        font-size: 30px;
+        margin-bottom: 6px;
     }
 
     .container-form span {
-        font-size: 22px;
+        font-size: 14.5px;
+        margin-bottom: 12px;
+    }
+
+    .social-networks {
+        gap: 8px;
+        margin-bottom: 12px;
+
+        ion-icon {
+            padding: 6px;
+            font-size: 20px;
+        }
+    }
+
+    .container-input {
+        height: 44px;
+        margin-bottom: 8px;
+    }
+
+    .button {
+        height: 44px;
+        width: 100%;
+        max-width: 200px;
     }
 }
