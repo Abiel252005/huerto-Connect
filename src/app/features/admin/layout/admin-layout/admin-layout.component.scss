@@ -11,20 +11,36 @@
 }
 
 .admin-shell {
-  /* DARK THEME (Fallback / User toggled) */
-  --admin-bg-gradient: linear-gradient(135deg, #020b0c, #051F20);
-  --admin-sidebar-bg: rgba(3, 16, 17, 0.95);
-  --admin-panel: rgba(5, 31, 32, 0.7);
-  --admin-surface: rgba(23, 56, 49, 0.8);
-  --admin-surface-2: rgba(35, 83, 71, 0.6);
-  --admin-line: rgba(140, 183, 155, 0.15);
-  --admin-line-soft: rgba(140, 183, 155, 0.08);
-  --admin-text-main: #ffffff;
-  --admin-text-dim: #8CB79B;
-  --admin-accent: #235347;
-  --admin-accent-2: #8CB79B;
-  --admin-accent-3: #173831;
-  --admin-warn: #f59e0b;
+  /* CORE PALETTE */
+  --color-primary-dark: #051F20;
+  --color-secondary-dark: #173831;
+  --color-green-deep: #235347;
+  --color-green-soft: #8CB79B;
+  --color-bg-light: #DBF0DD;
+
+  --admin-bg-gradient: linear-gradient(135deg, var(--color-bg-light) 0%, #d1ead4 100%);
+  --admin-sidebar-bg: var(--color-primary-dark);
+
+  --admin-panel-bg: rgba(255, 255, 255, 0.7);
+  --admin-panel-border: rgba(255, 255, 255, 0.4);
+  --admin-glass-shadow: 0 8px 32px rgba(5, 31, 32, 0.05);
+
+  --admin-surface: rgba(255, 255, 255, 0.6);
+  --admin-surface-2: rgba(255, 255, 255, 0.9);
+  --admin-line: rgba(35, 83, 71, 0.15);
+  --admin-line-soft: rgba(35, 83, 71, 0.08);
+
+  --admin-text-main: var(--color-primary-dark);
+  --admin-text-dim: var(--color-secondary-dark);
+
+  --admin-sidebar-text: #ffffff;
+  --admin-sidebar-text-dim: var(--color-green-soft);
+
+  --admin-accent: var(--color-green-deep);
+  --admin-accent-2: var(--color-green-soft);
+  --admin-accent-3: var(--color-secondary-dark);
+
+  --admin-warn: #eab308;
   --admin-danger: #ef4444;
 
   min-height: 100vh;
@@ -35,23 +51,7 @@
   transition: background 0.3s ease, color 0.3s ease;
 }
 
-/* ── DEFAULT THEME (LIGHT - #DBF0DD based as requested) ── */
-.admin-shell[data-theme='light'] {
-  --admin-bg-gradient: linear-gradient(135deg, #DBF0DD 0%, #edf7ee 100%);
-  --admin-sidebar-bg: #051F20;
-  --admin-panel: rgba(255, 255, 255, 0.85);
-  --admin-surface: #ffffff;
-  --admin-surface-2: #f2f9f3;
-  --admin-line: rgba(35, 83, 71, 0.12);
-  --admin-line-soft: rgba(35, 83, 71, 0.05);
-  --admin-text-main: #051F20;
-  --admin-text-dim: #235347;
-  --admin-sidebar-text: #ffffff;
-  --admin-sidebar-text-dim: #8CB79B;
-  --admin-accent: #235347;
-  --admin-accent-2: #8CB79B;
-  --admin-accent-3: #173831;
-}
+/* We don't need a separate dark theme for admin-shell unless requested, we consolidate to the requested SaaS palette */
 
 /* ── SIDEBAR ── */
 .sidebar {

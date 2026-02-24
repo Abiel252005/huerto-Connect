@@ -20,6 +20,12 @@
       <ng-container *ngIf="column.key === 'estado'">
         <app-status-badge [status]="column.cell(row) + ''"></app-status-badge>
       </ng-container>
+      <ng-container *ngIf="column.key === 'salud'">
+        <div class="salud-bar-wrapper">
+          <span class="salud-val">{{ row.salud }}%</span>
+          <div class="salud-bar"><i [style.width.%]="row.salud"></i></div>
+        </div>
+      </ng-container>
     </ng-template>
   </app-admin-data-table>
 </section>

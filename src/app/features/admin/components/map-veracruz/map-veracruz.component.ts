@@ -6,7 +6,8 @@ import {
   ElementRef,
   OnDestroy,
   OnInit,
-  ViewChild
+  ViewChild,
+  CUSTOM_ELEMENTS_SCHEMA
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -21,7 +22,8 @@ import { PlantiosService } from '../../services/plantios.service';
   imports: [CommonModule, FormsModule],
   templateUrl: './map-veracruz.component.html',
   styleUrls: ['./map-veracruz.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class MapVeracruzComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('mapContainer', { static: true }) mapContainer!: ElementRef<HTMLDivElement>;
@@ -44,7 +46,7 @@ export class MapVeracruzComponent implements OnInit, AfterViewInit, OnDestroy {
   constructor(
     private readonly plantiosService: PlantiosService,
     private readonly cdr: ChangeDetectorRef
-  ) {}
+  ) { }
 
   ngOnInit() {
     const sub = this.plantiosService.getPlantios().subscribe((data) => {
@@ -134,11 +136,11 @@ export class MapVeracruzComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private colorBySeverity(level: Plantio['severidad']): string {
     if (level === 'Alta') {
-      return '#ff6b7b';
+      return '#ef4444'; // SaaS danger
     }
     if (level === 'Media') {
-      return '#ffd15f';
+      return '#eab308'; // SaaS warning
     }
-    return '#00ffa3';
+    return '#235347'; // SaaS Primary Deep
   }
 }

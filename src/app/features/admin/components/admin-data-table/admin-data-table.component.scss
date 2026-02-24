@@ -1,8 +1,29 @@
 .table-wrap {
   overflow: auto;
-  border-radius: 12px;
-  border: 1px solid var(--admin-line-soft);
+  border-radius: 16px;
+  border: 1px solid rgba(140, 183, 155, 0.2);
   background: var(--admin-surface);
+  max-height: 500px;
+  /* Optional, useful for sticky header */
+}
+
+/* Scrollbar minimalista */
+.table-wrap::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.table-wrap::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.table-wrap::-webkit-scrollbar-thumb {
+  background: rgba(140, 183, 155, 0.4);
+  border-radius: 10px;
+}
+
+.table-wrap::-webkit-scrollbar-thumb:hover {
+  background: rgba(140, 183, 155, 0.8);
 }
 
 table {
@@ -14,7 +35,7 @@ table {
 
 th,
 td {
-  padding: 12px 16px;
+  padding: 14px 18px;
   font-size: 13.5px;
   text-align: left;
 }
@@ -22,32 +43,34 @@ td {
 th {
   position: sticky;
   top: 0;
-  color: var(--admin-text-dim);
+  color: var(--color-secondary-dark);
   font-weight: 500;
-  background: var(--admin-panel);
-  border-bottom: 1px solid var(--admin-line);
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(140, 183, 155, 0.2);
   z-index: 10;
-  backdrop-filter: blur(8px);
 }
 
 td {
-  color: var(--admin-text-main);
-  border-bottom: 1px solid var(--admin-line-soft);
+  color: var(--color-primary-dark);
+  font-weight: 500;
+  border-bottom: 1px solid rgba(140, 183, 155, 0.1);
   transition: color 0.2s;
 }
 
 tbody tr {
   cursor: pointer;
   background: transparent;
-  transition: background 0.15s ease;
+  transition: background 0.2s ease, transform 0.2s ease;
 }
 
 tbody tr:hover {
-  background: var(--admin-surface-2);
+  background: rgba(255, 255, 255, 0.6);
 }
 
 tbody tr.selected {
-  background: rgba(35, 83, 71, 0.1);
+  background: rgba(140, 183, 155, 0.15);
   position: relative;
 }
 
@@ -58,7 +81,7 @@ tbody tr.selected td:first-child::before {
   top: 0;
   bottom: 0;
   width: 3px;
-  background: var(--admin-accent);
+  background: var(--color-green-deep);
 }
 
 tbody tr:last-child td {

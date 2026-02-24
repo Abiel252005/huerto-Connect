@@ -7,9 +7,5 @@
       <ion-icon *ngIf="action.icon" [name]="action.icon"></ion-icon>
       <span>{{ action.label }}</span>
     </button>
-
-    <button type="button" class="ghost clear-btn" [disabled]="!selected" (click)="clearSelection.emit()">
-      Limpiar seleccion
-    </button>
   </div>
 </section>

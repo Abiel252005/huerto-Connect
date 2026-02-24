@@ -31,7 +31,49 @@ export class AdminEstadisticasComponent implements AfterViewInit, OnDestroy {
   private renderCharts() {
     this.destroyCharts();
 
-    const colors = this.readThemeColors();
+    const colors = {
+      text: '#173831', // secondary dark
+      textMuted: '#8CB79B', // green soft
+      line: 'rgba(35, 83, 71, 0.1)',
+      primary: '#051F20', // primary dark
+      accent: '#235347', // green deep
+      accentSoft: '#8CB79B',
+      warn: '#eab308',
+      danger: '#ef4444',
+      bgBase: 'transparent'
+    };
+
+    const commonOptions = {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: false, // Default false to keep it extra clean
+          position: 'top' as const,
+          align: 'end' as const,
+          labels: {
+            color: colors.textMuted,
+            usePointStyle: true,
+            boxWidth: 6,
+            padding: 20,
+            font: { family: 'Inter', size: 12, weight: 500 }
+          }
+        },
+        tooltip: {
+          backgroundColor: '#051F20',
+          titleColor: '#8CB79B',
+          bodyColor: '#ffffff',
+          padding: 10,
+          cornerRadius: 6,
+          displayColors: false,
+          intersect: false,
+          mode: 'index' as const,
+          titleFont: { family: 'Inter', size: 12 },
+          bodyFont: { family: 'Inter', size: 13, weight: 600 }
+        }
+      },
+      animation: { duration: 1000, easing: 'easeOutQuart' as const }
+    };
 
     const usuariosPorRegion = [
       { label: 'Veracruz Puerto', value: 1280 },
@@ -41,11 +83,70 @@ export class AdminEstadisticasComponent implements AfterViewInit, OnDestroy {
       { label: 'Poza Rica', value: 470 },
       { label: 'Coatzacoalcos', value: 410 }
     ];
+
+    // Bar chart context for precise gradients
+    const uCtx = this.usuariosRegionCanvas.nativeElement.getContext('2d')!;
+    const uGradient = uCtx.createLinearGradient(0, 0, 0, 300);
+    uGradient.addColorStop(0, colors.accent);
+    uGradient.addColorStop(1, colors.accentSoft);
+
+    const usuariosConfig: ChartConfiguration<'bar'> = {
+      type: 'bar',
+      data: {
+        labels: usuariosPorRegion.map((item) => item.label),
+        datasets: [{
+          label: 'Usuarios',
+          data: usuariosPorRegion.map((item) => item.value),
+          backgroundColor: uGradient,
+          hoverBackgroundColor: colors.primary,
+          borderRadius: 4,
+          maxBarThickness: 24, // Thinner bars
+          borderWidth: 0
+        }]
+      },
+      options: {
+        ...commonOptions,
+        scales: this.buildScales(colors)
+      }
+    };
+
     const plagasPorSeveridad = [
       { label: 'Baja', value: 112 },
       { label: 'Media', value: 86 },
       { label: 'Alta', value: 41 }
     ];
+
+    const plagasConfig: ChartConfiguration<'doughnut'> = {
+      type: 'doughnut',
+      data: {
+        labels: plagasPorSeveridad.map((item) => item.label),
+        datasets: [{
+          data: plagasPorSeveridad.map((item) => item.value),
+          backgroundColor: [colors.accentSoft, colors.warn, colors.danger],
+          hoverOffset: 6,
+          borderWidth: 0
+        }]
+      },
+      options: {
+        ...commonOptions,
+        cutout: '85%', // Ultra thin ring
+        plugins: {
+          ...commonOptions.plugins,
+          tooltip: {
+            ...commonOptions.plugins.tooltip,
+            displayColors: true,
+            boxPadding: 4
+          },
+          legend: {
+            ...commonOptions.plugins.legend,
+            display: true,
+            position: 'right' as const,
+            align: 'center' as const
+          }
+        }
+      }
+    };
+
     const consultasPorTema = [
       { label: 'Riego', value: 6200 },
       { label: 'Plagas', value: 4300 },
@@ -53,81 +154,49 @@ export class AdminEstadisticasComponent implements AfterViewInit, OnDestroy {
       { label: 'Calendario', value: 2900 },
       { label: 'Otros', value: 1500 }
     ];
+
+    const chatbotConfig: ChartConfiguration<'bar'> = {
+      type: 'bar',
+      data: {
+        labels: consultasPorTema.map((item) => item.label),
+        datasets: [{
+          label: 'Consultas',
+          data: consultasPorTema.map((item) => item.value),
+          backgroundColor: 'rgba(35, 83, 71, 0.1)',
+          hoverBackgroundColor: colors.accent,
+          borderRadius: 20, // Pill shaped bars
+          maxBarThickness: 12,
+          borderWidth: 0
+        }]
+      },
+      options: {
+        ...commonOptions,
+        indexAxis: 'y',
+        scales: {
+          x: { display: false, grid: { display: false } }, // Completely hide x axis
+          y: {
+            border: { display: false },
+            grid: { display: false },
+            ticks: { color: colors.text, padding: 12, font: { family: 'Inter', weight: 500, size: 12 } }
+          }
+        }
+      }
+    };
+
     const comparativaRegional = {
       labels: ['Veracruz', 'Xalapa', 'Cordoba', 'Orizaba', 'Poza Rica', 'Coatzacoalcos'],
       huertos: [860, 720, 640, 520, 470, 410],
       detecciones: [124, 108, 92, 76, 62, 55]
     };
 
-    const usuariosConfig: ChartConfiguration<'bar'> = {
-      type: 'bar',
-      data: {
-        labels: usuariosPorRegion.map((item) => item.label),
-        datasets: [
-          {
-            label: 'Usuarios',
-            data: usuariosPorRegion.map((item) => item.value),
-            backgroundColor: colors.accentSecondary,
-            borderRadius: 8,
-            maxBarThickness: 36
-          }
-        ]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        scales: this.buildScales(colors)
-      }
-    };
+    const cCtx = this.comparativaRegionalCanvas.nativeElement.getContext('2d')!;
+    const cGradient1 = cCtx.createLinearGradient(0, 0, 0, 300);
+    cGradient1.addColorStop(0, 'rgba(35, 83, 71, 0.4)');
+    cGradient1.addColorStop(1, 'rgba(35, 83, 71, 0.0)');
 
-    const plagasConfig: ChartConfiguration<'doughnut'> = {
-      type: 'doughnut',
-      data: {
-        labels: plagasPorSeveridad.map((item) => item.label),
-        datasets: [
-          {
-            label: 'Detecciones',
-            data: plagasPorSeveridad.map((item) => item.value),
-            backgroundColor: [colors.accent, colors.warn, colors.danger],
-            borderColor: colors.panel,
-            borderWidth: 2
-          }
-        ]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: {
-            labels: {
-              color: colors.text
-            }
-          }
-        }
-      }
-    };
-
-    const chatbotConfig: ChartConfiguration<'bar'> = {
-      type: 'bar',
-      data: {
-        labels: consultasPorTema.map((item) => item.label),
-        datasets: [
-          {
-            label: 'Consultas',
-            data: consultasPorTema.map((item) => item.value),
-            backgroundColor: colors.accent,
-            borderRadius: 8,
-            maxBarThickness: 32
-          }
-        ]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        indexAxis: 'y',
-        scales: this.buildScales(colors)
-      }
-    };
+    const cGradient2 = cCtx.createLinearGradient(0, 0, 0, 300);
+    cGradient2.addColorStop(0, 'rgba(239, 68, 68, 0.3)');
+    cGradient2.addColorStop(1, 'rgba(239, 68, 68, 0.0)');
 
     const comparativaConfig: ChartConfiguration<'line'> = {
       type: 'line',
@@ -137,38 +206,66 @@ export class AdminEstadisticasComponent implements AfterViewInit, OnDestroy {
           {
             label: 'Huertos',
             data: comparativaRegional.huertos,
-            borderColor: colors.accentSecondary,
-            backgroundColor: colors.accentSecondary,
-            tension: 0.28
+            borderColor: colors.accent,
+            backgroundColor: cGradient1,
+            borderWidth: 2,
+            tension: 0.45,
+            fill: true,
+            pointRadius: 0,
+            pointHoverRadius: 6,
+            pointBackgroundColor: '#fff',
+            pointBorderColor: colors.accent,
+            pointBorderWidth: 2
           },
           {
             label: 'Detecciones',
             data: comparativaRegional.detecciones,
             borderColor: colors.danger,
-            backgroundColor: colors.danger,
-            tension: 0.28
+            backgroundColor: cGradient2,
+            borderWidth: 2,
+            tension: 0.45,
+            fill: true,
+            pointRadius: 0,
+            pointHoverRadius: 6,
+            pointBackgroundColor: '#fff',
+            pointBorderColor: colors.danger,
+            pointBorderWidth: 2
           }
         ]
       },
       options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        scales: this.buildScales(colors),
+        ...commonOptions,
+        interaction: {
+          mode: 'index',
+          intersect: false
+        },
         plugins: {
+          ...commonOptions.plugins,
           legend: {
-            labels: {
-              color: colors.text
-            }
+            ...commonOptions.plugins.legend,
+            display: true // Show legend here since there are two datasets
+          }
+        },
+        scales: {
+          x: {
+            border: { display: false },
+            grid: { display: false },
+            ticks: { color: colors.textMuted, font: { family: 'Inter', size: 12 } }
+          },
+          y: {
+            border: { display: false },
+            grid: { display: false }, // Completely hide inner lines
+            ticks: { display: false } // Hide y-axis numbers to keep it ultra slick
           }
         }
       }
     };
 
     this.charts.push(
-      new Chart(this.usuariosRegionCanvas.nativeElement.getContext('2d')!, usuariosConfig),
+      new Chart(uCtx, usuariosConfig),
       new Chart(this.plagasSeveridadCanvas.nativeElement.getContext('2d')!, plagasConfig),
       new Chart(this.chatbotTemaCanvas.nativeElement.getContext('2d')!, chatbotConfig),
-      new Chart(this.comparativaRegionalCanvas.nativeElement.getContext('2d')!, comparativaConfig)
+      new Chart(cCtx, comparativaConfig)
     );
   }
 
@@ -178,39 +275,18 @@ export class AdminEstadisticasComponent implements AfterViewInit, OnDestroy {
     }
   }
 
-  private buildScales(colors: { text: string; line: string }) {
+  private buildScales(colors: any) {
     return {
       x: {
-        ticks: { color: colors.text },
-        grid: { color: colors.line }
+        border: { display: false },
+        grid: { display: false },
+        ticks: { color: colors.textMuted, font: { family: 'Inter', size: 12 } }
       },
       y: {
-        ticks: { color: colors.text },
-        grid: { color: colors.line }
+        border: { display: false },
+        grid: { color: '#f1f5f9', tickLength: 0 },
+        ticks: { color: colors.textMuted, padding: 10, font: { family: 'Inter', size: 12 } }
       }
-    };
-  }
-
-  private readThemeColors(): {
-    text: string;
-    line: string;
-    accent: string;
-    accentSecondary: string;
-    warn: string;
-    danger: string;
-    panel: string;
-  } {
-    const shell = document.querySelector('.admin-shell') as HTMLElement | null;
-    const styles = getComputedStyle(shell ?? document.documentElement);
-
-    return {
-      text: styles.getPropertyValue('--admin-text-dim').trim() || '#2f6e66',
-      line: styles.getPropertyValue('--admin-line-soft').trim() || 'rgba(6, 122, 112, 0.14)',
-      accent: styles.getPropertyValue('--admin-accent').trim() || '#00c28c',
-      accentSecondary: styles.getPropertyValue('--admin-accent-2').trim() || '#00c2ff',
-      warn: styles.getPropertyValue('--admin-warn').trim() || '#b07900',
-      danger: styles.getPropertyValue('--admin-danger').trim() || '#bf3f63',
-      panel: styles.getPropertyValue('--admin-panel').trim() || 'rgba(255, 255, 255, 0.78)'
     };
   }
 }

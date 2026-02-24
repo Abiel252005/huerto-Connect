@@ -36,9 +36,15 @@
 
   <div class="summary" *ngIf="filteredPlantios.length > 0">
     <div *ngFor="let plantio of filteredPlantios; trackBy: trackByPlantio" class="item">
-      <strong>{{ plantio.nombre }}</strong>
-      <span>{{ plantio.cultivo }} - {{ plantio.municipio }}</span>
-      <small>Salud {{ plantio.salud }}% | Alertas {{ plantio.alertas }}</small>
+      <div class="item-header">
+        <strong>{{ plantio.nombre }}</strong>
+        <span class="location"><ion-icon name="location-outline"></ion-icon> {{ plantio.municipio }}</span>
+      </div>
+      <span class="crop-name">{{ plantio.cultivo }}</span>
+      <small>
+        <span class="badge badge-salud">Salud: {{ plantio.salud }}%</span>
+        <span class="badge badge-alert" [class.danger]="plantio.alertas > 0">Alertas: {{ plantio.alertas }}</span>
+      </small>
     </div>
   </div>
 </section>
