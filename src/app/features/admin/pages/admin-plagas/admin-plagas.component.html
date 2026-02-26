@@ -10,7 +10,7 @@
     <ng-template #customCellTemplate let-row let-column="column">
       <ng-container *ngIf="column.key === 'imagen'">
         <div class="table-img-wrapper" (click)="openDrawer(row, $event)">
-          <img [src]="row.imagenUrl" [alt]="row.plaga" />
+          <img [src]="row.imagenUrl" [alt]="row.plaga" (error)="onImageError($event)" />
           <div class="zoom-overlay"><ion-icon name="scan-outline"></ion-icon></div>
         </div>
       </ng-container>
@@ -43,7 +43,7 @@
     <div class="drawer-content" *ngIf="drawerData">
       <div class="drawer-image-container" (mousemove)="onMouseMove($event)" (mouseenter)="zoomActive = true"
         (mouseleave)="zoomActive = false">
-        <img [src]="drawerData.imagenUrl" alt="Evidencia de plaga" class="drawer-image" />
+        <img [src]="drawerData.imagenUrl" alt="Evidencia de plaga" class="drawer-image" (error)="onImageError($event)" />
 
         <!-- Amazon Zoom Lens -->
         <div class="zoom-lens" *ngIf="zoomActive" [style.left.px]="lensX" [style.top.px]="lensY"

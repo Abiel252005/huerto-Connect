@@ -26,6 +26,29 @@ import { PlagasService } from '../../services/plagas.service';
 })
 export class AdminPlagasComponent implements OnInit {
   private readonly toast = inject(ToastService);
+  readonly fallbackEvidenceImage = 'assets/images/huertooo.webp';
+  private readonly pestImageByKeyword: Array<{ keywords: string[]; image: string }> = [
+    {
+      keywords: ['mosca blanca', 'whitefly'],
+      image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6e/Witte_vlieg_op_boerenkool.jpg/1280px-Witte_vlieg_op_boerenkool.jpg'
+    },
+    {
+      keywords: ['pulgon', 'aphid'],
+      image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/51/Aphids_September_2008-1.jpg/1280px-Aphids_September_2008-1.jpg'
+    },
+    {
+      keywords: ['arana roja', 'acaro', 'spider mite'],
+      image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/52/Tetranychus_urticae_%284883560779%29.jpg/1280px-Tetranychus_urticae_%284883560779%29.jpg'
+    },
+    {
+      keywords: ['trips', 'thrips'],
+      image: 'https://upload.wikimedia.org/wikipedia/commons/b/bf/Thrips_tabaci%2C_Frankliniella_occidentalis.jpg'
+    },
+    {
+      keywords: ['minador', 'leaf miner', 'liriomyza'],
+      image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/76/Liriomyza_huidobrensis_%28Blanchard%2C_1926%29_3384332183.jpg/1280px-Liriomyza_huidobrensis_%28Blanchard%2C_1926%29_3384332183.jpg'
+    }
+  ];
 
   detecciones: PlagaDeteccion[] = [];
   selectedDeteccion: PlagaDeteccion | null = null;
@@ -99,7 +122,7 @@ export class AdminPlagasComponent implements OnInit {
 
   ngOnInit() {
     this.plagasService.getDetecciones().subscribe((detecciones) => {
-      this.detecciones = detecciones;
+      this.detecciones = detecciones.map((item) => this.withMatchedImage(item));
       this.syncSelectedDeteccion();
       this.cdr.markForCheck();
     });
@@ -127,7 +150,7 @@ export class AdminPlagasComponent implements OnInit {
   }
 
   onEditSave(data: Record<string, unknown>) {
-    const updated = data as unknown as PlagaDeteccion;
+    const updated = this.withMatchedImage(data as unknown as PlagaDeteccion);
     this.detecciones = this.detecciones.map((item) =>
       item.id === updated.id ? { ...item, ...updated } : item
     );
@@ -141,6 +164,12 @@ export class AdminPlagasComponent implements OnInit {
   onEditCancel() {
     this.editVisible = false;
     this.editData = null;
+  }
+
+  onImageError(event: Event) {
+    const image = event.target as HTMLImageElement | null;
+    if (!image || image.src.includes(this.fallbackEvidenceImage)) { return; }
+    image.src = this.fallbackEvidenceImage;
   }
 
   // ── Marcar con confirm ──
@@ -256,5 +285,29 @@ export class AdminPlagasComponent implements OnInit {
     if (!this.selectedDeteccion) { return; }
     this.selectedDeteccion =
       this.detecciones.find((item) => item.id === this.selectedDeteccion?.id) ?? null;
+  }
+
+  private withMatchedImage(item: PlagaDeteccion): PlagaDeteccion {
+    const matchedImage = this.resolveImageByPlaga(item.plaga);
+    return {
+      ...item,
+      imagenUrl: (matchedImage ?? item.imagenUrl) || this.fallbackEvidenceImage
+    };
+  }
+
+  private resolveImageByPlaga(plaga: string): string | null {
+    const normalized = this.normalizeText(plaga);
+    const match = this.pestImageByKeyword.find((entry) =>
+      entry.keywords.some((keyword) => normalized.includes(keyword))
+    );
+    return match?.image ?? null;
+  }
+
+  private normalizeText(value: string): string {
+    return (value || '')
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase()
+      .trim();
   }
 }
