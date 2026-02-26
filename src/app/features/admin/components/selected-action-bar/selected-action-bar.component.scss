@@ -1,13 +1,15 @@
 .selected-bar {
-  border: 1px solid var(--admin-line);
-  border-radius: 12px;
-  background: var(--admin-surface);
-  padding: 10px;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  padding: 0;
   margin-bottom: 10px;
   display: flex;
   align-items: center;
   justify-content: flex-end;
   gap: 10px;
+  width: fit-content;
+  margin-left: auto;
 }
 
 .summary {
