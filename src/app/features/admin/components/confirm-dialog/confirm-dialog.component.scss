@@ -1,9 +1,9 @@
 .overlay {
   position: fixed;
   inset: 0;
-  background: var(--admin-overlay);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
+  background: var(--admin-overlay, rgba(5, 31, 32, 0.4));
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
   display: grid;
   place-items: center;
   z-index: 2000;
@@ -22,10 +22,10 @@
 
 .dialog {
   width: min(440px, 92vw);
-  border: 1px solid var(--admin-line);
-  background: var(--admin-panel);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid var(--admin-line, #c0d4c4);
+  background: var(--admin-panel, #edf5ef);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
   border-radius: 16px;
   padding: 24px;
   text-align: center;
@@ -113,13 +113,13 @@ p {
 }
 
 .btn-cancel {
-  border: 1px solid var(--admin-line);
+  border: 1px solid var(--admin-line, #c0d4c4);
   background: transparent;
   color: var(--admin-text-main);
 }
 
 .btn-cancel:hover {
-  background: color-mix(in srgb, var(--admin-surface-2) 80%, transparent);
+  background: var(--admin-surface-2, #dfece3);
   border-color: color-mix(in srgb, var(--admin-line) 200%, transparent);
 }
 
