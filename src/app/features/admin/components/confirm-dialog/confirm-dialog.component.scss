@@ -2,8 +2,8 @@
   position: fixed;
   inset: 0;
   background: var(--admin-overlay);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
   display: grid;
   place-items: center;
   z-index: 2000;
@@ -23,9 +23,9 @@
 .dialog {
   width: min(440px, 92vw);
   border: 1px solid var(--admin-line);
-  background: var(--admin-panel);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
+  background: #edf5ef;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
   border-radius: 16px;
   padding: 24px;
   text-align: center;
