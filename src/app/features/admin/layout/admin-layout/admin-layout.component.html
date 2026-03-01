@@ -47,7 +47,59 @@
         <button type="button" class="icon-btn" routerLink="/admin/configuracion" aria-label="Configuracion">
           <ion-icon name="settings-outline"></ion-icon>
         </button>
-        <button type="button" class="icon-btn"><ion-icon name="notifications-outline"></ion-icon></button>
+
+        <div class="notifications-shell" [class.open]="notificationsOpen">
+          <button type="button" class="icon-btn notification-trigger" aria-label="Centro de notificaciones"
+            [attr.aria-expanded]="notificationsOpen" (click)="toggleNotifications($event)">
+            <ion-icon name="notifications-outline"></ion-icon>
+            <span class="notification-badge" *ngIf="hasUnread">
+              {{ unreadCount > 9 ? '9+' : unreadCount }}
+            </span>
+          </button>
+
+          <div class="notification-panel" *ngIf="notificationsOpen" (click)="$event.stopPropagation()">
+            <header class="notification-head">
+              <div>
+                <h4>Centro de Notificaciones</h4>
+                <small *ngIf="hasUnread">{{ unreadCount }} sin leer</small>
+                <small *ngIf="!hasUnread">Todo al día</small>
+              </div>
+              <div class="notification-head-actions">
+                <button type="button" (click)="markAllAsRead($event)" [disabled]="!hasUnread">Marcar leídas</button>
+                <button type="button" (click)="clearAll($event)" [disabled]="!hasNotifications">Limpiar</button>
+              </div>
+            </header>
+
+            <div class="notification-empty" *ngIf="!hasNotifications">
+              <ion-icon name="sparkles-outline"></ion-icon>
+              <p>No hay alertas pendientes.</p>
+            </div>
+
+            <ul class="notification-list" *ngIf="hasNotifications">
+              <li *ngFor="let notification of notifications" [class.unread]="!notification.read"
+                [attr.data-level]="notification.level">
+                <div class="notification-icon">
+                  <ion-icon [name]="notificationIcon(notification.level)"></ion-icon>
+                </div>
+
+                <div class="notification-body">
+                  <strong>{{ notification.title }}</strong>
+                  <p>{{ notification.message }}</p>
+                  <small>{{ relativeTime(notification.createdAt) }}</small>
+                </div>
+
+                <div class="notification-actions">
+                  <button type="button" class="mark-btn" *ngIf="!notification.read"
+                    (click)="markAsRead(notification.id, $event)">Marcar</button>
+                  <button type="button" class="close-btn" (click)="dismissNotification(notification.id, $event)"
+                    aria-label="Descartar notificación">
+                    <ion-icon name="close-outline"></ion-icon>
+                  </button>
+                </div>
+              </li>
+            </ul>
+          </div>
+        </div>
       </div>
     </header>
 

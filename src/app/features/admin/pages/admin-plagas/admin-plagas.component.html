@@ -43,7 +43,7 @@
     <div class="drawer-content" *ngIf="drawerData">
       <div class="drawer-image-container" (mousemove)="onMouseMove($event)" (mouseenter)="zoomActive = true"
         (mouseleave)="zoomActive = false">
-        <img [src]="drawerData.imagenUrl" alt="Evidencia de plaga" class="drawer-image" (error)="onImageError($event)" />
+        <img [src]="drawerData.imagenUrl" alt="Evidencia de plaga" class="drawer-image" (error)="onDrawerImageError($event)" />
 
         <!-- Amazon Zoom Lens -->
         <div class="zoom-lens" *ngIf="zoomActive" [style.left.px]="lensX" [style.top.px]="lensY"
@@ -52,8 +52,8 @@
       </div>
 
       <!-- Zoom Result View (Appears on Hover) -->
-      <div class="zoom-result-window" *ngIf="zoomActive" [style.background-image]="'url(' + drawerData.imagenUrl + ')'"
-        [style.background-position]="bgPosX + '% ' + bgPosY + '%'">
+      <div class="zoom-result-window" *ngIf="zoomActive" [style.background-image]="'url(' + zoomImageUrl + ')'"
+        [style.background-position]="bgPosX + '% ' + bgPosY + '%'" [style.background-size.%]="zoomBackgroundSize">
       </div>
 
       <div class="drawer-details">

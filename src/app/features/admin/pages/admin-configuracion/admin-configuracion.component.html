@@ -1,7 +1,243 @@
-<section class="panel">
-  <header class="head"><h2>Configuracion</h2><small>Parametros globales y seguridad</small></header>
-  <div class="setting" *ngFor="let item of settings">
-    <span>{{ item.label }}</span>
-    <strong>{{ item.value }}</strong>
+<section class="panel settings-page">
+  <header class="head">
+    <h2>Configuración</h2>
+    <small>Ajustes reales de perfil, monitoreo IA y seguridad operativa.</small>
+  </header>
+
+  <div class="summary-grid">
+    <article class="summary-item" *ngFor="let item of monitoreoResumen">
+      <span>{{ item.label }}</span>
+      <strong>{{ item.value }}</strong>
+    </article>
+  </div>
+
+  <div class="settings-layout">
+    <article class="card">
+      <header class="card-head">
+        <h3>Perfil de cuenta</h3>
+        <small>Información del administrador que recibe alertas y reportes.</small>
+      </header>
+
+      <div class="form-grid two-cols">
+        <label class="field">
+          <span>Nombre</span>
+          <input type="text" [(ngModel)]="profile.nombre" name="profileNombre" />
+        </label>
+
+        <label class="field">
+          <span>Rol</span>
+          <input type="text" [(ngModel)]="profile.rol" name="profileRol" />
+        </label>
+
+        <label class="field">
+          <span>Correo</span>
+          <input type="email" [(ngModel)]="profile.correo" name="profileCorreo" />
+        </label>
+
+        <label class="field">
+          <span>Teléfono</span>
+          <input type="tel" [(ngModel)]="profile.telefono" name="profileTelefono" />
+        </label>
+
+        <label class="field">
+          <span>Idioma</span>
+          <select [(ngModel)]="profile.idioma" name="profileIdioma">
+            <option *ngFor="let idioma of idiomas" [value]="idioma">{{ idioma }}</option>
+          </select>
+        </label>
+
+        <label class="field">
+          <span>Zona horaria</span>
+          <select [(ngModel)]="profile.zonaHoraria" name="profileZonaHoraria">
+            <option *ngFor="let zona of zonasHorarias" [value]="zona">{{ zona }}</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="toggle-list">
+        <div class="toggle-row">
+          <div class="toggle-meta">
+            <strong>Resumen diario por correo</strong>
+            <small>Incluye actividad de plagas, cultivos y fallos de sensores.</small>
+          </div>
+          <label class="switch" aria-label="Resumen diario por correo">
+            <input type="checkbox" [(ngModel)]="profile.resumenDiario" name="profileResumenDiario" />
+            <span class="slider"></span>
+          </label>
+        </div>
+
+        <div class="toggle-row">
+          <div class="toggle-meta">
+            <strong>Alertas críticas inmediatas</strong>
+            <small>Notifica eventos de severidad alta sin esperar consolidación.</small>
+          </div>
+          <label class="switch" aria-label="Alertas críticas inmediatas">
+            <input type="checkbox" [(ngModel)]="profile.alertasCriticas" name="profileAlertasCriticas" />
+            <span class="slider"></span>
+          </label>
+        </div>
+      </div>
+
+      <footer class="card-actions">
+        <button type="button" class="btn btn-primary" (click)="saveProfile()">Guardar perfil</button>
+      </footer>
+    </article>
+
+    <article class="card">
+      <header class="card-head">
+        <h3>Monitoreo de plagas (IA)</h3>
+        <small>Parámetros del flujo de revisión automática y alertamiento.</small>
+      </header>
+
+      <div class="form-grid two-cols">
+        <label class="field">
+          <span>Umbral mínimo de confianza IA (%)</span>
+          <input type="number" min="60" max="99" [(ngModel)]="monitoring.umbralConfianzaIa"
+            (change)="clampMonitoringRanges()" name="monitoringUmbralConfianzaIa" />
+        </label>
+
+        <label class="field">
+          <span>Nivel para escalar a revisión humana</span>
+          <select [(ngModel)]="monitoring.nivelEscalamiento" name="monitoringNivelEscalamiento">
+            <option value="Media">Media</option>
+            <option value="Alta">Alta</option>
+          </select>
+        </label>
+
+        <label class="field">
+          <span>Frecuencia de escaneo (min)</span>
+          <input type="number" min="5" max="120" [(ngModel)]="monitoring.frecuenciaEscaneoMin"
+            (change)="clampMonitoringRanges()" name="monitoringFrecuenciaEscaneoMin" />
+        </label>
+
+        <label class="field">
+          <span>Ventana de revisión (horas)</span>
+          <input type="number" min="6" max="72" [(ngModel)]="monitoring.ventanaRevisionHoras"
+            (change)="clampMonitoringRanges()" name="monitoringVentanaRevisionHoras" />
+        </label>
+
+        <label class="field">
+          <span>Canal principal de alertas</span>
+          <select [(ngModel)]="monitoring.canalPrincipal" name="monitoringCanalPrincipal">
+            <option value="App">App</option>
+            <option value="Correo">Correo</option>
+            <option value="WhatsApp">WhatsApp</option>
+          </select>
+        </label>
+
+        <label class="field">
+          <span>Retención de evidencia (días)</span>
+          <input type="number" min="7" max="365" [(ngModel)]="monitoring.retencionEvidenciaDias"
+            (change)="clampMonitoringRanges()" name="monitoringRetencionEvidenciaDias" />
+        </label>
+      </div>
+
+      <div class="toggle-list">
+        <div class="toggle-row">
+          <div class="toggle-meta">
+            <strong>Registrar imagen original</strong>
+            <small>Conserva la evidencia sin compresión para auditorías.</small>
+          </div>
+          <label class="switch" aria-label="Registrar imagen original">
+            <input type="checkbox" [(ngModel)]="monitoring.registrarImagenOriginal"
+              name="monitoringRegistrarImagenOriginal" />
+            <span class="slider"></span>
+          </label>
+        </div>
+
+        <div class="toggle-row">
+          <div class="toggle-meta">
+            <strong>Notificaciones push globales</strong>
+            <small>Activa avisos instantáneos en el panel administrativo.</small>
+          </div>
+          <label class="switch" aria-label="Notificaciones push globales">
+            <input type="checkbox" [(ngModel)]="monitoring.notificacionesPush" name="monitoringNotificacionesPush" />
+            <span class="slider"></span>
+          </label>
+        </div>
+
+        <div class="toggle-row">
+          <div class="toggle-meta">
+            <strong>Monitoreo nocturno</strong>
+            <small>Ejecuta inferencias fuera de horario laboral.</small>
+          </div>
+          <label class="switch" aria-label="Monitoreo nocturno">
+            <input type="checkbox" [(ngModel)]="monitoring.monitoreoNocturno" name="monitoringMonitoreoNocturno" />
+            <span class="slider"></span>
+          </label>
+        </div>
+
+        <div class="toggle-row">
+          <div class="toggle-meta">
+            <strong>Modo auditoría estricta</strong>
+            <small>Registra cambios de estados, usuarios y evidencias críticas.</small>
+          </div>
+          <label class="switch" aria-label="Modo auditoría estricta">
+            <input type="checkbox" [(ngModel)]="monitoring.auditoriaEstricta" name="monitoringAuditoriaEstricta" />
+            <span class="slider"></span>
+          </label>
+        </div>
+      </div>
+
+      <footer class="card-actions">
+        <button type="button" class="btn btn-secondary" (click)="resetMonitoring()">Restaurar recomendados</button>
+        <button type="button" class="btn btn-primary" (click)="saveMonitoring()">Guardar monitoreo</button>
+      </footer>
+    </article>
+
+    <article class="card full-width">
+      <header class="card-head">
+        <h3>Seguridad y sesión</h3>
+        <small>Políticas de acceso para proteger datos y trazabilidad del monitoreo.</small>
+      </header>
+
+      <div class="form-grid three-cols">
+        <label class="field">
+          <span>Duración máxima de sesión (min)</span>
+          <input type="number" min="15" max="240" [(ngModel)]="security.sesionMaximaMin"
+            (change)="clampSecurityRanges()" name="securitySesionMaximaMin" />
+        </label>
+
+        <label class="field">
+          <span>Intentos fallidos antes de bloqueo</span>
+          <input type="number" min="3" max="10" [(ngModel)]="security.intentosFallidosMax"
+            (change)="clampSecurityRanges()" name="securityIntentosFallidosMax" />
+        </label>
+
+        <label class="field">
+          <span>Última revisión de política</span>
+          <input type="date" [ngModel]="today" name="securityPolicyDate" disabled />
+        </label>
+      </div>
+
+      <div class="toggle-list">
+        <div class="toggle-row">
+          <div class="toggle-meta">
+            <strong>Doble factor (2FA)</strong>
+            <small>Solicita verificación adicional en accesos administrativos.</small>
+          </div>
+          <label class="switch" aria-label="Doble factor">
+            <input type="checkbox" [(ngModel)]="security.dobleFactor" name="securityDobleFactor" />
+            <span class="slider"></span>
+          </label>
+        </div>
+
+        <div class="toggle-row">
+          <div class="toggle-meta">
+            <strong>Alerta por inicio de sesión nuevo</strong>
+            <small>Informa cuando una cuenta se usa en un dispositivo no reconocido.</small>
+          </div>
+          <label class="switch" aria-label="Alerta por inicio de sesión nuevo">
+            <input type="checkbox" [(ngModel)]="security.alertaInicioSesion" name="securityAlertaInicioSesion" />
+            <span class="slider"></span>
+          </label>
+        </div>
+      </div>
+
+      <footer class="card-actions">
+        <button type="button" class="btn btn-secondary" (click)="resetSecurity()">Restaurar recomendados</button>
+        <button type="button" class="btn btn-primary" (click)="saveSecurity()">Guardar seguridad</button>
+      </footer>
+    </article>
   </div>
 </section>

@@ -27,6 +27,9 @@ import { PlagasService } from '../../services/plagas.service';
 export class AdminPlagasComponent implements OnInit {
   private readonly toast = inject(ToastService);
   readonly fallbackEvidenceImage = 'assets/images/huertooo.webp';
+  private readonly zoomWindowWidth = 650;
+  private readonly targetZoomPercent = 300;
+  private zoomRequestId = 0;
   private readonly pestImageByKeyword: Array<{ keywords: string[]; image: string }> = [
     {
       keywords: ['mosca blanca', 'whitefly'],
@@ -172,6 +175,11 @@ export class AdminPlagasComponent implements OnInit {
     image.src = this.fallbackEvidenceImage;
   }
 
+  onDrawerImageError(event: Event) {
+    this.onImageError(event);
+    this.prepareZoomImage(this.fallbackEvidenceImage);
+  }
+
   // ── Marcar con confirm ──
   private confirmarMarcar(selected: PlagaDeteccion | null, estado: PlagaDeteccion['estado']) {
     if (!selected) { return; }
@@ -223,6 +231,7 @@ export class AdminPlagasComponent implements OnInit {
     this.drawerData = selected;
     this.drawerVisible = true;
     this.zoomActive = false;
+    this.prepareZoomImage(selected.imagenUrl);
     this.cdr.markForCheck();
   }
 
@@ -231,6 +240,7 @@ export class AdminPlagasComponent implements OnInit {
     this.drawerData = null;
     this.selectedDeteccion = null; // Unselect row when closing drawer
     this.zoomActive = false;
+    this.zoomRequestId += 1;
     this.cdr.markForCheck();
   }
 
@@ -241,6 +251,8 @@ export class AdminPlagasComponent implements OnInit {
   lensSize = 180;
   bgPosX = 0;
   bgPosY = 0;
+  zoomBackgroundSize = this.targetZoomPercent;
+  zoomImageUrl = this.fallbackEvidenceImage;
 
   onMouseMove(event: MouseEvent) {
     const container = event.currentTarget as HTMLElement;
@@ -309,5 +321,89 @@ export class AdminPlagasComponent implements OnInit {
       .replace(/[\u0300-\u036f]/g, '')
       .toLowerCase()
       .trim();
+  }
+
+  private prepareZoomImage(sourceUrl: string) {
+    const requestId = ++this.zoomRequestId;
+    const baseUrl = sourceUrl || this.fallbackEvidenceImage;
+    const highResUrl = this.getHighResolutionUrl(baseUrl);
+
+    this.zoomImageUrl = baseUrl;
+    this.zoomBackgroundSize = this.targetZoomPercent;
+
+    void this.applyZoomImage(highResUrl, requestId).catch(() =>
+      this.applyZoomImage(baseUrl, requestId).catch(() => {
+        if (requestId !== this.zoomRequestId) { return; }
+        this.zoomImageUrl = this.fallbackEvidenceImage;
+        this.zoomBackgroundSize = this.computeSafeZoomPercent(this.zoomWindowWidth);
+        this.cdr.markForCheck();
+      })
+    );
+  }
+
+  private async applyZoomImage(url: string, requestId: number): Promise<void> {
+    const imageWidth = await this.loadImageWidth(url);
+    if (requestId !== this.zoomRequestId) { return; }
+
+    this.zoomImageUrl = url;
+    this.zoomBackgroundSize = this.computeSafeZoomPercent(imageWidth);
+    this.cdr.markForCheck();
+  }
+
+  private loadImageWidth(url: string): Promise<number> {
+    return new Promise((resolve, reject) => {
+      const image = new Image();
+      image.onload = () => resolve(image.naturalWidth || this.zoomWindowWidth);
+      image.onerror = () => reject(new Error('No se pudo cargar imagen de zoom'));
+      image.src = url;
+    });
+  }
+
+  private computeSafeZoomPercent(imageWidth: number): number {
+    const maxWithoutUpscale = Math.floor((imageWidth / this.zoomWindowWidth) * 100);
+    return Math.min(this.targetZoomPercent, Math.max(100, maxWithoutUpscale));
+  }
+
+  private getHighResolutionUrl(url: string): string {
+    if (!/^https?:\/\//i.test(url)) { return url; }
+    return this.toWikimediaOriginalUrl(url) ?? this.toUnsplashHighResUrl(url);
+  }
+
+  private toWikimediaOriginalUrl(url: string): string | null {
+    if (!url.includes('upload.wikimedia.org') || !url.includes('/thumb/')) {
+      return null;
+    }
+
+    try {
+      const parsed = new URL(url);
+      const marker = '/thumb/';
+      const markerIndex = parsed.pathname.indexOf(marker);
+      if (markerIndex < 0) { return null; }
+
+      const prefix = parsed.pathname.slice(0, markerIndex);
+      const tail = parsed.pathname.slice(markerIndex + marker.length);
+      const lastSlash = tail.lastIndexOf('/');
+      if (lastSlash < 0) { return null; }
+
+      const originalPath = tail.slice(0, lastSlash);
+      return `${parsed.origin}${prefix}/${originalPath}`;
+    } catch {
+      return null;
+    }
+  }
+
+  private toUnsplashHighResUrl(url: string): string {
+    if (!url.includes('images.unsplash.com')) { return url; }
+
+    try {
+      const parsed = new URL(url);
+      parsed.searchParams.set('auto', 'format');
+      parsed.searchParams.set('fit', 'max');
+      parsed.searchParams.set('w', '2400');
+      parsed.searchParams.set('q', '90');
+      return parsed.toString();
+    } catch {
+      return url;
+    }
   }
 }

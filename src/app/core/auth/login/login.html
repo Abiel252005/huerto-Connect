@@ -1,10 +1,5 @@
-<div
-    class="login-scene"
-    (pointermove)="onPointerMove($event)"
-    (pointerleave)="onPointerLeave()"
-    [style.--wind-x]="windXPx + 'px'"
-    [style.--wind-y]="windYPx + 'px'"
->
+<div class="login-scene" (pointermove)="onPointerMove($event)" (pointerleave)="onPointerLeave()"
+    [style.--wind-x]="windXPx + 'px'" [style.--wind-y]="windYPx + 'px'">
     <a class="back-home" routerLink="/" aria-label="Volver al inicio">
         <ion-icon name="arrow-back-outline"></ion-icon>
         <span>Volver</span>
@@ -12,29 +7,38 @@
 
     <div class="dynamic-bg" aria-hidden="true">
         <div class="sprout-field">
-            <div
-                class="sprout"
-                *ngFor="let sprout of sprouts"
-                [style.left.%]="sprout.x"
-                [style.top.%]="sprout.y"
-                [style.width.px]="sprout.size"
-                [style.height.px]="sprout.size"
-                [style.--delay]="sprout.delay + 's'"
-                [style.--float-duration]="sprout.duration + 's'"
-                [style.--drift-x.px]="sprout.driftX"
-                [style.--drift-y.px]="sprout.driftY"
-                [style.opacity]="sprout.opacity"
-                [style.--base-rotation]="sprout.rotate + 'deg'"
-            >
+            <div class="sprout" *ngFor="let sprout of sprouts" [style.left.%]="sprout.x" [style.top.%]="sprout.y"
+                [style.width.px]="sprout.size" [style.height.px]="sprout.size" [style.--delay]="sprout.delay + 's'"
+                [style.--float-duration]="sprout.duration + 's'" [style.--drift-x.px]="sprout.driftX"
+                [style.--drift-y.px]="sprout.driftY" [style.opacity]="sprout.opacity"
+                [style.--base-rotation]="sprout.rotate + 'deg'">
                 <ion-icon name="leaf-outline"></ion-icon>
             </div>
         </div>
     </div>
 
-    <div class="container" [class.toggle]="isRegister">
+    <!-- API Status Badge Persistent -->
+    <div class="api-status-badge"
+        [ngClass]="{'online': apiConnected === true, 'offline': apiConnected === false, 'checking': apiConnected === null}">
+        <span class="status-dot"></span>
+        <span class="status-text">
+            {{ apiConnected === true ? 'API Conectada' : (apiConnected === false ? 'API Desconectada' : 'Verificando
+            API...') }}
+        </span>
+    </div>
+
+    <div class="container" [class.toggle]="isSafeMode">
         <div class="container-form">
-            <form class="sign-in" (ngSubmit)="onLogin()" autocomplete="off">
-                <h2>Iniciar Sesión</h2>
+            <form class="sign-in" (ngSubmit)="onLoginVulnerable()" autocomplete="off">
+                <h2>Login (Vulnerable)</h2>
+                <div class="error-banner" *ngIf="errorMessage && !isSafeMode" [class.success]="successMessage">
+                    <ion-icon name="warning-outline"></ion-icon>
+                    {{ errorMessage }}
+                </div>
+                <div class="success-banner" *ngIf="successMessage && !isSafeMode">
+                    <ion-icon name="checkmark-circle-outline"></ion-icon>
+                    {{ successMessage }}
+                </div>
                 <div class="social-networks">
                     <ion-icon name="logo-twitch"></ion-icon>
                     <ion-icon name="logo-twitter"></ion-icon>
@@ -44,88 +48,73 @@
                 <span>Use su correo y contraseña</span>
                 <div class="container-input">
                     <ion-icon name="mail-outline"></ion-icon>
-                    <input
-                        type="email"
-                        name="loginEmail"
-                        [(ngModel)]="loginEmail"
-                        placeholder="Email"
-                        autocomplete="off"
-                        required
-                    >
+                    <input type="email" name="loginEmail" [(ngModel)]="loginEmail" placeholder="Email"
+                        autocomplete="off" required>
                 </div>
-                <div class="container-input">
+                <div class="container-input password-input-container">
                     <ion-icon name="lock-closed-outline"></ion-icon>
-                    <input
-                        type="password"
-                        name="loginPassword"
-                        [(ngModel)]="loginPassword"
-                        placeholder="Password"
-                        autocomplete="off"
-                        required
-                    >
+                    <input [type]="showLoginPassword ? 'text' : 'password'" name="loginPassword"
+                        [(ngModel)]="loginPassword" placeholder="Contraseña" autocomplete="off" required>
+                    <button type="button" class="password-toggle-btn" (click)="toggleLoginPassword()"
+                        aria-label="Mostrar/Ocultar contraseña">
+                        <ion-icon [name]="showLoginPassword ? 'eye-off-outline' : 'eye-outline'"></ion-icon>
+                    </button>
                 </div>
-                <a href="#">¿Olvidaste tu contraseña?</a>
-                <button class="button" type="submit">INICIAR SESIÓN</button>
+                <!-- <a href="#">¿Olvidaste tu contraseña?</a> -->
+                <button class="button" type="submit">INICIAR SESIÓN (INSEGURO)</button>
             </form>
         </div>
 
         <div class="container-form">
-            <form class="sign-up" (ngSubmit)="onRegister()" autocomplete="off">
-                <h2>Registrarse</h2>
-                <div class="social-networks">
+            <form class="sign-up" (ngSubmit)="onLoginSafe()" autocomplete="off">
+                <h2>Login (Seguro)</h2>
+                <div class="error-banner" *ngIf="errorMessage && isSafeMode">
+                    <ion-icon name="warning-outline"></ion-icon>
+                    {{ errorMessage }}
+                </div>
+                <div class="success-banner" *ngIf="successMessage && isSafeMode">
+                    <ion-icon name="checkmark-circle-outline"></ion-icon>
+                    {{ successMessage }}
+                </div>
+                <!-- <div class="social-networks">
                     <ion-icon name="logo-twitch"></ion-icon>
                     <ion-icon name="logo-twitter"></ion-icon>
                     <ion-icon name="logo-instagram"></ion-icon>
                     <ion-icon name="logo-tiktok"></ion-icon>
-                </div>
-                <span>Use su correo electrónico para registrarse</span>
-                <div class="container-input">
-                    <ion-icon name="person-outline"></ion-icon>
-                    <input
-                        type="text"
-                        name="registerName"
-                        [(ngModel)]="registerName"
-                        placeholder="Nombre"
-                        autocomplete="off"
-                        required
-                    >
-                </div>
+                </div> -->
+                <span>Entrada protegida por guardrails</span>
+
                 <div class="container-input">
                     <ion-icon name="mail-outline"></ion-icon>
-                    <input
-                        type="email"
-                        name="registerEmail"
-                        [(ngModel)]="registerEmail"
-                        placeholder="Email"
-                        autocomplete="off"
-                        required
-                    >
+                    <input type="email" name="safeLoginEmail" [(ngModel)]="safeLoginEmail" placeholder="Email"
+                        autocomplete="off" required>
                 </div>
-                <div class="container-input">
+                <div class="container-input password-input-container">
                     <ion-icon name="lock-closed-outline"></ion-icon>
-                    <input
-                        type="password"
-                        name="registerPassword"
-                        [(ngModel)]="registerPassword"
-                        placeholder="Password"
-                        autocomplete="off"
-                        required
-                    >
+                    <input [type]="showSafeLoginPassword ? 'text' : 'password'" name="safeLoginPassword"
+                        [(ngModel)]="safeLoginPassword" placeholder="Contraseña" autocomplete="off" required>
+                    <button type="button" class="password-toggle-btn" (click)="toggleSafeLoginPassword()"
+                        aria-label="Mostrar/Ocultar contraseña">
+                        <ion-icon [name]="showSafeLoginPassword ? 'eye-off-outline' : 'eye-outline'"></ion-icon>
+                    </button>
                 </div>
-                <button class="button" type="submit">REGISTRARSE</button>
+                <div
+                    style="display: flex; gap: 8px; align-items: center; justify-content: center; width: 100%; flex-direction: column;">
+                    <button class="button" type="submit">INICIAR SESIÓN SEGURO</button>
+                </div>
             </form>
         </div>
 
         <div class="container-welcome">
             <div class="welcome-sign-up welcome">
-                <h3>¡Bienvenido!</h3>
-                <p>Ingrese sus datos personales para usar todas las funciones del sitio</p>
-                <button class="button" id="btn-sign-up" type="button" (click)="toggleMode()">Registrarse</button>
+                <h3>¡Modo Seguro!</h3>
+                <p>Pruebe el formulario con mitigación contra inyección SQL.</p>
+                <button class="button" id="btn-sign-up" type="button" (click)="toggleMode()">Probar Modo Seguro</button>
             </div>
             <div class="welcome-sign-in welcome">
-                <h3>¡Hola!</h3>
-                <p>Regístrese con sus datos personales para usar todas las funciones del sitio</p>
-                <button class="button" id="btn-sign-in" type="button" (click)="toggleMode()">Iniciar Sesión</button>
+                <h3>¡Modo Vulnerable!</h3>
+                <p>Pruebe el formulario original sin filtros de validación.</p>
+                <button class="button" id="btn-sign-in" type="button" (click)="toggleMode()">Modo Vulnerable</button>
             </div>
         </div>
     </div>

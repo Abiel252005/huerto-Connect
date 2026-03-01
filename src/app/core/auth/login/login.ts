@@ -1,7 +1,9 @@
-import { CUSTOM_ELEMENTS_SCHEMA, Component, OnDestroy } from '@angular/core';
+import { CUSTOM_ELEMENTS_SCHEMA, Component, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
+import { Subscription, interval } from 'rxjs';
 
 interface SproutParticle {
   x: number;
@@ -23,19 +25,29 @@ interface SproutParticle {
   styleUrls: ['./login.scss'],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
-export class LoginComponent implements OnDestroy {
-  constructor(private readonly router: Router) {}
+export class LoginComponent implements OnInit, OnDestroy {
+  constructor(private readonly router: Router, private http: HttpClient) { }
 
-  isRegister = false;
+  isSafeMode = false;
+  errorMessage = '';
+  successMessage = '';
 
-  // Login Data
+  // Vulnerable Login Data
   loginEmail = '';
   loginPassword = '';
 
-  // Register Data
-  registerName = '';
-  registerEmail = '';
-  registerPassword = '';
+  // Safe Login Data
+  safeLoginEmail = '';
+  safeLoginPassword = '';
+
+  // State of password visibility
+  showLoginPassword = false;
+  showSafeLoginPassword = false;
+
+  // API Connection Status
+  apiConnected: boolean | null = null; // null = checking, true = online, false = offline
+  private healthSub?: Subscription;
+  private dbBootstrapPromise?: Promise<void>;
 
   windXPx = 0;
   windYPx = 0;
@@ -46,7 +58,40 @@ export class LoginComponent implements OnDestroy {
   sprouts: SproutParticle[] = this.createSprouts(90);
 
   toggleMode() {
-    this.isRegister = !this.isRegister;
+    this.isSafeMode = !this.isSafeMode;
+    this.errorMessage = '';
+    this.successMessage = '';
+  }
+
+  toggleLoginPassword() {
+    this.showLoginPassword = !this.showLoginPassword;
+  }
+
+  toggleSafeLoginPassword() {
+    this.showSafeLoginPassword = !this.showSafeLoginPassword;
+  }
+
+  ngOnInit() {
+    void this.ensureDemoDbReady();
+    this.checkApiStatus();
+    // Poll every 5 seconds to keep the UI up to date
+    this.healthSub = interval(5000).subscribe(() => this.checkApiStatus());
+  }
+
+  checkApiStatus() {
+    this.http.get<any>(`${this.apiUrl}/health`).subscribe({
+      next: (res) => {
+        // Validate it's actually our API and not another service sitting on :3000
+        if (res && res.service === "SQLi Practica API") {
+          this.apiConnected = true;
+        } else {
+          this.apiConnected = false;
+        }
+      },
+      error: () => {
+        this.apiConnected = false;
+      }
+    });
   }
 
   onPointerMove(event: PointerEvent) {
@@ -71,15 +116,56 @@ export class LoginComponent implements OnDestroy {
     this.startWindLoop();
   }
 
-  onLogin() {
-    this.router.navigate(['/admin']);
+  private readonly apiUrl = 'http://localhost:3000';
+
+  onLoginVulnerable() {
+    this.errorMessage = '';
+    this.successMessage = '';
+    console.log('Sending Vulnerable Login Request:', { correo: this.loginEmail, password: this.loginPassword });
+
+    void this.ensureDemoDbReady().then(() => {
+      this.http.post<any>(`${this.apiUrl}/login-vuln`, {
+        correo: this.loginEmail,
+        password: this.loginPassword
+      }).subscribe({
+        next: (res: any) => {
+          console.log('Success response:', res);
+          this.handleLoginSuccess(res);
+        },
+        error: (err: any) => {
+          console.error('Login Error:', err);
+          this.errorMessage = this.resolveLoginError(err, 'Error de conexión o login incorrecto');
+        }
+      });
+    });
   }
 
-  onRegister() {
-    console.log('Register:', this.registerName, this.registerEmail);
+  onLoginSafe() {
+    this.errorMessage = '';
+    this.successMessage = '';
+    console.log('Sending Safe Login Request:', { correo: this.safeLoginEmail, password: this.safeLoginPassword });
+
+    void this.ensureDemoDbReady().then(() => {
+      this.http.post<any>(`${this.apiUrl}/login-safe`, {
+        correo: this.safeLoginEmail,
+        password: this.safeLoginPassword
+      }).subscribe({
+        next: (res: any) => {
+          console.log('Success response:', res);
+          this.handleLoginSuccess(res);
+        },
+        error: (err: any) => {
+          console.error('Safe Login Error:', err);
+          this.errorMessage = this.resolveLoginError(err, '¡Conexión denegada por seguridad!');
+        }
+      });
+    });
   }
 
   ngOnDestroy() {
+    if (this.healthSub) {
+      this.healthSub.unsubscribe();
+    }
     if (this.windFrame !== null) {
       cancelAnimationFrame(this.windFrame);
     }
@@ -137,5 +223,44 @@ export class LoginComponent implements OnDestroy {
     }
 
     return items;
+  }
+
+  private resolveLoginError(err: any, fallback: string): string {
+    return err?.error?.message || err?.error?.error || fallback;
+  }
+
+  private handleLoginSuccess(res: any) {
+    this.successMessage = 'Conexión Exitosa: ' + (res?.message || 'Login autorizado.');
+    this.errorMessage = '';
+
+    if (typeof window !== 'undefined') {
+      window.sessionStorage.setItem(
+        'sqli-demo-user',
+        JSON.stringify({
+          correo: res?.user?.correo ?? null,
+          rol: res?.user?.rol ?? null
+        })
+      );
+    }
+
+    this.router.navigate(['/admin/dashboard']);
+  }
+
+  private ensureDemoDbReady(): Promise<void> {
+    if (this.dbBootstrapPromise) {
+      return this.dbBootstrapPromise;
+    }
+
+    this.dbBootstrapPromise = new Promise((resolve) => {
+      this.http.post<any>(`${this.apiUrl}/setup`, {}).subscribe({
+        next: () => resolve(),
+        error: (err: any) => {
+          console.warn('No se pudo inicializar /setup automáticamente:', err);
+          resolve();
+        }
+      });
+    });
+
+    return this.dbBootstrapPromise;
   }
 }
