@@ -1,4 +1,4 @@
-import { CUSTOM_ELEMENTS_SCHEMA, Component, OnDestroy } from '@angular/core';
+import { CUSTOM_ELEMENTS_SCHEMA, Component, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
@@ -23,7 +23,13 @@ interface SproutParticle {
   styleUrls: ['./login.scss'],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
-export class LoginComponent implements OnDestroy {
+export class LoginComponent implements OnInit, OnDestroy {
+  private static readonly DEMO_LOGIN_EMAIL = 'admin@huerto.mx';
+  private static readonly DEMO_LOGIN_PASSWORD = 'Huerto123!';
+  private static readonly VULNERABLE_USERNAME = 'admin_huerto';
+  private static readonly MAX_LOGIN_ATTEMPTS = 5;
+  private static readonly LOCKOUT_DURATION_MS = 90_000;
+
   constructor(private readonly router: Router) {}
 
   isRegister = false;
@@ -31,11 +37,21 @@ export class LoginComponent implements OnDestroy {
   // Login Data
   loginEmail = '';
   loginPassword = '';
+  showLoginPassword = false;
 
-  // Register Data
-  registerName = '';
-  registerEmail = '';
-  registerPassword = '';
+  failedLoginAttempts = 0;
+  lockoutUntil: number | null = null;
+  lockoutRemainingSeconds = 0;
+  loginErrorMessage = '';
+
+  // Scenario A - Broken Authentication
+  vulnerableUsername = '';
+  vulnerableErrorMessage = '';
+
+  captchaChallenge = '';
+  captchaInput = '';
+  private captchaExpectedAnswer = '';
+  private lockoutInterval: ReturnType<typeof setInterval> | null = null;
 
   windXPx = 0;
   windYPx = 0;
@@ -45,8 +61,33 @@ export class LoginComponent implements OnDestroy {
 
   sprouts: SproutParticle[] = this.createSprouts(90);
 
+  get maxLoginAttempts(): number {
+    return LoginComponent.MAX_LOGIN_ATTEMPTS;
+  }
+
+  get isLockoutActive(): boolean {
+    return this.lockoutUntil !== null && Date.now() < this.lockoutUntil;
+  }
+
+  get captchaTokens(): { left: string; operator: string; right: string } {
+    const [left = '', operator = '', right = ''] = this.captchaChallenge.split(' ');
+    return { left, operator, right };
+  }
+
   toggleMode() {
     this.isRegister = !this.isRegister;
+  }
+
+  ngOnInit() {
+    this.generateCaptcha();
+  }
+
+  toggleLoginPasswordVisibility() {
+    this.showLoginPassword = !this.showLoginPassword;
+  }
+
+  refreshCaptcha() {
+    this.generateCaptcha();
   }
 
   onPointerMove(event: PointerEvent) {
@@ -72,16 +113,63 @@ export class LoginComponent implements OnDestroy {
   }
 
   onLogin() {
-    this.router.navigate(['/admin']);
+    this.loginErrorMessage = '';
+
+    if (this.isLockoutActive) {
+      this.updateLockoutCountdown();
+      this.loginErrorMessage = 'Demasiados intentos. Vuelve despues.';
+      return;
+    }
+
+    if (!this.isCaptchaValid()) {
+      this.loginErrorMessage = 'Captcha incorrecto. Resuelve la operación.';
+      this.generateCaptcha();
+      return;
+    }
+
+    if (this.isValidLogin(this.loginEmail, this.loginPassword)) {
+      this.resetLoginSecurityState();
+      this.router.navigate(['/admin']);
+      return;
+    }
+
+    this.failedLoginAttempts += 1;
+    const remainingAttempts = LoginComponent.MAX_LOGIN_ATTEMPTS - this.failedLoginAttempts;
+
+    if (remainingAttempts <= 0) {
+      this.activateLockout();
+      this.loginErrorMessage = 'Demasiados intentos. Vuelve despues.';
+      return;
+    }
+
+    this.loginErrorMessage = 'Correo o contraseña incorrectos.';
+    this.generateCaptcha();
   }
 
-  onRegister() {
-    console.log('Register:', this.registerName, this.registerEmail);
+  onVulnerableLogin() {
+    this.vulnerableErrorMessage = '';
+
+    if (!this.vulnerableUsername.trim()) {
+      this.vulnerableErrorMessage = 'Ingresa un nombre de usuario.';
+      return;
+    }
+
+    if (this.vulnerableUsername.trim().toLowerCase() === LoginComponent.VULNERABLE_USERNAME) {
+      this.router.navigate(['/admin']);
+      return;
+    }
+
+    this.vulnerableErrorMessage = `Usuario no reconocido. Prueba con "${LoginComponent.VULNERABLE_USERNAME}".`;
   }
 
   ngOnDestroy() {
     if (this.windFrame !== null) {
       cancelAnimationFrame(this.windFrame);
+    }
+
+    if (this.lockoutInterval !== null) {
+      clearInterval(this.lockoutInterval);
+      this.lockoutInterval = null;
     }
   }
 
@@ -137,5 +225,80 @@ export class LoginComponent implements OnDestroy {
     }
 
     return items;
+  }
+
+  private isValidLogin(email: string, password: string): boolean {
+    return (
+      email.trim().toLowerCase() === LoginComponent.DEMO_LOGIN_EMAIL &&
+      password === LoginComponent.DEMO_LOGIN_PASSWORD
+    );
+  }
+
+  private isCaptchaValid(): boolean {
+    return this.captchaInput.trim() === this.captchaExpectedAnswer;
+  }
+
+  private generateCaptcha() {
+    const first = Math.floor(Math.random() * 8) + 2;
+    const second = Math.floor(Math.random() * 8) + 2;
+    const useSum = Math.random() >= 0.5;
+
+    if (useSum) {
+      this.captchaChallenge = `${first} + ${second}`;
+      this.captchaExpectedAnswer = String(first + second);
+    } else {
+      const highest = Math.max(first, second);
+      const lowest = Math.min(first, second);
+      this.captchaChallenge = `${highest} - ${lowest}`;
+      this.captchaExpectedAnswer = String(highest - lowest);
+    }
+
+    this.captchaInput = '';
+  }
+
+  private activateLockout() {
+    this.lockoutUntil = Date.now() + LoginComponent.LOCKOUT_DURATION_MS;
+    this.updateLockoutCountdown();
+
+    if (this.lockoutInterval !== null) {
+      clearInterval(this.lockoutInterval);
+    }
+
+    this.lockoutInterval = setInterval(() => {
+      this.updateLockoutCountdown();
+
+      if (!this.isLockoutActive) {
+        this.resetLoginSecurityState();
+      }
+    }, 1000);
+  }
+
+  private updateLockoutCountdown() {
+    if (this.lockoutUntil === null) {
+      this.lockoutRemainingSeconds = 0;
+      return;
+    }
+
+    const remainingMs = this.lockoutUntil - Date.now();
+    this.lockoutRemainingSeconds = Math.max(0, Math.ceil(remainingMs / 1000));
+
+    if (remainingMs <= 0) {
+      this.lockoutUntil = null;
+      this.lockoutRemainingSeconds = 0;
+    }
+  }
+
+  private resetLoginSecurityState() {
+    this.failedLoginAttempts = 0;
+    this.lockoutUntil = null;
+    this.lockoutRemainingSeconds = 0;
+    this.loginErrorMessage = '';
+    this.captchaInput = '';
+    this.generateCaptcha();
+
+    if (this.lockoutInterval !== null) {
+      clearInterval(this.lockoutInterval);
+      this.lockoutInterval = null;
+    }
   }
 }

@@ -50,82 +50,104 @@
                         [(ngModel)]="loginEmail"
                         placeholder="Email"
                         autocomplete="off"
+                        [disabled]="isLockoutActive"
                         required
                     >
                 </div>
                 <div class="container-input">
                     <ion-icon name="lock-closed-outline"></ion-icon>
                     <input
-                        type="password"
+                        [type]="showLoginPassword ? 'text' : 'password'"
                         name="loginPassword"
                         [(ngModel)]="loginPassword"
                         placeholder="Password"
                         autocomplete="off"
+                        [disabled]="isLockoutActive"
+                        required
+                    >
+                    <button
+                        type="button"
+                        class="password-toggle"
+                        (click)="toggleLoginPasswordVisibility()"
+                        [attr.aria-label]="showLoginPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'"
+                        [disabled]="isLockoutActive"
+                    >
+                        <ion-icon [name]="showLoginPassword ? 'eye-off-outline' : 'eye-outline'"></ion-icon>
+                    </button>
+                </div>
+                <div class="captcha-box">
+                    <div class="captcha-text">
+                        <span class="captcha-label">Captcha:</span>
+                        <strong class="captcha-challenge">
+                            <span class="captcha-number">{{ captchaTokens.left }}</span>
+                            <span class="captcha-operator">{{ captchaTokens.operator }}</span>
+                            <span class="captcha-number">{{ captchaTokens.right }}</span>
+                        </strong>
+                    </div>
+                    <button
+                        type="button"
+                        class="captcha-refresh"
+                        (click)="refreshCaptcha()"
+                        [disabled]="isLockoutActive"
+                        aria-label="Actualizar captcha"
+                    >
+                        <ion-icon name="refresh-outline"></ion-icon>
+                    </button>
+                </div>
+                <div class="container-input">
+                    <ion-icon name="shield-checkmark-outline"></ion-icon>
+                    <input
+                        type="text"
+                        name="captchaInput"
+                        [(ngModel)]="captchaInput"
+                        placeholder="Resuelve el captcha"
+                        autocomplete="off"
+                        [disabled]="isLockoutActive"
                         required
                     >
                 </div>
+                <p class="message error" *ngIf="loginErrorMessage">{{ loginErrorMessage }}</p>
                 <a href="#">¿Olvidaste tu contraseña?</a>
-                <button class="button" type="submit">INICIAR SESIÓN</button>
+                <button class="button" type="submit" [disabled]="isLockoutActive">INICIAR SESIÓN</button>
             </form>
         </div>
 
         <div class="container-form">
-            <form class="sign-up" (ngSubmit)="onRegister()" autocomplete="off">
-                <h2>Registrarse</h2>
-                <div class="social-networks">
-                    <ion-icon name="logo-twitch"></ion-icon>
-                    <ion-icon name="logo-twitter"></ion-icon>
-                    <ion-icon name="logo-instagram"></ion-icon>
-                    <ion-icon name="logo-tiktok"></ion-icon>
+            <form class="sign-up scenario-a" (ngSubmit)="onVulnerableLogin()" autocomplete="off">
+                <h2>Escenario A</h2>
+                <span class="scenario-subtitle">Vulnerabilidad Detectada (Acceso sin Credenciales)</span>
+                <div class="scenario-warning">
+                    <ion-icon name="warning-outline"></ion-icon>
+                    <p>
+                        El sistema vulnerable permite acceso total solo con el nombre de usuario, sin contraseña ni captcha.
+                    </p>
                 </div>
-                <span>Use su correo electrónico para registrarse</span>
                 <div class="container-input">
-                    <ion-icon name="person-outline"></ion-icon>
+                    <ion-icon name="person-circle-outline"></ion-icon>
                     <input
                         type="text"
-                        name="registerName"
-                        [(ngModel)]="registerName"
-                        placeholder="Nombre"
+                        name="vulnerableUsername"
+                        [(ngModel)]="vulnerableUsername"
+                        placeholder="Usuario"
                         autocomplete="off"
                         required
                     >
                 </div>
-                <div class="container-input">
-                    <ion-icon name="mail-outline"></ion-icon>
-                    <input
-                        type="email"
-                        name="registerEmail"
-                        [(ngModel)]="registerEmail"
-                        placeholder="Email"
-                        autocomplete="off"
-                        required
-                    >
-                </div>
-                <div class="container-input">
-                    <ion-icon name="lock-closed-outline"></ion-icon>
-                    <input
-                        type="password"
-                        name="registerPassword"
-                        [(ngModel)]="registerPassword"
-                        placeholder="Password"
-                        autocomplete="off"
-                        required
-                    >
-                </div>
-                <button class="button" type="submit">REGISTRARSE</button>
+                <p class="message error" *ngIf="vulnerableErrorMessage">{{ vulnerableErrorMessage }}</p>
+                <button class="button button-danger" type="submit">ENTRAR SIN CREDENCIALES</button>
             </form>
         </div>
 
         <div class="container-welcome">
             <div class="welcome-sign-up welcome">
-                <h3>¡Bienvenido!</h3>
-                <p>Ingrese sus datos personales para usar todas las funciones del sitio</p>
-                <button class="button" id="btn-sign-up" type="button" (click)="toggleMode()">Registrarse</button>
+                <h3>Escenario A</h3>
+                <p>Prueba el panel vulnerable: acceso inmediato con solo conocer un nombre de usuario válido.</p>
+                <button class="button" id="btn-sign-up" type="button" (click)="toggleMode()">Ver Vulnerabilidad</button>
             </div>
             <div class="welcome-sign-in welcome">
-                <h3>¡Hola!</h3>
-                <p>Regístrese con sus datos personales para usar todas las funciones del sitio</p>
-                <button class="button" id="btn-sign-in" type="button" (click)="toggleMode()">Iniciar Sesión</button>
+                <h3>Panel Seguro</h3>
+                <p>Vuelve al login protegido con contraseña, captcha y bloqueo por intentos fallidos.</p>
+                <button class="button" id="btn-sign-in" type="button" (click)="toggleMode()">Volver a Seguro</button>
             </div>
         </div>
     </div>
