@@ -41,6 +41,8 @@ export class LoginComponent implements OnDestroy {
   loginEmail = '';
   loginPassword = '';
   otpCode = '';
+  readonly codeIndexes = [0, 1, 2, 3, 4, 5];
+  codeDigits = ['', '', '', '', '', ''];
 
   authStep: 'credentials' | 'otp' = 'credentials';
   otpChallengeId = '';
@@ -114,6 +116,7 @@ export class LoginComponent implements OnDestroy {
       return;
     }
 
+    this.enterOtpStepPending(email);
     this.isSubmittingLogin = true;
     this.authService.requestOtp({ email, password }).subscribe({
       next: (response) => {
@@ -122,6 +125,11 @@ export class LoginComponent implements OnDestroy {
       },
       error: (error: unknown) => {
         this.isSubmittingLogin = false;
+        this.authStep = 'credentials';
+        this.otpChallengeId = '';
+        this.otpCode = '';
+        this.canResendOtp = false;
+        this.stopOtpTimer();
         this.loginErrorMessage = this.extractErrorMessage(error, 'No fue posible iniciar sesion.');
       }
     });
@@ -136,12 +144,17 @@ export class LoginComponent implements OnDestroy {
       return;
     }
 
-    this.otpCode = this.normalizeOtpCode(this.otpCode);
+    if (!this.otpChallengeId) {
+      this.otpInfoMessage = 'Estamos enviando tu codigo. Espera unos segundos.';
+      return;
+    }
+
+    this.syncOtpCodeFromDigits();
     this.otpErrorMessage = '';
     this.otpInfoMessage = '';
 
     if (this.otpCode.length !== 6) {
-      this.otpErrorMessage = 'Ingresa el codigo OTP de 6 digitos.';
+      this.otpErrorMessage = 'Ingresa el codigo de 6 digitos.';
       return;
     }
 
@@ -156,7 +169,7 @@ export class LoginComponent implements OnDestroy {
           this.isVerifyingOtp = false;
           this.stopOtpTimer();
           this.loginPassword = '';
-          this.otpCode = '';
+          this.setCodeDigits('');
           void this.router.navigate(['/admin']);
         },
         error: (error: unknown) => {
@@ -164,7 +177,7 @@ export class LoginComponent implements OnDestroy {
           this.canResendOtp = true;
           this.otpErrorMessage = this.extractErrorMessage(
             error,
-            'No fue posible verificar el codigo OTP.'
+            'No fue posible verificar el codigo.'
           );
         }
       });
@@ -183,12 +196,12 @@ export class LoginComponent implements OnDestroy {
       next: (response) => {
         this.isResendingOtp = false;
         this.canResendOtp = false;
-        this.otpCode = response.devOtpCode ?? '';
+        this.setCodeDigits(response.devOtpCode ?? '');
         this.maskedLoginEmail = response.maskedEmail;
         this.configureOtpTimer(response.expiresAt);
         this.otpInfoMessage = this.buildOtpInfoMessage(
           response.devOtpCode,
-          'Te enviamos un nuevo codigo OTP a tu correo.'
+          'Te enviamos un nuevo codigo a tu correo.'
         );
       },
       error: (error: unknown) => {
@@ -198,14 +211,56 @@ export class LoginComponent implements OnDestroy {
     });
   }
 
-  onOtpCodeChange(value: string) {
-    this.otpCode = this.normalizeOtpCode(value);
+  onCodeDigitInput(index: number, value: string) {
+    if (this.isSubmittingLogin || !this.otpChallengeId) {
+      return;
+    }
+
+    const normalized = value.replace(/\D/g, '').slice(-1);
+    this.codeDigits[index] = normalized;
+    this.syncOtpCodeFromDigits();
+
+    if (normalized && index < this.codeDigits.length - 1) {
+      this.focusCodeDigit(index + 1);
+    }
+  }
+
+  onCodeDigitKeydown(index: number, event: KeyboardEvent) {
+    if (event.key === 'Backspace' && !this.codeDigits[index] && index > 0) {
+      this.focusCodeDigit(index - 1);
+      return;
+    }
+
+    if (event.key === 'ArrowLeft' && index > 0) {
+      event.preventDefault();
+      this.focusCodeDigit(index - 1);
+      return;
+    }
+
+    if (event.key === 'ArrowRight' && index < this.codeDigits.length - 1) {
+      event.preventDefault();
+      this.focusCodeDigit(index + 1);
+    }
+  }
+
+  onCodeDigitsPaste(event: ClipboardEvent) {
+    if (this.isSubmittingLogin || !this.otpChallengeId) {
+      return;
+    }
+
+    event.preventDefault();
+    const pasted = event.clipboardData?.getData('text') ?? '';
+    const normalized = pasted.replace(/\D/g, '').slice(0, this.codeDigits.length);
+    this.setCodeDigits(normalized);
+
+    const nextIndex = Math.min(normalized.length, this.codeDigits.length - 1);
+    this.focusCodeDigit(nextIndex);
   }
 
   onBackToCredentials() {
     this.authStep = 'credentials';
     this.otpChallengeId = '';
-    this.otpCode = '';
+    this.setCodeDigits('');
     this.otpInfoMessage = '';
     this.otpErrorMessage = '';
     this.canResendOtp = false;
@@ -278,7 +333,7 @@ export class LoginComponent implements OnDestroy {
     this.authStep = 'otp';
     this.otpChallengeId = response.challengeId;
     this.maskedLoginEmail = response.maskedEmail;
-    this.otpCode = response.devOtpCode ?? '';
+    this.setCodeDigits(response.devOtpCode ?? '');
     this.otpErrorMessage = '';
     this.otpInfoMessage = this.buildOtpInfoMessage(
       response.devOtpCode,
@@ -286,6 +341,17 @@ export class LoginComponent implements OnDestroy {
     );
     this.canResendOtp = false;
     this.configureOtpTimer(response.expiresAt);
+  }
+
+  private enterOtpStepPending(email: string) {
+    this.authStep = 'otp';
+    this.otpChallengeId = '';
+    this.maskedLoginEmail = this.maskEmailForDisplay(email);
+    this.setCodeDigits('');
+    this.otpErrorMessage = '';
+    this.otpInfoMessage = 'Enviando codigo a tu correo...';
+    this.canResendOtp = false;
+    this.stopOtpTimer();
   }
 
   private configureOtpTimer(expiresAtIso: string) {
@@ -313,7 +379,7 @@ export class LoginComponent implements OnDestroy {
       this.canResendOtp = true;
       this.stopOtpTimer();
       if (!this.otpErrorMessage) {
-        this.otpInfoMessage = 'Tu codigo OTP expiro. Solicita uno nuevo para continuar.';
+        this.otpInfoMessage = 'Tu codigo expiro. Solicita uno nuevo para continuar.';
       }
     }
   }
@@ -343,5 +409,45 @@ export class LoginComponent implements OnDestroy {
     }
 
     return `${baseMessage} (Codigo de prueba: ${devOtpCode})`;
+  }
+
+  private maskEmailForDisplay(email: string): string {
+    const [rawLocalPart = '', rawDomain = ''] = email.split('@');
+    const localPart = rawLocalPart.trim();
+    const domain = rawDomain.trim();
+
+    if (!localPart || !domain) {
+      return email;
+    }
+
+    if (localPart.length <= 2) {
+      return `${localPart[0] ?? '*'}*@${domain}`;
+    }
+
+    return `${localPart.slice(0, 2)}***${localPart.slice(-1)}@${domain}`;
+  }
+
+  private setCodeDigits(code: string) {
+    const normalized = this.normalizeOtpCode(code);
+    this.codeDigits = this.codeDigits.map((_, index) => normalized[index] ?? '');
+    this.syncOtpCodeFromDigits();
+  }
+
+  private syncOtpCodeFromDigits() {
+    this.otpCode = this.codeDigits.join('');
+  }
+
+  private focusCodeDigit(index: number) {
+    if (typeof document === 'undefined') {
+      return;
+    }
+
+    const element = document.getElementById(`code-digit-${index}`) as HTMLInputElement | null;
+    if (!element) {
+      return;
+    }
+
+    element.focus();
+    element.select();
   }
 }

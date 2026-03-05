@@ -46,7 +46,7 @@
                     <ion-icon name="logo-tiktok"></ion-icon>
                 </div>
                 <span *ngIf="authStep === 'credentials'">Use su correo y contraseña</span>
-                <span *ngIf="authStep === 'otp'">Ingresa el código OTP enviado a tu correo</span>
+                <span *ngIf="authStep === 'otp'">Ingresa el código enviado a tu correo</span>
 
                 <ng-container *ngIf="authStep === 'credentials'; else otpStepTemplate">
                     <div class="container-input">
@@ -89,21 +89,31 @@
                             Enviamos un código de seguridad a
                             <strong>{{ maskedLoginEmail || loginEmail }}</strong>
                         </p>
-                        <div class="container-input otp-input">
-                            <ion-icon name="key-outline"></ion-icon>
-                            <input
-                                type="text"
-                                name="otpCode"
-                                [ngModel]="otpCode"
-                                (ngModelChange)="onOtpCodeChange($event)"
-                                placeholder="Código OTP"
-                                inputmode="numeric"
-                                autocomplete="one-time-code"
-                                maxlength="6"
-                                required
-                            >
+                        <div class="code-input-shell">
+                            <div class="code-inputs" (paste)="onCodeDigitsPaste($event)">
+                                <div class="code-node" *ngFor="let idx of codeIndexes">
+                                    <input
+                                        [id]="'code-digit-' + idx"
+                                        class="code-digit"
+                                        type="text"
+                                        inputmode="numeric"
+                                        pattern="[0-9]*"
+                                        autocomplete="one-time-code"
+                                        maxlength="1"
+                                        [value]="codeDigits[idx]"
+                                        (input)="onCodeDigitInput(idx, $any($event.target).value)"
+                                        (keydown)="onCodeDigitKeydown(idx, $event)"
+                                        [disabled]="isSubmittingLogin || !otpChallengeId"
+                                    >
+                                </div>
+                            </div>
                         </div>
-                        <p class="otp-expiration">Expira en {{ otpCountdownText }}</p>
+                        <p class="otp-expiration" *ngIf="otpChallengeId; else sendingOtpState">
+                            Expira en {{ otpCountdownText }}
+                        </p>
+                        <ng-template #sendingOtpState>
+                            <p class="otp-expiration">Enviando código...</p>
+                        </ng-template>
                     </div>
 
                     <p class="form-feedback form-feedback--info" *ngIf="otpInfoMessage">
@@ -113,8 +123,8 @@
                         {{ otpErrorMessage }}
                     </p>
 
-                    <button class="button" type="submit" [disabled]="isVerifyingOtp">
-                        {{ isVerifyingOtp ? 'VERIFICANDO...' : 'VERIFICAR CÓDIGO' }}
+                    <button class="button button--code" type="submit" [disabled]="isVerifyingOtp || isSubmittingLogin || !otpChallengeId">
+                        {{ isSubmittingLogin ? 'ENVIANDO CÓDIGO...' : (isVerifyingOtp ? 'VERIFICANDO...' : 'VERIFICAR CÓDIGO') }}
                     </button>
                     <button
                         type="button"
