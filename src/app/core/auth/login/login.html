@@ -33,39 +33,101 @@
 
     <div class="container" [class.toggle]="isRegister">
         <div class="container-form">
-            <form class="sign-in" (ngSubmit)="onLogin()" autocomplete="off">
-                <h2>Iniciar Sesión</h2>
-                <div class="social-networks">
+            <form
+                class="sign-in"
+                (ngSubmit)="authStep === 'credentials' ? onLogin() : onVerifyOtp()"
+                autocomplete="off"
+            >
+                <h2>{{ authStep === 'credentials' ? 'Iniciar Sesión' : 'Verifica tu cuenta' }}</h2>
+                <div class="social-networks" *ngIf="authStep === 'credentials'">
                     <ion-icon name="logo-twitch"></ion-icon>
                     <ion-icon name="logo-twitter"></ion-icon>
                     <ion-icon name="logo-instagram"></ion-icon>
                     <ion-icon name="logo-tiktok"></ion-icon>
                 </div>
-                <span>Use su correo y contraseña</span>
-                <div class="container-input">
-                    <ion-icon name="mail-outline"></ion-icon>
-                    <input
-                        type="email"
-                        name="loginEmail"
-                        [(ngModel)]="loginEmail"
-                        placeholder="Email"
-                        autocomplete="off"
-                        required
+                <span *ngIf="authStep === 'credentials'">Use su correo y contraseña</span>
+                <span *ngIf="authStep === 'otp'">Ingresa el código OTP enviado a tu correo</span>
+
+                <ng-container *ngIf="authStep === 'credentials'; else otpStepTemplate">
+                    <div class="container-input">
+                        <ion-icon name="mail-outline"></ion-icon>
+                        <input
+                            type="email"
+                            name="loginEmail"
+                            [(ngModel)]="loginEmail"
+                            placeholder="Email"
+                            autocomplete="off"
+                            required
+                        >
+                    </div>
+                    <div class="container-input">
+                        <ion-icon name="lock-closed-outline"></ion-icon>
+                        <input
+                            type="password"
+                            name="loginPassword"
+                            [(ngModel)]="loginPassword"
+                            placeholder="Password"
+                            autocomplete="off"
+                            required
+                        >
+                    </div>
+                    <a href="#">¿Olvidaste tu contraseña?</a>
+                    <p class="form-feedback form-feedback--error" *ngIf="loginErrorMessage">
+                        {{ loginErrorMessage }}
+                    </p>
+                    <button class="button" type="submit" [disabled]="isSubmittingLogin">
+                        {{ isSubmittingLogin ? 'ENVIANDO CÓDIGO...' : 'INICIAR SESIÓN' }}
+                    </button>
+                </ng-container>
+
+                <ng-template #otpStepTemplate>
+                    <div class="otp-shell">
+                        <div class="otp-icon" aria-hidden="true">
+                            <ion-icon name="shield-checkmark-outline"></ion-icon>
+                        </div>
+                        <p class="otp-detail">
+                            Enviamos un código de seguridad a
+                            <strong>{{ maskedLoginEmail || loginEmail }}</strong>
+                        </p>
+                        <div class="container-input otp-input">
+                            <ion-icon name="key-outline"></ion-icon>
+                            <input
+                                type="text"
+                                name="otpCode"
+                                [ngModel]="otpCode"
+                                (ngModelChange)="onOtpCodeChange($event)"
+                                placeholder="Código OTP"
+                                inputmode="numeric"
+                                autocomplete="one-time-code"
+                                maxlength="6"
+                                required
+                            >
+                        </div>
+                        <p class="otp-expiration">Expira en {{ otpCountdownText }}</p>
+                    </div>
+
+                    <p class="form-feedback form-feedback--info" *ngIf="otpInfoMessage">
+                        {{ otpInfoMessage }}
+                    </p>
+                    <p class="form-feedback form-feedback--error" *ngIf="otpErrorMessage">
+                        {{ otpErrorMessage }}
+                    </p>
+
+                    <button class="button" type="submit" [disabled]="isVerifyingOtp">
+                        {{ isVerifyingOtp ? 'VERIFICANDO...' : 'VERIFICAR CÓDIGO' }}
+                    </button>
+                    <button
+                        type="button"
+                        class="mode-link"
+                        (click)="onResendOtp()"
+                        [disabled]="isResendingOtp || !canResendOtp"
                     >
-                </div>
-                <div class="container-input">
-                    <ion-icon name="lock-closed-outline"></ion-icon>
-                    <input
-                        type="password"
-                        name="loginPassword"
-                        [(ngModel)]="loginPassword"
-                        placeholder="Password"
-                        autocomplete="off"
-                        required
-                    >
-                </div>
-                <a href="#">¿Olvidaste tu contraseña?</a>
-                <button class="button" type="submit">INICIAR SESIÓN</button>
+                        {{ isResendingOtp ? 'REENVIANDO...' : 'Reenviar código' }}
+                    </button>
+                    <button type="button" class="mode-link" (click)="onBackToCredentials()">
+                        Cambiar correo o contraseña
+                    </button>
+                </ng-template>
             </form>
         </div>
 

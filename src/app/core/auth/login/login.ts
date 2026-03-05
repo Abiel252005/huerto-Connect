@@ -2,6 +2,8 @@ import { CUSTOM_ELEMENTS_SCHEMA, Component, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
+import { HttpErrorResponse } from '@angular/common/http';
+import { AuthService, SendOtpResponse } from '../services/auth.service';
 
 interface SproutParticle {
   x: number;
@@ -24,13 +26,35 @@ interface SproutParticle {
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class LoginComponent implements OnDestroy {
-  constructor(private readonly router: Router) {}
+  constructor(
+    private readonly router: Router,
+    private readonly authService: AuthService
+  ) {
+    if (this.authService.isAuthenticated()) {
+      void this.router.navigate(['/admin']);
+    }
+  }
 
   isRegister = false;
 
   // Login Data
   loginEmail = '';
   loginPassword = '';
+  otpCode = '';
+
+  authStep: 'credentials' | 'otp' = 'credentials';
+  otpChallengeId = '';
+  maskedLoginEmail = '';
+  otpCountdownText = '05:00';
+  canResendOtp = false;
+
+  isSubmittingLogin = false;
+  isVerifyingOtp = false;
+  isResendingOtp = false;
+
+  loginErrorMessage = '';
+  otpErrorMessage = '';
+  otpInfoMessage = '';
 
   // Register Data
   registerName = '';
@@ -42,6 +66,8 @@ export class LoginComponent implements OnDestroy {
   private targetWindXPx = 0;
   private targetWindYPx = 0;
   private windFrame: number | null = null;
+  private otpExpiresAtMs = 0;
+  private otpCountdownFrame: number | null = null;
 
   sprouts: SproutParticle[] = this.createSprouts(90);
 
@@ -72,17 +98,126 @@ export class LoginComponent implements OnDestroy {
   }
 
   onLogin() {
-    this.router.navigate(['/admin']);
+    if (this.authStep !== 'credentials' || this.isSubmittingLogin) {
+      return;
+    }
+
+    const email = this.loginEmail.trim().toLowerCase();
+    const password = this.loginPassword;
+
+    this.loginErrorMessage = '';
+    this.otpErrorMessage = '';
+    this.otpInfoMessage = '';
+
+    if (!email || !password) {
+      this.loginErrorMessage = 'Ingresa correo y contrasena para continuar.';
+      return;
+    }
+
+    this.isSubmittingLogin = true;
+    this.authService.requestOtp({ email, password }).subscribe({
+      next: (response) => {
+        this.isSubmittingLogin = false;
+        this.configureOtpStep(response);
+      },
+      error: (error: unknown) => {
+        this.isSubmittingLogin = false;
+        this.loginErrorMessage = this.extractErrorMessage(error, 'No fue posible iniciar sesion.');
+      }
+    });
   }
 
   onRegister() {
     console.log('Register:', this.registerName, this.registerEmail);
   }
 
+  onVerifyOtp() {
+    if (this.authStep !== 'otp' || this.isVerifyingOtp) {
+      return;
+    }
+
+    this.otpCode = this.normalizeOtpCode(this.otpCode);
+    this.otpErrorMessage = '';
+    this.otpInfoMessage = '';
+
+    if (this.otpCode.length !== 6) {
+      this.otpErrorMessage = 'Ingresa el codigo OTP de 6 digitos.';
+      return;
+    }
+
+    this.isVerifyingOtp = true;
+    this.authService
+      .verifyOtp({
+        challengeId: this.otpChallengeId,
+        otpCode: this.otpCode
+      })
+      .subscribe({
+        next: () => {
+          this.isVerifyingOtp = false;
+          this.stopOtpTimer();
+          this.loginPassword = '';
+          this.otpCode = '';
+          void this.router.navigate(['/admin']);
+        },
+        error: (error: unknown) => {
+          this.isVerifyingOtp = false;
+          this.canResendOtp = true;
+          this.otpErrorMessage = this.extractErrorMessage(
+            error,
+            'No fue posible verificar el codigo OTP.'
+          );
+        }
+      });
+  }
+
+  onResendOtp() {
+    if (!this.otpChallengeId || !this.canResendOtp || this.isResendingOtp) {
+      return;
+    }
+
+    this.isResendingOtp = true;
+    this.otpErrorMessage = '';
+    this.otpInfoMessage = '';
+
+    this.authService.resendOtp({ challengeId: this.otpChallengeId }).subscribe({
+      next: (response) => {
+        this.isResendingOtp = false;
+        this.canResendOtp = false;
+        this.otpCode = response.devOtpCode ?? '';
+        this.maskedLoginEmail = response.maskedEmail;
+        this.configureOtpTimer(response.expiresAt);
+        this.otpInfoMessage = this.buildOtpInfoMessage(
+          response.devOtpCode,
+          'Te enviamos un nuevo codigo OTP a tu correo.'
+        );
+      },
+      error: (error: unknown) => {
+        this.isResendingOtp = false;
+        this.otpErrorMessage = this.extractErrorMessage(error, 'No fue posible reenviar el codigo.');
+      }
+    });
+  }
+
+  onOtpCodeChange(value: string) {
+    this.otpCode = this.normalizeOtpCode(value);
+  }
+
+  onBackToCredentials() {
+    this.authStep = 'credentials';
+    this.otpChallengeId = '';
+    this.otpCode = '';
+    this.otpInfoMessage = '';
+    this.otpErrorMessage = '';
+    this.canResendOtp = false;
+    this.stopOtpTimer();
+  }
+
   ngOnDestroy() {
     if (this.windFrame !== null) {
       cancelAnimationFrame(this.windFrame);
     }
+
+    this.stopOtpTimer();
   }
 
   private startWindLoop() {
@@ -137,5 +272,76 @@ export class LoginComponent implements OnDestroy {
     }
 
     return items;
+  }
+
+  private configureOtpStep(response: SendOtpResponse) {
+    this.authStep = 'otp';
+    this.otpChallengeId = response.challengeId;
+    this.maskedLoginEmail = response.maskedEmail;
+    this.otpCode = response.devOtpCode ?? '';
+    this.otpErrorMessage = '';
+    this.otpInfoMessage = this.buildOtpInfoMessage(
+      response.devOtpCode,
+      'Ingresa el codigo que enviamos a tu correo para completar el acceso.'
+    );
+    this.canResendOtp = false;
+    this.configureOtpTimer(response.expiresAt);
+  }
+
+  private configureOtpTimer(expiresAtIso: string) {
+    const parsedExpiresAt = Date.parse(expiresAtIso);
+    this.otpExpiresAtMs = Number.isNaN(parsedExpiresAt)
+      ? Date.now() + 5 * 60 * 1000
+      : parsedExpiresAt;
+
+    this.updateOtpCountdown();
+    this.stopOtpTimer();
+
+    if (typeof window !== 'undefined') {
+      this.otpCountdownFrame = window.setInterval(() => this.updateOtpCountdown(), 1000);
+    }
+  }
+
+  private updateOtpCountdown() {
+    const remainingMs = Math.max(0, this.otpExpiresAtMs - Date.now());
+    const remainingSeconds = Math.ceil(remainingMs / 1000);
+    const minutes = Math.floor(remainingSeconds / 60);
+    const seconds = remainingSeconds % 60;
+    this.otpCountdownText = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+
+    if (remainingMs === 0) {
+      this.canResendOtp = true;
+      this.stopOtpTimer();
+      if (!this.otpErrorMessage) {
+        this.otpInfoMessage = 'Tu codigo OTP expiro. Solicita uno nuevo para continuar.';
+      }
+    }
+  }
+
+  private stopOtpTimer() {
+    if (this.otpCountdownFrame !== null && typeof window !== 'undefined') {
+      window.clearInterval(this.otpCountdownFrame);
+      this.otpCountdownFrame = null;
+    }
+  }
+
+  private normalizeOtpCode(value: string): string {
+    return value.replace(/\D/g, '').slice(0, 6);
+  }
+
+  private extractErrorMessage(error: unknown, fallbackMessage: string): string {
+    if (error instanceof HttpErrorResponse && typeof error.error?.message === 'string') {
+      return error.error.message;
+    }
+
+    return fallbackMessage;
+  }
+
+  private buildOtpInfoMessage(devOtpCode: string | undefined, baseMessage: string): string {
+    if (!devOtpCode) {
+      return baseMessage;
+    }
+
+    return `${baseMessage} (Codigo de prueba: ${devOtpCode})`;
   }
 }
