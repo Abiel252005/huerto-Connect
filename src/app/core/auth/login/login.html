@@ -19,9 +19,23 @@
 
     <div class="container" [class.toggle]="isRegister">
         <div class="container-form">
-            <form class="sign-in" (ngSubmit)="authStep === 'credentials' ? onLogin() : onVerifyOtp()"
-                autocomplete="off">
-                <h2>{{ authStep === 'credentials' ? 'Iniciar Sesión' : 'Verifica tu cuenta' }}</h2>
+            <form class="sign-in" (ngSubmit)="onAuthSubmit()" autocomplete="off" [ngClass]="{
+                'sign-in--forgot': authStep === 'forgot-email' || authStep === 'forgot-otp' || authStep === 'forgot-reset',
+                'sign-in--forgot-otp': authStep === 'forgot-otp'
+            }">
+                <h2>
+                    {{
+                    authStep === 'credentials'
+                    ? 'Iniciar Sesión'
+                    : authStep === 'otp'
+                    ? 'Verifica tu cuenta'
+                    : authStep === 'forgot-email'
+                    ? 'Recuperar cuenta'
+                    : authStep === 'forgot-otp'
+                    ? 'Código de recuperación'
+                    : 'Nueva contraseña'
+                    }}
+                </h2>
                 <div class="social-networks" *ngIf="authStep === 'credentials'">
                     <ion-icon name="logo-twitch"></ion-icon>
                     <ion-icon name="logo-twitter"></ion-icon>
@@ -30,8 +44,11 @@
                 </div>
                 <span *ngIf="authStep === 'credentials'">Use su correo y contraseña</span>
                 <span *ngIf="authStep === 'otp'">Ingresa el código enviado a tu correo</span>
+                <span *ngIf="authStep === 'forgot-email'">Te enviaremos un código para restablecer tu contraseña</span>
+                <span *ngIf="authStep === 'forgot-otp'">Ingresa el código de recuperación enviado a tu correo</span>
+                <span *ngIf="authStep === 'forgot-reset'">Define una nueva contraseña segura</span>
 
-                <ng-container *ngIf="authStep === 'credentials'; else otpStepTemplate">
+                <ng-container *ngIf="authStep === 'credentials'; else nonCredentialStepTemplate">
                     <div class="container-input">
                         <ion-icon name="mail-outline"></ion-icon>
                         <input type="email" name="loginEmail" [(ngModel)]="loginEmail" placeholder="Email"
@@ -42,7 +59,12 @@
                         <input type="password" name="loginPassword" [(ngModel)]="loginPassword" placeholder="Password"
                             autocomplete="off" required>
                     </div>
-                    <a href="#">¿Olvidaste tu contraseña?</a>
+                    <button type="button" class="mode-link mode-link--solo" (click)="onStartForgotPassword()">
+                        ¿Olvidaste tu contraseña?
+                    </button>
+                    <p class="form-feedback form-feedback--info" *ngIf="loginInfoMessage">
+                        {{ loginInfoMessage }}
+                    </p>
                     <p class="form-feedback form-feedback--error" *ngIf="loginErrorMessage">
                         {{ loginErrorMessage }}
                     </p>
@@ -51,54 +73,149 @@
                     </button>
                 </ng-container>
 
-                <ng-template #otpStepTemplate>
-                    <div class="otp-shell">
-                        <div class="otp-icon" aria-hidden="true">
-                            <ion-icon name="shield-checkmark-outline"></ion-icon>
-                        </div>
-                        <p class="otp-detail">
-                            Enviamos un código de seguridad a
-                            <strong>{{ maskedLoginEmail || loginEmail }}</strong>
-                        </p>
-                        <div class="code-input-shell">
-                            <div class="code-inputs" (paste)="onCodeDigitsPaste($event)">
-                                <div class="code-node" *ngFor="let idx of codeIndexes">
-                                    <input [id]="'code-digit-' + idx" class="code-digit" type="text" inputmode="numeric"
-                                        pattern="[0-9]*" autocomplete="one-time-code" maxlength="1"
-                                        [value]="codeDigits[idx]"
-                                        (input)="onCodeDigitInput(idx, $any($event.target).value)"
-                                        (keydown)="onCodeDigitKeydown(idx, $event)"
-                                        [disabled]="isSubmittingLogin || !otpChallengeId">
+                <ng-template #nonCredentialStepTemplate>
+                    <ng-container *ngIf="authStep === 'otp'; else forgotFlowTemplate">
+                        <div class="otp-shell">
+                            <div class="otp-icon" aria-hidden="true">
+                                <ion-icon name="shield-checkmark-outline"></ion-icon>
+                            </div>
+                            <p class="otp-detail">
+                                Enviamos un código de seguridad a
+                                <strong>{{ maskedLoginEmail || loginEmail }}</strong>
+                            </p>
+                            <div class="code-input-shell">
+                                <div class="code-inputs" (paste)="onCodeDigitsPaste($event)">
+                                    <div class="code-node" *ngFor="let idx of codeIndexes">
+                                        <input [id]="'code-digit-' + idx" class="code-digit" type="text"
+                                            inputmode="numeric" pattern="[0-9]*" autocomplete="one-time-code"
+                                            maxlength="1" [value]="codeDigits[idx]"
+                                            (input)="onCodeDigitInput(idx, $any($event.target).value)"
+                                            (keydown)="onCodeDigitKeydown(idx, $event)"
+                                            [disabled]="isSubmittingLogin || !otpChallengeId">
+                                    </div>
                                 </div>
                             </div>
+                            <p class="otp-expiration" *ngIf="otpChallengeId; else sendingOtpState">
+                                Expira en {{ otpCountdownText }}
+                            </p>
+                            <ng-template #sendingOtpState>
+                                <p class="otp-expiration">Enviando código...</p>
+                            </ng-template>
                         </div>
-                        <p class="otp-expiration" *ngIf="otpChallengeId; else sendingOtpState">
-                            Expira en {{ otpCountdownText }}
+
+                        <p class="form-feedback form-feedback--info" *ngIf="otpInfoMessage">
+                            {{ otpInfoMessage }}
                         </p>
-                        <ng-template #sendingOtpState>
-                            <p class="otp-expiration">Enviando código...</p>
-                        </ng-template>
-                    </div>
+                        <p class="form-feedback form-feedback--error" *ngIf="otpErrorMessage">
+                            {{ otpErrorMessage }}
+                        </p>
 
-                    <p class="form-feedback form-feedback--info" *ngIf="otpInfoMessage">
-                        {{ otpInfoMessage }}
-                    </p>
-                    <p class="form-feedback form-feedback--error" *ngIf="otpErrorMessage">
-                        {{ otpErrorMessage }}
-                    </p>
+                        <button class="button button--code" type="submit"
+                            [disabled]="isVerifyingOtp || isSubmittingLogin || !otpChallengeId">
+                            {{ isSubmittingLogin ? 'ENVIANDO CÓDIGO...' : (isVerifyingOtp ? 'VERIFICANDO...' : 'VERIFICAR CÓDIGO') }}
+                        </button>
+                        <button type="button" class="mode-link" (click)="onResendOtp()"
+                            [disabled]="isResendingOtp || !canResendOtp">
+                            {{ isResendingOtp ? 'REENVIANDO...' : 'Reenviar código' }}
+                        </button>
+                        <button type="button" class="mode-link" (click)="onBackToCredentials()">
+                            Cambiar correo o contraseña
+                        </button>
+                    </ng-container>
 
-                    <button class="button button--code" type="submit"
-                        [disabled]="isVerifyingOtp || isSubmittingLogin || !otpChallengeId">
-                        {{ isSubmittingLogin ? 'ENVIANDO CÓDIGO...' : (isVerifyingOtp ? 'VERIFICANDO...' : 'VERIFICAR
-                        CÓDIGO') }}
-                    </button>
-                    <button type="button" class="mode-link" (click)="onResendOtp()"
-                        [disabled]="isResendingOtp || !canResendOtp">
-                        {{ isResendingOtp ? 'REENVIANDO...' : 'Reenviar código' }}
-                    </button>
-                    <button type="button" class="mode-link" (click)="onBackToCredentials()">
-                        Cambiar correo o contraseña
-                    </button>
+                    <ng-template #forgotFlowTemplate>
+                        <ng-container *ngIf="authStep === 'forgot-email'">
+                            <div class="container-input">
+                                <ion-icon name="mail-outline"></ion-icon>
+                                <input type="email" name="forgotEmail" [(ngModel)]="forgotEmail"
+                                    placeholder="Correo electrónico" autocomplete="off" required>
+                            </div>
+                            <p class="form-feedback form-feedback--info" *ngIf="forgotInfoMessage">
+                                {{ forgotInfoMessage }}
+                            </p>
+                            <p class="form-feedback form-feedback--error" *ngIf="forgotErrorMessage">
+                                {{ forgotErrorMessage }}
+                            </p>
+                            <button class="button" type="submit" [disabled]="isSubmittingForgotRequest">
+                                {{ isSubmittingForgotRequest ? 'ENVIANDO CÓDIGO...' : 'ENVIAR CÓDIGO' }}
+                            </button>
+                            <button type="button" class="mode-link" (click)="onCancelForgotPassword()">
+                                Volver a iniciar sesión
+                            </button>
+                        </ng-container>
+
+                        <ng-container *ngIf="authStep === 'forgot-otp'">
+                            <div class="otp-shell">
+                                <div class="otp-icon" aria-hidden="true">
+                                    <ion-icon name="mail-open-outline"></ion-icon>
+                                </div>
+                                <p class="otp-detail">
+                                    Enviamos un código de recuperación a
+                                    <strong>{{ forgotMaskedEmail || forgotEmail }}</strong>
+                                </p>
+                                <div class="code-input-shell">
+                                    <div class="code-inputs" (paste)="onForgotCodeDigitsPaste($event)">
+                                        <div class="code-node" *ngFor="let idx of codeIndexes">
+                                            <input [id]="'forgot-code-digit-' + idx" class="code-digit" type="text"
+                                                inputmode="numeric" pattern="[0-9]*" autocomplete="one-time-code"
+                                                maxlength="1" [value]="forgotCodeDigits[idx]"
+                                                (input)="onForgotCodeDigitInput(idx, $any($event.target).value)"
+                                                (keydown)="onForgotCodeDigitKeydown(idx, $event)"
+                                                [disabled]="isVerifyingForgotOtp || !forgotChallengeId">
+                                        </div>
+                                    </div>
+                                </div>
+                                <p class="otp-expiration" *ngIf="forgotChallengeId">
+                                    Expira en {{ forgotOtpCountdownText }}
+                                </p>
+                            </div>
+
+                            <p class="form-feedback form-feedback--info" *ngIf="forgotInfoMessage">
+                                {{ forgotInfoMessage }}
+                            </p>
+                            <p class="form-feedback form-feedback--error" *ngIf="forgotErrorMessage">
+                                {{ forgotErrorMessage }}
+                            </p>
+
+                            <button class="button button--code" type="submit"
+                                [disabled]="isVerifyingForgotOtp || !forgotChallengeId">
+                                {{ isVerifyingForgotOtp ? 'VALIDANDO...' : 'VALIDAR CÓDIGO' }}
+                            </button>
+                            <button type="button" class="mode-link" (click)="onResendForgotOtp()"
+                                [disabled]="isResendingForgotOtp || !canResendForgotOtp">
+                                {{ isResendingForgotOtp ? 'REENVIANDO...' : 'Reenviar código' }}
+                            </button>
+                            <button type="button" class="mode-link" (click)="onBackToForgotEmail()">
+                                Cambiar correo
+                            </button>
+                        </ng-container>
+
+                        <ng-container *ngIf="authStep === 'forgot-reset'">
+                            <div class="container-input">
+                                <ion-icon name="lock-closed-outline"></ion-icon>
+                                <input type="password" name="forgotNewPassword" [(ngModel)]="forgotNewPassword"
+                                    placeholder="Nueva contraseña" autocomplete="off" required>
+                            </div>
+                            <div class="container-input">
+                                <ion-icon name="lock-closed-outline"></ion-icon>
+                                <input type="password" name="forgotConfirmPassword"
+                                    [(ngModel)]="forgotConfirmPassword" placeholder="Confirmar contraseña"
+                                    autocomplete="off" required>
+                            </div>
+                            <p class="form-feedback form-feedback--info" *ngIf="forgotInfoMessage">
+                                {{ forgotInfoMessage }}
+                            </p>
+                            <p class="form-feedback form-feedback--error" *ngIf="forgotErrorMessage">
+                                {{ forgotErrorMessage }}
+                            </p>
+                            <button class="button" type="submit" [disabled]="isSubmittingPasswordReset">
+                                {{ isSubmittingPasswordReset ? 'ACTUALIZANDO...' : 'ACTUALIZAR CONTRASEÑA' }}
+                            </button>
+                            <button type="button" class="mode-link" (click)="onCancelForgotPassword()">
+                                Cancelar
+                            </button>
+                        </ng-container>
+                    </ng-template>
                 </ng-template>
             </form>
         </div>

@@ -7,6 +7,10 @@ interface SendOtpPayload {
   password: string;
 }
 
+interface ForgotPasswordPayload {
+  email: string;
+}
+
 export interface SendOtpResponse {
   message: string;
   challengeId: string;
@@ -27,6 +31,11 @@ interface VerifyOtpPayload {
   otpCode: string;
 }
 
+interface ResetPasswordPayload {
+  resetToken: string;
+  newPassword: string;
+}
+
 interface ResendOtpPayload {
   challengeId: string;
 }
@@ -45,8 +54,9 @@ export interface AuthSession {
 
 export interface VerifyOtpResponse {
   message: string;
-  session: AuthSession;
-  user: AuthUser;
+  session?: AuthSession;
+  user?: AuthUser;
+  resetToken?: string;
 }
 
 export interface ResendOtpResponse {
@@ -55,6 +65,18 @@ export interface ResendOtpResponse {
   expiresAt: string;
   maskedEmail: string;
   devOtpCode?: string;
+}
+
+export interface ForgotPasswordResponse {
+  message: string;
+  challengeId: string;
+  expiresAt: string;
+  maskedEmail: string;
+  devOtpCode?: string;
+}
+
+export interface ResetPasswordResponse {
+  message: string;
 }
 
 const AUTH_SESSION_STORAGE_KEY = 'huerto-auth-session';
@@ -77,11 +99,25 @@ export class AuthService {
   verifyOtp(payload: VerifyOtpPayload): Observable<VerifyOtpResponse> {
     return this.http
       .post<VerifyOtpResponse>(`${this.baseUrl}/verify-otp`, payload)
-      .pipe(tap((response) => this.persistSession(response.session)));
+      .pipe(
+        tap((response) => {
+          if (response.session) {
+            this.persistSession(response.session);
+          }
+        })
+      );
   }
 
   resendOtp(payload: ResendOtpPayload): Observable<ResendOtpResponse> {
     return this.http.post<ResendOtpResponse>(`${this.baseUrl}/resend-otp`, payload);
+  }
+
+  forgotPassword(payload: ForgotPasswordPayload): Observable<ForgotPasswordResponse> {
+    return this.http.post<ForgotPasswordResponse>(`${this.baseUrl}/forgot-password`, payload);
+  }
+
+  resetPassword(payload: ResetPasswordPayload): Observable<ResetPasswordResponse> {
+    return this.http.post<ResetPasswordResponse>(`${this.baseUrl}/reset-password`, payload);
   }
 
   getSession(): AuthSession | null {

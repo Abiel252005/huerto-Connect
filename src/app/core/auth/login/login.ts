@@ -44,19 +44,37 @@ export class LoginComponent implements OnDestroy {
   readonly codeIndexes = [0, 1, 2, 3, 4, 5];
   codeDigits = ['', '', '', '', '', ''];
 
-  authStep: 'credentials' | 'otp' = 'credentials';
+  authStep: 'credentials' | 'otp' | 'forgot-email' | 'forgot-otp' | 'forgot-reset' = 'credentials';
   otpChallengeId = '';
   maskedLoginEmail = '';
   otpCountdownText = '05:00';
   canResendOtp = false;
+  loginInfoMessage = '';
+
+  forgotEmail = '';
+  forgotChallengeId = '';
+  forgotMaskedEmail = '';
+  forgotOtpCode = '';
+  forgotCodeDigits = ['', '', '', '', '', ''];
+  forgotResetToken = '';
+  forgotOtpCountdownText = '05:00';
+  canResendForgotOtp = false;
+  forgotNewPassword = '';
+  forgotConfirmPassword = '';
 
   isSubmittingLogin = false;
   isVerifyingOtp = false;
   isResendingOtp = false;
+  isSubmittingForgotRequest = false;
+  isVerifyingForgotOtp = false;
+  isResendingForgotOtp = false;
+  isSubmittingPasswordReset = false;
 
   loginErrorMessage = '';
   otpErrorMessage = '';
   otpInfoMessage = '';
+  forgotErrorMessage = '';
+  forgotInfoMessage = '';
 
   // Register Data
   registerName = '';
@@ -95,6 +113,8 @@ export class LoginComponent implements OnDestroy {
   private windFrame: number | null = null;
   private otpExpiresAtMs = 0;
   private otpCountdownFrame: number | null = null;
+  private forgotOtpExpiresAtMs = 0;
+  private forgotOtpCountdownFrame: number | null = null;
   private regOtpExpiresAtMs = 0;
   private regOtpCountdownFrame: number | null = null;
 
@@ -126,6 +146,30 @@ export class LoginComponent implements OnDestroy {
     this.startWindLoop();
   }
 
+  onAuthSubmit() {
+    if (this.authStep === 'credentials') {
+      this.onLogin();
+      return;
+    }
+
+    if (this.authStep === 'otp') {
+      this.onVerifyOtp();
+      return;
+    }
+
+    if (this.authStep === 'forgot-email') {
+      this.onRequestPasswordResetOtp();
+      return;
+    }
+
+    if (this.authStep === 'forgot-otp') {
+      this.onVerifyForgotOtp();
+      return;
+    }
+
+    this.onSubmitNewPassword();
+  }
+
   onLogin() {
     if (this.authStep !== 'credentials' || this.isSubmittingLogin) {
       return;
@@ -135,6 +179,7 @@ export class LoginComponent implements OnDestroy {
     const password = this.loginPassword;
 
     this.loginErrorMessage = '';
+    this.loginInfoMessage = '';
     this.otpErrorMessage = '';
     this.otpInfoMessage = '';
 
@@ -160,6 +205,264 @@ export class LoginComponent implements OnDestroy {
         this.loginErrorMessage = this.extractErrorMessage(error, 'No fue posible iniciar sesion.');
       }
     });
+  }
+
+  onStartForgotPassword() {
+    this.resetForgotPasswordFlow();
+    this.authStep = 'forgot-email';
+    this.forgotEmail = this.loginEmail.trim().toLowerCase();
+    this.loginErrorMessage = '';
+    this.loginInfoMessage = '';
+    this.otpErrorMessage = '';
+    this.otpInfoMessage = '';
+    this.forgotErrorMessage = '';
+    this.forgotInfoMessage = '';
+  }
+
+  onRequestPasswordResetOtp() {
+    if (this.authStep !== 'forgot-email' || this.isSubmittingForgotRequest) {
+      return;
+    }
+
+    const email = this.forgotEmail.trim().toLowerCase();
+    this.forgotChallengeId = '';
+    this.forgotResetToken = '';
+    this.canResendForgotOtp = false;
+    this.stopForgotOtpTimer();
+    this.setForgotCodeDigits('');
+    this.forgotErrorMessage = '';
+    this.forgotInfoMessage = '';
+
+    if (!email) {
+      this.forgotErrorMessage = 'Ingresa tu correo para recuperar la contraseña.';
+      return;
+    }
+
+    this.enterForgotOtpStepPending(email);
+    this.isSubmittingForgotRequest = true;
+    this.authService.forgotPassword({ email }).subscribe({
+      next: (response) => {
+        this.isSubmittingForgotRequest = false;
+        this.forgotEmail = email;
+        this.forgotMaskedEmail = response.maskedEmail || this.maskEmailForDisplay(email);
+
+        if (!response.challengeId) {
+          this.forgotChallengeId = '';
+          this.setForgotCodeDigits('');
+          this.stopForgotOtpTimer();
+          this.forgotInfoMessage = response.message;
+          return;
+        }
+
+        this.authStep = 'forgot-otp';
+        this.forgotChallengeId = response.challengeId;
+        this.setForgotCodeDigits(response.devOtpCode ?? '');
+        this.forgotInfoMessage = this.buildOtpInfoMessage(
+          response.devOtpCode,
+          'Ingresa el código que enviamos a tu correo para cambiar tu contraseña.'
+        );
+        this.canResendForgotOtp = false;
+        this.configureForgotOtpTimer(response.expiresAt);
+      },
+      error: (error: unknown) => {
+        this.isSubmittingForgotRequest = false;
+        this.forgotErrorMessage = this.extractErrorMessage(
+          error,
+          'No fue posible iniciar la recuperacion de contraseña.'
+        );
+        this.authStep = 'forgot-email';
+      }
+    });
+  }
+
+  onVerifyForgotOtp() {
+    if (this.authStep !== 'forgot-otp' || this.isVerifyingForgotOtp) {
+      return;
+    }
+
+    if (!this.forgotChallengeId) {
+      this.forgotInfoMessage = 'Estamos enviando tu código. Espera unos segundos.';
+      return;
+    }
+
+    this.syncForgotOtpCodeFromDigits();
+    this.forgotErrorMessage = '';
+    this.forgotInfoMessage = '';
+
+    if (this.forgotOtpCode.length !== 6) {
+      this.forgotErrorMessage = 'Ingresa el código de 6 dígitos.';
+      return;
+    }
+
+    this.isVerifyingForgotOtp = true;
+    this.authService
+      .verifyOtp({
+        challengeId: this.forgotChallengeId,
+        otpCode: this.forgotOtpCode
+      })
+      .subscribe({
+        next: (response) => {
+          this.isVerifyingForgotOtp = false;
+
+          if (!response.resetToken) {
+            this.forgotErrorMessage = 'No fue posible validar el código. Solicita uno nuevo.';
+            this.canResendForgotOtp = true;
+            return;
+          }
+
+          this.forgotResetToken = response.resetToken;
+          this.forgotNewPassword = '';
+          this.forgotConfirmPassword = '';
+          this.authStep = 'forgot-reset';
+          this.forgotInfoMessage = 'Código verificado. Define tu nueva contraseña.';
+          this.stopForgotOtpTimer();
+        },
+        error: (error: unknown) => {
+          this.isVerifyingForgotOtp = false;
+          this.canResendForgotOtp = true;
+          this.forgotErrorMessage = this.extractErrorMessage(
+            error,
+            'No fue posible verificar el código.'
+          );
+        }
+      });
+  }
+
+  onSubmitNewPassword() {
+    if (this.authStep !== 'forgot-reset' || this.isSubmittingPasswordReset) {
+      return;
+    }
+
+    const newPassword = this.forgotNewPassword;
+    const confirmPassword = this.forgotConfirmPassword;
+
+    this.forgotErrorMessage = '';
+
+    if (!this.forgotResetToken) {
+      this.forgotErrorMessage = 'El proceso de recuperación expiró. Solicita un nuevo código.';
+      return;
+    }
+
+    if (newPassword.length < 6) {
+      this.forgotErrorMessage = 'La contraseña debe tener al menos 6 caracteres.';
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      this.forgotErrorMessage = 'Las contraseñas no coinciden.';
+      return;
+    }
+
+    this.isSubmittingPasswordReset = true;
+    this.authService.resetPassword({ resetToken: this.forgotResetToken, newPassword }).subscribe({
+      next: (response) => {
+        this.isSubmittingPasswordReset = false;
+        const recoveredEmail = this.forgotEmail.trim().toLowerCase();
+        this.resetForgotPasswordFlow();
+        this.authStep = 'credentials';
+        this.loginEmail = recoveredEmail;
+        this.loginPassword = '';
+        this.loginErrorMessage = '';
+        this.loginInfoMessage = response.message;
+      },
+      error: (error: unknown) => {
+        this.isSubmittingPasswordReset = false;
+        this.forgotErrorMessage = this.extractErrorMessage(
+          error,
+          'No fue posible actualizar la contraseña.'
+        );
+      }
+    });
+  }
+
+  onResendForgotOtp() {
+    if (!this.forgotChallengeId || !this.canResendForgotOtp || this.isResendingForgotOtp) {
+      return;
+    }
+
+    this.isResendingForgotOtp = true;
+    this.forgotErrorMessage = '';
+    this.forgotInfoMessage = '';
+
+    this.authService.resendOtp({ challengeId: this.forgotChallengeId }).subscribe({
+      next: (response) => {
+        this.isResendingForgotOtp = false;
+        this.canResendForgotOtp = false;
+        this.setForgotCodeDigits(response.devOtpCode ?? '');
+        this.forgotMaskedEmail = response.maskedEmail;
+        this.configureForgotOtpTimer(response.expiresAt);
+        this.forgotInfoMessage = this.buildOtpInfoMessage(
+          response.devOtpCode,
+          'Te enviamos un nuevo código para recuperar tu cuenta.'
+        );
+      },
+      error: (error: unknown) => {
+        this.isResendingForgotOtp = false;
+        this.forgotErrorMessage = this.extractErrorMessage(error, 'No fue posible reenviar el código.');
+      }
+    });
+  }
+
+  onBackToForgotEmail() {
+    this.authStep = 'forgot-email';
+    this.forgotChallengeId = '';
+    this.forgotResetToken = '';
+    this.canResendForgotOtp = false;
+    this.setForgotCodeDigits('');
+    this.forgotErrorMessage = '';
+    this.forgotInfoMessage = '';
+    this.stopForgotOtpTimer();
+  }
+
+  onCancelForgotPassword() {
+    this.authStep = 'credentials';
+    this.resetForgotPasswordFlow();
+  }
+
+  onForgotCodeDigitInput(index: number, value: string) {
+    if (!this.forgotChallengeId) {
+      return;
+    }
+
+    const normalized = value.replace(/\D/g, '').slice(-1);
+    this.forgotCodeDigits[index] = normalized;
+    this.syncForgotOtpCodeFromDigits();
+
+    if (normalized && index < this.forgotCodeDigits.length - 1) {
+      this.focusForgotCodeDigit(index + 1);
+    }
+  }
+
+  onForgotCodeDigitKeydown(index: number, event: KeyboardEvent) {
+    if (event.key === 'Backspace' && !this.forgotCodeDigits[index] && index > 0) {
+      this.focusForgotCodeDigit(index - 1);
+      return;
+    }
+
+    if (event.key === 'ArrowLeft' && index > 0) {
+      event.preventDefault();
+      this.focusForgotCodeDigit(index - 1);
+      return;
+    }
+
+    if (event.key === 'ArrowRight' && index < this.forgotCodeDigits.length - 1) {
+      event.preventDefault();
+      this.focusForgotCodeDigit(index + 1);
+    }
+  }
+
+  onForgotCodeDigitsPaste(event: ClipboardEvent) {
+    if (!this.forgotChallengeId) {
+      return;
+    }
+
+    event.preventDefault();
+    const pasted = event.clipboardData?.getData('text') ?? '';
+    const normalized = pasted.replace(/\D/g, '').slice(0, this.forgotCodeDigits.length);
+    this.setForgotCodeDigits(normalized);
+
+    const nextIndex = Math.min(normalized.length, this.forgotCodeDigits.length - 1);
+    this.focusForgotCodeDigit(nextIndex);
   }
 
   onRegister() {
@@ -251,7 +554,13 @@ export class LoginComponent implements OnDestroy {
         otpCode: this.regOtpCode
       })
       .subscribe({
-        next: () => {
+        next: (response) => {
+          if (!response.session) {
+            this.isVerifyingRegisterOtp = false;
+            this.regOtpErrorMessage = 'No fue posible crear la sesion. Intenta nuevamente.';
+            return;
+          }
+
           this.isVerifyingRegisterOtp = false;
           this.stopRegOtpTimer();
           this.registerPassword = '';
@@ -402,7 +711,14 @@ export class LoginComponent implements OnDestroy {
         otpCode: this.otpCode
       })
       .subscribe({
-        next: () => {
+        next: (response) => {
+          if (!response.session) {
+            this.isVerifyingOtp = false;
+            this.otpErrorMessage = 'No fue posible crear la sesion. Solicita un nuevo codigo.';
+            this.canResendOtp = true;
+            return;
+          }
+
           this.isVerifyingOtp = false;
           this.stopOtpTimer();
           this.loginPassword = '';
@@ -510,6 +826,7 @@ export class LoginComponent implements OnDestroy {
     }
 
     this.stopOtpTimer();
+    this.stopForgotOtpTimer();
     this.stopRegOtpTimer();
   }
 
@@ -592,6 +909,17 @@ export class LoginComponent implements OnDestroy {
     this.stopOtpTimer();
   }
 
+  private enterForgotOtpStepPending(email: string) {
+    this.authStep = 'forgot-otp';
+    this.forgotChallengeId = '';
+    this.forgotMaskedEmail = this.maskEmailForDisplay(email);
+    this.setForgotCodeDigits('');
+    this.forgotErrorMessage = '';
+    this.forgotInfoMessage = 'Enviando código a tu correo...';
+    this.canResendForgotOtp = false;
+    this.stopForgotOtpTimer();
+  }
+
   private configureOtpTimer(expiresAtIso: string) {
     const parsedExpiresAt = Date.parse(expiresAtIso);
     this.otpExpiresAtMs = Number.isNaN(parsedExpiresAt)
@@ -626,6 +954,43 @@ export class LoginComponent implements OnDestroy {
     if (this.otpCountdownFrame !== null && typeof window !== 'undefined') {
       window.clearInterval(this.otpCountdownFrame);
       this.otpCountdownFrame = null;
+    }
+  }
+
+  private configureForgotOtpTimer(expiresAtIso: string) {
+    const parsed = Date.parse(expiresAtIso);
+    this.forgotOtpExpiresAtMs = Number.isNaN(parsed)
+      ? Date.now() + 5 * 60 * 1000
+      : parsed;
+
+    this.updateForgotOtpCountdown();
+    this.stopForgotOtpTimer();
+
+    if (typeof window !== 'undefined') {
+      this.forgotOtpCountdownFrame = window.setInterval(() => this.updateForgotOtpCountdown(), 1000);
+    }
+  }
+
+  private updateForgotOtpCountdown() {
+    const remainingMs = Math.max(0, this.forgotOtpExpiresAtMs - Date.now());
+    const remainingSeconds = Math.ceil(remainingMs / 1000);
+    const minutes = Math.floor(remainingSeconds / 60);
+    const seconds = remainingSeconds % 60;
+    this.forgotOtpCountdownText = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+
+    if (remainingMs === 0) {
+      this.canResendForgotOtp = true;
+      this.stopForgotOtpTimer();
+      if (!this.forgotErrorMessage) {
+        this.forgotInfoMessage = 'Tu código expiró. Solicita uno nuevo para continuar.';
+      }
+    }
+  }
+
+  private stopForgotOtpTimer() {
+    if (this.forgotOtpCountdownFrame !== null && typeof window !== 'undefined') {
+      window.clearInterval(this.forgotOtpCountdownFrame);
+      this.forgotOtpCountdownFrame = null;
     }
   }
 
@@ -681,6 +1046,30 @@ export class LoginComponent implements OnDestroy {
     }
 
     const element = document.getElementById(`code-digit-${index}`) as HTMLInputElement | null;
+    if (!element) {
+      return;
+    }
+
+    element.focus();
+    element.select();
+  }
+
+  private setForgotCodeDigits(code: string) {
+    const normalized = this.normalizeOtpCode(code);
+    this.forgotCodeDigits = this.forgotCodeDigits.map((_, index) => normalized[index] ?? '');
+    this.syncForgotOtpCodeFromDigits();
+  }
+
+  private syncForgotOtpCodeFromDigits() {
+    this.forgotOtpCode = this.forgotCodeDigits.join('');
+  }
+
+  private focusForgotCodeDigit(index: number) {
+    if (typeof document === 'undefined') {
+      return;
+    }
+
+    const element = document.getElementById(`forgot-code-digit-${index}`) as HTMLInputElement | null;
     if (!element) {
       return;
     }
@@ -748,5 +1137,25 @@ export class LoginComponent implements OnDestroy {
 
     el.focus();
     el.select();
+  }
+
+  private resetForgotPasswordFlow() {
+    this.stopForgotOtpTimer();
+    this.forgotEmail = '';
+    this.forgotChallengeId = '';
+    this.forgotMaskedEmail = '';
+    this.forgotOtpCode = '';
+    this.setForgotCodeDigits('');
+    this.forgotResetToken = '';
+    this.forgotOtpCountdownText = '05:00';
+    this.canResendForgotOtp = false;
+    this.forgotNewPassword = '';
+    this.forgotConfirmPassword = '';
+    this.forgotErrorMessage = '';
+    this.forgotInfoMessage = '';
+    this.isSubmittingForgotRequest = false;
+    this.isVerifyingForgotOtp = false;
+    this.isResendingForgotOtp = false;
+    this.isSubmittingPasswordReset = false;
   }
 }
