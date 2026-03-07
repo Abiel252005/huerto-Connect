@@ -60,8 +60,33 @@ export class LoginComponent implements OnDestroy {
 
   // Register Data
   registerName = '';
+  registerApellidos = '';
   registerEmail = '';
   registerPassword = '';
+  registerConfirmPassword = '';
+
+  registerStep: 'form' | 'otp' = 'form';
+  registerChallengeId = '';
+  maskedRegisterEmail = '';
+  regOtpCountdownText = '05:00';
+  canResendRegisterOtp = false;
+
+  isSubmittingRegister = false;
+  isVerifyingRegisterOtp = false;
+  isResendingRegisterOtp = false;
+
+  registerErrorMessage = '';
+  regOtpErrorMessage = '';
+  regOtpInfoMessage = '';
+
+  regCodeDigits = ['', '', '', '', '', ''];
+  private regOtpCode = '';
+
+  passwordStrength: { percent: number; level: string; label: string } = {
+    percent: 0,
+    level: 'weak',
+    label: ''
+  };
 
   windXPx = 0;
   windYPx = 0;
@@ -70,6 +95,8 @@ export class LoginComponent implements OnDestroy {
   private windFrame: number | null = null;
   private otpExpiresAtMs = 0;
   private otpCountdownFrame: number | null = null;
+  private regOtpExpiresAtMs = 0;
+  private regOtpCountdownFrame: number | null = null;
 
   sprouts: SproutParticle[] = this.createSprouts(90);
 
@@ -136,7 +163,217 @@ export class LoginComponent implements OnDestroy {
   }
 
   onRegister() {
-    console.log('Register:', this.registerName, this.registerEmail);
+    if (this.registerStep !== 'form' || this.isSubmittingRegister) {
+      return;
+    }
+
+    const nombre = this.registerName.trim();
+    const apellidos = this.registerApellidos.trim();
+    const email = this.registerEmail.trim().toLowerCase();
+    const password = this.registerPassword;
+    const confirmPassword = this.registerConfirmPassword;
+
+    this.registerErrorMessage = '';
+
+    if (!nombre) {
+      this.registerErrorMessage = 'El nombre es requerido.';
+      return;
+    }
+
+    if (!email) {
+      this.registerErrorMessage = 'El correo electrónico es requerido.';
+      return;
+    }
+
+    if (password.length < 6) {
+      this.registerErrorMessage = 'La contraseña debe tener al menos 6 caracteres.';
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      this.registerErrorMessage = 'Las contraseñas no coinciden.';
+      return;
+    }
+
+    this.isSubmittingRegister = true;
+    this.registerStep = 'otp';
+    this.maskedRegisterEmail = this.maskEmailForDisplay(email);
+    this.setRegCodeDigits('');
+    this.regOtpInfoMessage = 'Enviando código de verificación...';
+    this.regOtpErrorMessage = '';
+
+    this.authService.register({ nombre, apellidos, email, password }).subscribe({
+      next: (response) => {
+        this.isSubmittingRegister = false;
+        this.registerChallengeId = response.challengeId;
+        this.maskedRegisterEmail = response.maskedEmail;
+        this.setRegCodeDigits(response.devOtpCode ?? '');
+        this.regOtpInfoMessage = this.buildOtpInfoMessage(
+          response.devOtpCode,
+          'Ingresa el código que enviamos a tu correo para activar tu cuenta.'
+        );
+        this.canResendRegisterOtp = false;
+        this.configureRegOtpTimer(response.expiresAt);
+      },
+      error: (error: unknown) => {
+        this.isSubmittingRegister = false;
+        this.registerStep = 'form';
+        this.registerChallengeId = '';
+        this.regOtpInfoMessage = '';
+        this.registerErrorMessage = this.extractErrorMessage(error, 'No fue posible crear la cuenta.');
+      }
+    });
+  }
+
+  onVerifyRegisterOtp() {
+    if (this.registerStep !== 'otp' || this.isVerifyingRegisterOtp) {
+      return;
+    }
+
+    if (!this.registerChallengeId) {
+      this.regOtpInfoMessage = 'Estamos enviando tu código. Espera unos segundos.';
+      return;
+    }
+
+    this.syncRegOtpCodeFromDigits();
+    this.regOtpErrorMessage = '';
+    this.regOtpInfoMessage = '';
+
+    if (this.regOtpCode.length !== 6) {
+      this.regOtpErrorMessage = 'Ingresa el código de 6 dígitos.';
+      return;
+    }
+
+    this.isVerifyingRegisterOtp = true;
+    this.authService
+      .verifyOtp({
+        challengeId: this.registerChallengeId,
+        otpCode: this.regOtpCode
+      })
+      .subscribe({
+        next: () => {
+          this.isVerifyingRegisterOtp = false;
+          this.stopRegOtpTimer();
+          this.registerPassword = '';
+          this.registerConfirmPassword = '';
+          this.setRegCodeDigits('');
+          void this.router.navigate(['/admin']);
+        },
+        error: (error: unknown) => {
+          this.isVerifyingRegisterOtp = false;
+          this.canResendRegisterOtp = true;
+          this.regOtpErrorMessage = this.extractErrorMessage(
+            error,
+            'No fue posible verificar el código.'
+          );
+        }
+      });
+  }
+
+  onResendRegisterOtp() {
+    if (!this.registerChallengeId || !this.canResendRegisterOtp || this.isResendingRegisterOtp) {
+      return;
+    }
+
+    this.isResendingRegisterOtp = true;
+    this.regOtpErrorMessage = '';
+    this.regOtpInfoMessage = '';
+
+    this.authService.resendOtp({ challengeId: this.registerChallengeId }).subscribe({
+      next: (response) => {
+        this.isResendingRegisterOtp = false;
+        this.canResendRegisterOtp = false;
+        this.setRegCodeDigits(response.devOtpCode ?? '');
+        this.maskedRegisterEmail = response.maskedEmail;
+        this.configureRegOtpTimer(response.expiresAt);
+        this.regOtpInfoMessage = this.buildOtpInfoMessage(
+          response.devOtpCode,
+          'Te enviamos un nuevo código a tu correo.'
+        );
+      },
+      error: (error: unknown) => {
+        this.isResendingRegisterOtp = false;
+        this.regOtpErrorMessage = this.extractErrorMessage(error, 'No fue posible reenviar el código.');
+      }
+    });
+  }
+
+  onBackToRegisterForm() {
+    this.registerStep = 'form';
+    this.registerChallengeId = '';
+    this.setRegCodeDigits('');
+    this.regOtpInfoMessage = '';
+    this.regOtpErrorMessage = '';
+    this.canResendRegisterOtp = false;
+    this.stopRegOtpTimer();
+  }
+
+  onRegCodeDigitInput(index: number, value: string) {
+    if (!this.registerChallengeId) {
+      return;
+    }
+
+    const normalized = value.replace(/\D/g, '').slice(-1);
+    this.regCodeDigits[index] = normalized;
+    this.syncRegOtpCodeFromDigits();
+
+    if (normalized && index < this.regCodeDigits.length - 1) {
+      this.focusRegCodeDigit(index + 1);
+    }
+  }
+
+  onRegCodeDigitKeydown(index: number, event: KeyboardEvent) {
+    if (event.key === 'Backspace' && !this.regCodeDigits[index] && index > 0) {
+      this.focusRegCodeDigit(index - 1);
+      return;
+    }
+
+    if (event.key === 'ArrowLeft' && index > 0) {
+      event.preventDefault();
+      this.focusRegCodeDigit(index - 1);
+      return;
+    }
+
+    if (event.key === 'ArrowRight' && index < this.regCodeDigits.length - 1) {
+      event.preventDefault();
+      this.focusRegCodeDigit(index + 1);
+    }
+  }
+
+  onRegCodeDigitsPaste(event: ClipboardEvent) {
+    if (!this.registerChallengeId) {
+      return;
+    }
+
+    event.preventDefault();
+    const pasted = event.clipboardData?.getData('text') ?? '';
+    const normalized = pasted.replace(/\D/g, '').slice(0, this.regCodeDigits.length);
+    this.setRegCodeDigits(normalized);
+
+    const nextIndex = Math.min(normalized.length, this.regCodeDigits.length - 1);
+    this.focusRegCodeDigit(nextIndex);
+  }
+
+  updatePasswordStrength() {
+    const p = this.registerPassword;
+    let score = 0;
+
+    if (p.length >= 6) score++;
+    if (p.length >= 10) score++;
+    if (/[A-Z]/.test(p) && /[a-z]/.test(p)) score++;
+    if (/\d/.test(p)) score++;
+    if (/[^A-Za-z0-9]/.test(p)) score++;
+
+    const levels: { level: string; label: string; percent: number }[] = [
+      { level: 'weak', label: 'Débil', percent: 20 },
+      { level: 'weak', label: 'Débil', percent: 30 },
+      { level: 'fair', label: 'Regular', percent: 50 },
+      { level: 'good', label: 'Buena', percent: 75 },
+      { level: 'strong', label: 'Fuerte', percent: 100 }
+    ];
+
+    const index = Math.min(score, levels.length - 1);
+    this.passwordStrength = levels[index];
   }
 
   onVerifyOtp() {
@@ -273,6 +510,7 @@ export class LoginComponent implements OnDestroy {
     }
 
     this.stopOtpTimer();
+    this.stopRegOtpTimer();
   }
 
   private startWindLoop() {
@@ -449,5 +687,66 @@ export class LoginComponent implements OnDestroy {
 
     element.focus();
     element.select();
+  }
+
+  private configureRegOtpTimer(expiresAtIso: string) {
+    const parsed = Date.parse(expiresAtIso);
+    this.regOtpExpiresAtMs = Number.isNaN(parsed)
+      ? Date.now() + 5 * 60 * 1000
+      : parsed;
+
+    this.updateRegOtpCountdown();
+    this.stopRegOtpTimer();
+
+    if (typeof window !== 'undefined') {
+      this.regOtpCountdownFrame = window.setInterval(() => this.updateRegOtpCountdown(), 1000);
+    }
+  }
+
+  private updateRegOtpCountdown() {
+    const remainingMs = Math.max(0, this.regOtpExpiresAtMs - Date.now());
+    const remainingSeconds = Math.ceil(remainingMs / 1000);
+    const minutes = Math.floor(remainingSeconds / 60);
+    const seconds = remainingSeconds % 60;
+    this.regOtpCountdownText = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+
+    if (remainingMs === 0) {
+      this.canResendRegisterOtp = true;
+      this.stopRegOtpTimer();
+      if (!this.regOtpErrorMessage) {
+        this.regOtpInfoMessage = 'Tu código expiró. Solicita uno nuevo para continuar.';
+      }
+    }
+  }
+
+  private stopRegOtpTimer() {
+    if (this.regOtpCountdownFrame !== null && typeof window !== 'undefined') {
+      window.clearInterval(this.regOtpCountdownFrame);
+      this.regOtpCountdownFrame = null;
+    }
+  }
+
+  private setRegCodeDigits(code: string) {
+    const normalized = this.normalizeOtpCode(code);
+    this.regCodeDigits = this.regCodeDigits.map((_, index) => normalized[index] ?? '');
+    this.syncRegOtpCodeFromDigits();
+  }
+
+  private syncRegOtpCodeFromDigits() {
+    this.regOtpCode = this.regCodeDigits.join('');
+  }
+
+  private focusRegCodeDigit(index: number) {
+    if (typeof document === 'undefined') {
+      return;
+    }
+
+    const el = document.getElementById(`reg-code-digit-${index}`) as HTMLInputElement | null;
+    if (!el) {
+      return;
+    }
+
+    el.focus();
+    el.select();
   }
 }

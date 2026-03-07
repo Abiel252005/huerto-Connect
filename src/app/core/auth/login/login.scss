@@ -209,6 +209,77 @@
     font-size: 16px;
 }
 
+.input-row {
+    display: flex;
+    gap: 10px;
+    width: 100%;
+}
+
+.input-row .container-input {
+    flex: 1;
+    min-width: 0;
+}
+
+.password-strength {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: -4px 0 2px;
+}
+
+.strength-bar {
+    flex: 1;
+    height: 5px;
+    background: #e0e0e0;
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.strength-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 300ms ease, background 300ms ease;
+}
+
+.strength-fill.weak {
+    background: #ef4444;
+}
+
+.strength-fill.fair {
+    background: #f59e0b;
+}
+
+.strength-fill.good {
+    background: #22c55e;
+}
+
+.strength-fill.strong {
+    background: #059669;
+}
+
+.strength-label {
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.strength-label.weak {
+    color: #ef4444;
+}
+
+.strength-label.fair {
+    color: #d97706;
+}
+
+.strength-label.good {
+    color: #16a34a;
+}
+
+.strength-label.strong {
+    color: #047857;
+}
+
 .container-form a {
     color: #1f6a54;
     font-size: 14px;
@@ -765,5 +836,10 @@
     .code-node:not(:first-child)::before,
     .code-node:not(:first-child)::after {
         display: none;
+    }
+
+    .input-row {
+        flex-direction: column;
+        gap: 0;
     }
 }

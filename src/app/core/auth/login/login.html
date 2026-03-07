@@ -1,10 +1,5 @@
-<div
-    class="login-scene"
-    (pointermove)="onPointerMove($event)"
-    (pointerleave)="onPointerLeave()"
-    [style.--wind-x]="windXPx + 'px'"
-    [style.--wind-y]="windYPx + 'px'"
->
+<div class="login-scene" (pointermove)="onPointerMove($event)" (pointerleave)="onPointerLeave()"
+    [style.--wind-x]="windXPx + 'px'" [style.--wind-y]="windYPx + 'px'">
     <a class="back-home" routerLink="/" aria-label="Volver al inicio">
         <ion-icon name="arrow-back-outline"></ion-icon>
         <span>Volver</span>
@@ -12,20 +7,11 @@
 
     <div class="dynamic-bg" aria-hidden="true">
         <div class="sprout-field">
-            <div
-                class="sprout"
-                *ngFor="let sprout of sprouts"
-                [style.left.%]="sprout.x"
-                [style.top.%]="sprout.y"
-                [style.width.px]="sprout.size"
-                [style.height.px]="sprout.size"
-                [style.--delay]="sprout.delay + 's'"
-                [style.--float-duration]="sprout.duration + 's'"
-                [style.--drift-x.px]="sprout.driftX"
-                [style.--drift-y.px]="sprout.driftY"
-                [style.opacity]="sprout.opacity"
-                [style.--base-rotation]="sprout.rotate + 'deg'"
-            >
+            <div class="sprout" *ngFor="let sprout of sprouts" [style.left.%]="sprout.x" [style.top.%]="sprout.y"
+                [style.width.px]="sprout.size" [style.height.px]="sprout.size" [style.--delay]="sprout.delay + 's'"
+                [style.--float-duration]="sprout.duration + 's'" [style.--drift-x.px]="sprout.driftX"
+                [style.--drift-y.px]="sprout.driftY" [style.opacity]="sprout.opacity"
+                [style.--base-rotation]="sprout.rotate + 'deg'">
                 <ion-icon name="leaf-outline"></ion-icon>
             </div>
         </div>
@@ -33,11 +19,8 @@
 
     <div class="container" [class.toggle]="isRegister">
         <div class="container-form">
-            <form
-                class="sign-in"
-                (ngSubmit)="authStep === 'credentials' ? onLogin() : onVerifyOtp()"
-                autocomplete="off"
-            >
+            <form class="sign-in" (ngSubmit)="authStep === 'credentials' ? onLogin() : onVerifyOtp()"
+                autocomplete="off">
                 <h2>{{ authStep === 'credentials' ? 'Iniciar Sesión' : 'Verifica tu cuenta' }}</h2>
                 <div class="social-networks" *ngIf="authStep === 'credentials'">
                     <ion-icon name="logo-twitch"></ion-icon>
@@ -51,25 +34,13 @@
                 <ng-container *ngIf="authStep === 'credentials'; else otpStepTemplate">
                     <div class="container-input">
                         <ion-icon name="mail-outline"></ion-icon>
-                        <input
-                            type="email"
-                            name="loginEmail"
-                            [(ngModel)]="loginEmail"
-                            placeholder="Email"
-                            autocomplete="off"
-                            required
-                        >
+                        <input type="email" name="loginEmail" [(ngModel)]="loginEmail" placeholder="Email"
+                            autocomplete="off" required>
                     </div>
                     <div class="container-input">
                         <ion-icon name="lock-closed-outline"></ion-icon>
-                        <input
-                            type="password"
-                            name="loginPassword"
-                            [(ngModel)]="loginPassword"
-                            placeholder="Password"
-                            autocomplete="off"
-                            required
-                        >
+                        <input type="password" name="loginPassword" [(ngModel)]="loginPassword" placeholder="Password"
+                            autocomplete="off" required>
                     </div>
                     <a href="#">¿Olvidaste tu contraseña?</a>
                     <p class="form-feedback form-feedback--error" *ngIf="loginErrorMessage">
@@ -92,19 +63,12 @@
                         <div class="code-input-shell">
                             <div class="code-inputs" (paste)="onCodeDigitsPaste($event)">
                                 <div class="code-node" *ngFor="let idx of codeIndexes">
-                                    <input
-                                        [id]="'code-digit-' + idx"
-                                        class="code-digit"
-                                        type="text"
-                                        inputmode="numeric"
-                                        pattern="[0-9]*"
-                                        autocomplete="one-time-code"
-                                        maxlength="1"
+                                    <input [id]="'code-digit-' + idx" class="code-digit" type="text" inputmode="numeric"
+                                        pattern="[0-9]*" autocomplete="one-time-code" maxlength="1"
                                         [value]="codeDigits[idx]"
                                         (input)="onCodeDigitInput(idx, $any($event.target).value)"
                                         (keydown)="onCodeDigitKeydown(idx, $event)"
-                                        [disabled]="isSubmittingLogin || !otpChallengeId"
-                                    >
+                                        [disabled]="isSubmittingLogin || !otpChallengeId">
                                 </div>
                             </div>
                         </div>
@@ -123,15 +87,13 @@
                         {{ otpErrorMessage }}
                     </p>
 
-                    <button class="button button--code" type="submit" [disabled]="isVerifyingOtp || isSubmittingLogin || !otpChallengeId">
-                        {{ isSubmittingLogin ? 'ENVIANDO CÓDIGO...' : (isVerifyingOtp ? 'VERIFICANDO...' : 'VERIFICAR CÓDIGO') }}
+                    <button class="button button--code" type="submit"
+                        [disabled]="isVerifyingOtp || isSubmittingLogin || !otpChallengeId">
+                        {{ isSubmittingLogin ? 'ENVIANDO CÓDIGO...' : (isVerifyingOtp ? 'VERIFICANDO...' : 'VERIFICAR
+                        CÓDIGO') }}
                     </button>
-                    <button
-                        type="button"
-                        class="mode-link"
-                        (click)="onResendOtp()"
-                        [disabled]="isResendingOtp || !canResendOtp"
-                    >
+                    <button type="button" class="mode-link" (click)="onResendOtp()"
+                        [disabled]="isResendingOtp || !canResendOtp">
                         {{ isResendingOtp ? 'REENVIANDO...' : 'Reenviar código' }}
                     </button>
                     <button type="button" class="mode-link" (click)="onBackToCredentials()">
@@ -142,49 +104,105 @@
         </div>
 
         <div class="container-form">
-            <form class="sign-up" (ngSubmit)="onRegister()" autocomplete="off">
-                <h2>Registrarse</h2>
-                <div class="social-networks">
-                    <ion-icon name="logo-twitch"></ion-icon>
-                    <ion-icon name="logo-twitter"></ion-icon>
-                    <ion-icon name="logo-instagram"></ion-icon>
-                    <ion-icon name="logo-tiktok"></ion-icon>
-                </div>
-                <span>Use su correo electrónico para registrarse</span>
-                <div class="container-input">
-                    <ion-icon name="person-outline"></ion-icon>
-                    <input
-                        type="text"
-                        name="registerName"
-                        [(ngModel)]="registerName"
-                        placeholder="Nombre"
-                        autocomplete="off"
-                        required
-                    >
-                </div>
-                <div class="container-input">
-                    <ion-icon name="mail-outline"></ion-icon>
-                    <input
-                        type="email"
-                        name="registerEmail"
-                        [(ngModel)]="registerEmail"
-                        placeholder="Email"
-                        autocomplete="off"
-                        required
-                    >
-                </div>
-                <div class="container-input">
-                    <ion-icon name="lock-closed-outline"></ion-icon>
-                    <input
-                        type="password"
-                        name="registerPassword"
-                        [(ngModel)]="registerPassword"
-                        placeholder="Password"
-                        autocomplete="off"
-                        required
-                    >
-                </div>
-                <button class="button" type="submit">REGISTRARSE</button>
+            <form class="sign-up" (ngSubmit)="registerStep === 'form' ? onRegister() : onVerifyRegisterOtp()"
+                autocomplete="off">
+                <h2>{{ registerStep === 'form' ? 'Crear cuenta' : 'Verifica tu correo' }}</h2>
+
+                <ng-container *ngIf="registerStep === 'form'">
+                    <span>Completa tus datos para registrarte</span>
+                    <div class="input-row">
+                        <div class="container-input">
+                            <ion-icon name="person-outline"></ion-icon>
+                            <input type="text" name="registerName" [(ngModel)]="registerName" placeholder="Nombre"
+                                autocomplete="off" required>
+                        </div>
+                        <div class="container-input">
+                            <ion-icon name="person-outline"></ion-icon>
+                            <input type="text" name="registerApellidos" [(ngModel)]="registerApellidos"
+                                placeholder="Apellidos" autocomplete="off">
+                        </div>
+                    </div>
+                    <div class="container-input">
+                        <ion-icon name="mail-outline"></ion-icon>
+                        <input type="email" name="registerEmail" [(ngModel)]="registerEmail"
+                            placeholder="Correo electrónico" autocomplete="off" required>
+                    </div>
+                    <div class="container-input">
+                        <ion-icon name="lock-closed-outline"></ion-icon>
+                        <input type="password" name="registerPassword" [(ngModel)]="registerPassword"
+                            placeholder="Contraseña" autocomplete="off" required (input)="updatePasswordStrength()">
+                    </div>
+                    <div class="password-strength" *ngIf="registerPassword.length > 0">
+                        <div class="strength-bar">
+                            <div class="strength-fill" [style.width.%]="passwordStrength.percent"
+                                [class.weak]="passwordStrength.level === 'weak'"
+                                [class.fair]="passwordStrength.level === 'fair'"
+                                [class.good]="passwordStrength.level === 'good'"
+                                [class.strong]="passwordStrength.level === 'strong'"></div>
+                        </div>
+                        <span class="strength-label" [class.weak]="passwordStrength.level === 'weak'"
+                            [class.fair]="passwordStrength.level === 'fair'"
+                            [class.good]="passwordStrength.level === 'good'"
+                            [class.strong]="passwordStrength.level === 'strong'">{{ passwordStrength.label }}</span>
+                    </div>
+                    <div class="container-input">
+                        <ion-icon name="lock-closed-outline"></ion-icon>
+                        <input type="password" name="registerConfirmPassword" [(ngModel)]="registerConfirmPassword"
+                            placeholder="Confirmar contraseña" autocomplete="off" required>
+                    </div>
+                    <p class="form-feedback form-feedback--error" *ngIf="registerErrorMessage">
+                        {{ registerErrorMessage }}
+                    </p>
+                    <button class="button" type="submit" [disabled]="isSubmittingRegister">
+                        {{ isSubmittingRegister ? 'CREANDO CUENTA...' : 'REGISTRARSE' }}
+                    </button>
+                </ng-container>
+
+                <ng-container *ngIf="registerStep === 'otp'">
+                    <div class="otp-shell">
+                        <div class="otp-icon" aria-hidden="true">
+                            <ion-icon name="mail-open-outline"></ion-icon>
+                        </div>
+                        <p class="otp-detail">
+                            Te enviamos un código de verificación a
+                            <strong>{{ maskedRegisterEmail || registerEmail }}</strong>
+                        </p>
+                        <div class="code-input-shell">
+                            <div class="code-inputs" (paste)="onRegCodeDigitsPaste($event)">
+                                <div class="code-node" *ngFor="let idx of codeIndexes">
+                                    <input [id]="'reg-code-digit-' + idx" class="code-digit" type="text"
+                                        inputmode="numeric" pattern="[0-9]*" autocomplete="one-time-code" maxlength="1"
+                                        [value]="regCodeDigits[idx]"
+                                        (input)="onRegCodeDigitInput(idx, $any($event.target).value)"
+                                        (keydown)="onRegCodeDigitKeydown(idx, $event)"
+                                        [disabled]="isVerifyingRegisterOtp || !registerChallengeId">
+                                </div>
+                            </div>
+                        </div>
+                        <p class="otp-expiration" *ngIf="registerChallengeId">
+                            Expira en {{ regOtpCountdownText }}
+                        </p>
+                    </div>
+
+                    <p class="form-feedback form-feedback--info" *ngIf="regOtpInfoMessage">
+                        {{ regOtpInfoMessage }}
+                    </p>
+                    <p class="form-feedback form-feedback--error" *ngIf="regOtpErrorMessage">
+                        {{ regOtpErrorMessage }}
+                    </p>
+
+                    <button class="button button--code" type="submit"
+                        [disabled]="isVerifyingRegisterOtp || !registerChallengeId">
+                        {{ isVerifyingRegisterOtp ? 'VERIFICANDO...' : 'VERIFICAR CÓDIGO' }}
+                    </button>
+                    <button type="button" class="mode-link" (click)="onResendRegisterOtp()"
+                        [disabled]="isResendingRegisterOtp || !canResendRegisterOtp">
+                        {{ isResendingRegisterOtp ? 'REENVIANDO...' : 'Reenviar código' }}
+                    </button>
+                    <button type="button" class="mode-link" (click)="onBackToRegisterForm()">
+                        Volver al formulario
+                    </button>
+                </ng-container>
             </form>
         </div>
 

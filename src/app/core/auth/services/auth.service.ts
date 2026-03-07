@@ -15,6 +15,13 @@ export interface SendOtpResponse {
   devOtpCode?: string;
 }
 
+interface RegisterPayload {
+  nombre: string;
+  apellidos: string;
+  email: string;
+  password: string;
+}
+
 interface VerifyOtpPayload {
   challengeId: string;
   otpCode: string;
@@ -61,6 +68,10 @@ export class AuthService {
 
   requestOtp(payload: SendOtpPayload): Observable<SendOtpResponse> {
     return this.http.post<SendOtpResponse>(`${this.baseUrl}/send-otp`, payload);
+  }
+
+  register(payload: RegisterPayload): Observable<SendOtpResponse> {
+    return this.http.post<SendOtpResponse>(`${this.baseUrl}/register`, payload);
   }
 
   verifyOtp(payload: VerifyOtpPayload): Observable<VerifyOtpResponse> {
