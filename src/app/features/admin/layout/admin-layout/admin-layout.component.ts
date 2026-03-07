@@ -7,6 +7,7 @@ import {
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { ToastNotificationComponent } from '../../components/toast-notification/toast-notification.component';
+import { AuthService } from '../../../../core/auth/services/auth.service';
 
 interface NavItem {
   label: string;
@@ -28,6 +29,7 @@ interface NavItem {
 export class AdminLayoutComponent {
   private static readonly THEME_STORAGE_KEY = 'huerto-admin-theme';
   private readonly router = inject(Router);
+  private readonly authService = inject(AuthService);
 
   theme: 'dark' | 'light' = this.loadTheme();
 
@@ -60,9 +62,7 @@ export class AdminLayoutComponent {
   }
 
   logout() {
-    if (typeof window !== 'undefined') {
-      window.sessionStorage.clear();
-    }
+    this.authService.logout();
     this.router.navigate(['/login']);
   }
 
