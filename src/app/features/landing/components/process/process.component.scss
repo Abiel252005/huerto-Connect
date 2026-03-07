@@ -30,6 +30,23 @@ $border-accent: rgba(0, 212, 161, 0.3);
     scroll-margin-top: 70px; // Matched exactly to header height to avoid white gap
     overflow: hidden;
     z-index: 1;
+
+    // Glowing separator line at top
+    &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: linear-gradient(to right,
+                transparent 5%,
+                rgba(0, 212, 161, 0.25) 30%,
+                rgba(0, 212, 161, 0.4) 50%,
+                rgba(0, 212, 161, 0.25) 70%,
+                transparent 95%);
+        z-index: 2;
+    }
 }
 
 /* ─── Background Space/Stars Effect ─── */
