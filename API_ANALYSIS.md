@@ -8,7 +8,7 @@
 
 1. [API actual implementada](#1-api-actual-implementada)
 2. [Flujos de trabajo reales](#2-flujos-de-trabajo-reales)
-3. [Base de datos — 18 tablas](#3-base-de-datos--18-tablas)
+3. [Base de datos — 17 tablas](#3-base-de-datos--17-tablas)
 4. [Diagrama ER (núcleo)](#4-diagrama-er-nucleo)
 5. [Endpoints (implementados y por construir)](#5-endpoints-implementados-y-por-construir)
 6. [Modelos y validaciones (login + dashboard)](#6-modelos-y-validaciones-login--dashboard)
@@ -192,122 +192,124 @@ Por lo tanto, la base debe soportar consultas agregadas eficientes (`COUNT`, fil
 
 ---
 
-## 3. Base de datos — 18 tablas
+## 3. Base de datos — 17 tablas
 
-### 3.1 Núcleo mínimo para salir a producción (Auth + Dashboard)
+### 3.1 Principios de diseño
 
-Estas tablas son obligatorias para cubrir lo ya implementado en login/API y KPIs:
+- Normalizar referencias (región, huerto, cultivo, responsable) con FK.
+- No guardar métricas derivadas (counts) como columnas persistidas.
+- Modelar autenticación con TTL y revocación explícita.
+- Mantener trazabilidad de acciones críticas en auditoría.
+- Diseñar índices para consultas de login, dashboard y filtros admin.
+
+### 3.2 Núcleo mínimo para salir a producción (Auth + Dashboard)
+
+Estas tablas cubren lo que ya existe en frontend y API hoy:
 
 1. `usuarios`
 2. `otp_challenges`
 3. `password_resets`
 4. `sesiones`
-5. `huertos`
-6. `regiones`
+5. `regiones`
+6. `huertos`
 7. `plaga_detecciones`
 8. `alertas`
 9. `chat_conversaciones`
 10. `auditoria_logs`
 
-### 3.2 Modelo completo objetivo (18 tablas)
+### 3.3 Matriz completa de tablas (actualizada)
 
-#### 🔐 Auth y seguridad
+| # | Tabla | Dominio | Campos clave | Relación/FK clave | Alimenta | Estado actual |
+|---|---|---|---|---|---|---|
+| 1 | `usuarios` | Auth | `nombre`, `apellidos`, `email`, `password_hash`, `password_salt`, `rol`, `estado`, `email_verificado` | `region_id -> regiones.id` | Login, registro, dashboard usuarios, perfil admin | Mock + memoria |
+| 2 | `otp_challenges` | Auth | `tipo`, `otp_hash`, `verify_attempts`, `resend_count`, `challenge_context_json`, `expires_at` | `usuario_id -> usuarios.id` | `send-otp`, `register`, `forgot-password`, `verify-otp`, `resend-otp` | Memoria |
+| 3 | `password_resets` | Auth | `token_hash`, `expires_at`, `used_at`, `source_challenge_id` | `usuario_id -> usuarios.id` | `reset-password` (cambio final) | Memoria |
+| 4 | `sesiones` | Auth | `token_hash`, `activa`, `expires_at`, `ultima_actividad`, `ip`, `user_agent`, `dispositivo` | `usuario_id -> usuarios.id` | `session`, `logout`, guard de `/admin` | Memoria |
+| 5 | `regiones` | Agrícola | `nombre`, `actividad`, `priorizada` | — | Dashboard y módulo regiones/mapa | Mock |
+| 6 | `huertos` | Agrícola | `nombre`, `municipio`, `estado`, `salud` | `usuario_id -> usuarios.id`, `region_id -> regiones.id` | Dashboard, módulo huertos, base de alertas/plagas | Mock |
+| 7 | `cultivos` | Agrícola | `nombre`, `temporada`, `dificultad`, `riego`, `fertilizacion`, `activo` | — | Módulo cultivos y relación de siembras | Mock |
+| 8 | `huerto_cultivos` | Agrícola | `huerto_id`, `cultivo_id`, `fecha_siembra`, `estado` | `huerto_id -> huertos.id`, `cultivo_id -> cultivos.id` | Conteo `cultivosActivos`, trazabilidad de siembra | Diseño |
+| 9 | `plantios` | Agrícola | `nombre`, `municipio`, `lat`, `lng`, `salud`, `severidad` | `huerto_cultivo_id -> huerto_cultivos.id` | Mapa de plantíos en regiones | Mock |
+| 10 | `plaga_detecciones` | Sanidad | `imagen_url`, `plaga`, `confianza`, `severidad`, `estado`, `fecha` | `huerto_id -> huertos.id`, `cultivo_id -> cultivos.id` | Dashboard, módulo plagas IA | Mock |
+| 11 | `alertas` | Sanidad | `titulo`, `tipo (Plaga/Riego/Sistema)`, `severidad`, `estado`, `fecha`, `resuelta_en` | `huerto_id -> huertos.id`, `responsable_id -> usuarios.id` | Dashboard, módulo alertas | Mock |
+| 12 | `chat_conversaciones` | Chatbot | `usuario_id`, `tema`, `ultimo_mensaje`, `estado`, `fecha` | `usuario_id -> usuarios.id` | Dashboard y módulo chatbot | Mock |
+| 13 | `chat_mensajes` | Chatbot | `conversacion_id`, `rol`, `contenido`, `fecha` | `conversacion_id -> chat_conversaciones.id` | Historial detallado por conversación | Diseño |
+| 14 | `chat_metricas` | Chatbot | `tema`, `total`, `porcentaje`, `updated_at` | — | KPI y tarjetas de uso del chatbot | Mock |
+| 15 | `reportes` | Sistema | `nombre`, `tipo`, `estado`, `archivo_url`, `generado_por`, `fecha` | `generado_por -> usuarios.id` | Módulo reportes | Mock |
+| 16 | `auditoria_logs` | Sistema | `actor_id`, `accion`, `modulo`, `ip`, `detalle_json`, `fecha` | `actor_id -> usuarios.id` | Auditoría de eventos críticos | Diseño |
+| 17 | `contacto_mensajes` | Público | `nombre`, `email`, `telefono`, `mensaje`, `leido`, `fecha` | — | Formulario de contacto landing | Mock |
 
-| Tabla | Propósito |
-|---|---|
-| `usuarios` | Cuenta, rol, estado, hash/salt, metadata |
-| `otp_challenges` | OTP activo por flujo (`login`, `registro`, `reset-password`) |
-| `password_resets` | Token de un uso generado después de OTP de recuperación |
-| `sesiones` | Sesiones activas/inactivas por dispositivo |
+> `ALERTAS.tipo` queda en `Plaga`, `Riego`, `Sistema`.  
+> `Riego` se conserva para recordatorios/agenda manual; **sin IoT** por ahora.
 
-#### 🌱 Dominio agrícola
-
-| Tabla | Propósito |
-|---|---|
-| `regiones` | Catálogo de regiones |
-| `huertos` | Huertos por usuario/región |
-| `cultivos` | Catálogo de cultivos |
-| `huerto_cultivos` | Relación huerto-cultivo (siembra real) |
-| `plantios` | Puntos geográficos para mapa |
-
-#### 🐛 Sanidad y alertamiento
-
-| Tabla | Propósito |
-|---|---|
-| `plaga_detecciones` | Detecciones IA con severidad/estado |
-| `alertas` | Alertas de sistema/operación |
-
-#### 🤖 Conversacional
-
-| Tabla | Propósito |
-|---|---|
-| `chat_conversaciones` | Hilo conversacional |
-| `chat_mensajes` | Mensajes por conversación |
-| `chat_metricas` | Métricas agregadas por tema/categoría |
-
-#### 📊 Reportes y sistema
-
-| Tabla | Propósito |
-|---|---|
-| `reportes` | Reportes generados |
-| `integraciones` | Estado de proveedores externos |
-| `auditoria_logs` | Bitácora de acciones críticas |
-| `contacto_mensajes` | Mensajes de formulario landing |
-
-### 3.3 Reglas de diseño para Auth (clave)
+### 3.4 Diseño detallado de Auth (clave)
 
 #### `usuarios`
 
-- `email` único (case-insensitive)
-- `password_hash` + `password_salt`
-- `email_verificado` boolean
-- `estado` (`Activo`, `Inactivo`, `Suspendido`, `Pendiente`)
+- `email` único case-insensitive.
+- `password_hash` + `password_salt` (derivado de email + pepper).
+- `email_verificado`, `estado`, `rol`.
+- `deleted_at` para soft-delete.
 
 #### `otp_challenges`
 
-- `tipo` enum: `login`, `registro`, `reset-password`
-- `otp_hash`, `expires_at`, `verify_attempts`, `resend_count`
-- Para `registro` se requiere guardar contexto temporal (`pending_user_json` o columnas dedicadas)
+- `tipo` enum: `login`, `registro`, `reset_password`.
+- `otp_hash`, `verify_attempts`, `resend_count`, `expires_at`.
+- `challenge_context_json` para guardar datos temporales de registro (`nombre`, `apellidos`, `email`, `password_hash`, `password_salt`) antes de crear usuario.
 
 #### `password_resets`
 
-- `token_hash` (nunca guardar token plano)
-- `usuario_id`
-- `expires_at`
-- `used_at` / `usado` para un solo uso
+- `token_hash` único (no guardar token en texto plano).
+- `usuario_id`.
+- `expires_at`, `used_at`.
+- opcional: `source_challenge_id` para trazabilidad.
 
 #### `sesiones`
 
-- `token_hash`
-- `usuario_id`
-- `activa`, `expires_at`, `ultima_actividad`
-- opcional: `ip`, `user_agent`, `dispositivo`
+- `token_hash` único.
+- `usuario_id`.
+- `activa`, `expires_at`, `ultima_actividad`.
+- opcional: `ip`, `user_agent`, `dispositivo`.
 
-### 3.4 Índices recomendados (obligatorios)
+### 3.5 Índices recomendados (obligatorios)
 
 - `usuarios(email)` unique
+- `usuarios(region_id, estado)`
 - `otp_challenges(id)` PK
-- `otp_challenges(usuario_id, tipo)`
+- `otp_challenges(usuario_id, tipo, expires_at)`
 - `otp_challenges(expires_at)`
 - `password_resets(token_hash)` unique
-- `password_resets(usuario_id, expires_at)`
+- `password_resets(usuario_id, expires_at, used_at)`
 - `sesiones(token_hash)` unique
-- `sesiones(usuario_id, activa)`
-- `alertas(severidad, estado, fecha)`
-- `plaga_detecciones(fecha, severidad, estado)`
-- `huertos(region_id)`
-- `chat_conversaciones(created_at)`
+- `sesiones(usuario_id, activa, expires_at)`
+- `huertos(region_id, estado)`
+- `alertas(huerto_id, severidad, estado, fecha)`
+- `plaga_detecciones(huerto_id, fecha, severidad, estado)`
+- `chat_conversaciones(usuario_id, fecha)`
+- `auditoria_logs(actor_id, fecha)`
 
-### 3.5 Política de campos calculados
+### 3.6 Campos calculados (NO persistir)
 
-No almacenar en tabla:
+No guardar como columnas:
 
-- `usuarios_count`
-- `huertos_count`
-- `alertas_count`
-- `cultivos_activos`
+- `usuario.huertos`
+- `huerto.cultivosActivos`
+- `huerto.alertas`
+- `region.usuarios`
+- `region.huertos`
+- `region.detecciones`
+- `kpi.*` del dashboard
 
-Se obtienen por `COUNT()` y joins en endpoint.
+Se obtienen con `COUNT()` y `JOIN`.
+
+### 3.7 Normalización de textos que hoy vienen “planos” en frontend
+
+| Campo visual frontend | Fuente relacional recomendada |
+|---|---|
+| `alerta.region` | `alertas.huerto_id -> huertos.region_id -> regiones.nombre` |
+| `plaga.ubicacion` | `plaga_detecciones.huerto_id -> huertos.municipio` |
+| `plaga.cultivo` | `plaga_detecciones.cultivo_id -> cultivos.nombre` |
+| `chat.region` | `chat_conversaciones.usuario_id -> usuarios.region_id -> regiones.nombre` |
 
 ---
 
@@ -315,24 +317,219 @@ Se obtienen por `COUNT()` y joins en endpoint.
 
 ```mermaid
 erDiagram
-    USUARIOS ||--o{ HUERTOS : posee
-    REGIONES ||--o{ HUERTOS : contiene
-    HUERTOS ||--o{ ALERTAS : genera
-    HUERTOS ||--o{ PLAGA_DETECCIONES : registra
+    USUARIOS {
+        uuid id PK
+        varchar nombre "NOT NULL"
+        varchar apellidos
+        varchar email UK "NOT NULL"
+        varchar password_hash "scrypt + pepper"
+        varchar password_salt
+        uuid region_id FK "nullable"
+        enum rol "Admin - Productor - Tecnico"
+        enum estado "Activo - Inactivo - Suspendido - Pendiente"
+        boolean email_verificado "default false"
+        timestamp ultima_actividad
+        timestamp created_at
+        timestamp updated_at
+        timestamp deleted_at
+    }
 
-    USUARIOS ||--o{ OTP_CHALLENGES : inicia
+    OTP_CHALLENGES {
+        uuid id PK "challengeId"
+        uuid usuario_id FK "nullable para registro inicial"
+        enum tipo "login - registro - reset_password"
+        varchar otp_hash
+        int verify_attempts "max 5"
+        int resend_count "max 3"
+        jsonb challenge_context_json "pending user / metadata"
+        timestamp expires_at "5 min TTL"
+        timestamp created_at
+        timestamp updated_at
+    }
+
+    PASSWORD_RESETS {
+        uuid id PK
+        uuid usuario_id FK
+        varchar token_hash UK
+        uuid source_challenge_id FK "nullable"
+        timestamp expires_at
+        timestamp used_at "nullable"
+        timestamp created_at
+    }
+
+    SESIONES {
+        uuid id PK
+        uuid usuario_id FK
+        varchar token_hash UK
+        varchar ip
+        varchar user_agent
+        varchar dispositivo
+        boolean activa "default true"
+        timestamp ultima_actividad
+        timestamp expires_at "8h TTL"
+        timestamp created_at
+        timestamp revoked_at "nullable"
+    }
+
+    REGIONES {
+        uuid id PK
+        varchar nombre UK
+        enum actividad "Alta - Media - Baja"
+        boolean priorizada
+        timestamp created_at
+        timestamp updated_at
+    }
+
+    HUERTOS {
+        uuid id PK
+        varchar nombre
+        uuid usuario_id FK
+        varchar municipio
+        uuid region_id FK
+        enum estado "Optimo - Atencion - Critico"
+        int salud "0..100"
+        timestamp created_at
+        timestamp updated_at
+        timestamp deleted_at
+    }
+
+    CULTIVOS {
+        uuid id PK
+        varchar nombre
+        varchar temporada
+        enum dificultad "Baja - Media - Alta"
+        varchar riego
+        varchar fertilizacion
+        boolean activo
+        timestamp created_at
+    }
+
+    HUERTO_CULTIVOS {
+        uuid id PK
+        uuid huerto_id FK
+        uuid cultivo_id FK
+        date fecha_siembra
+        enum estado "Activo - Cosechado - Perdido"
+        timestamp created_at
+    }
+
+    PLANTIOS {
+        uuid id PK
+        varchar nombre
+        uuid huerto_cultivo_id FK
+        varchar municipio
+        decimal lat
+        decimal lng
+        int salud "0..100"
+        enum severidad "Baja - Media - Alta"
+        timestamp created_at
+    }
+
+    PLAGA_DETECCIONES {
+        uuid id PK
+        varchar imagen_url
+        varchar plaga
+        decimal confianza "0..100"
+        uuid huerto_id FK
+        uuid cultivo_id FK
+        enum severidad "Baja - Media - Alta"
+        enum estado "Pendiente - Confirmada - Descartada"
+        timestamp fecha
+        timestamp updated_at
+    }
+
+    ALERTAS {
+        uuid id PK
+        varchar titulo
+        enum tipo "Plaga - Riego - Sistema"
+        enum severidad "Seguro - Advertencia - Critico"
+        enum estado "Abierta - En_progreso - Resuelta"
+        uuid huerto_id FK
+        uuid responsable_id FK
+        timestamp fecha
+        timestamp resuelta_en
+    }
+
+    CHAT_CONVERSACIONES {
+        uuid id PK
+        uuid usuario_id FK
+        varchar tema
+        text ultimo_mensaje
+        enum estado "Activa - Cerrada"
+        timestamp fecha
+        timestamp updated_at
+    }
+
+    CHAT_MENSAJES {
+        uuid id PK
+        uuid conversacion_id FK
+        enum rol "user - assistant - system"
+        text contenido
+        timestamp fecha
+    }
+
+    CHAT_METRICAS {
+        uuid id PK
+        varchar tema UK
+        int total
+        decimal porcentaje
+        timestamp updated_at
+    }
+
+    REPORTES {
+        uuid id PK
+        varchar nombre
+        varchar tipo
+        enum estado "Generado - En_proceso - Error"
+        varchar archivo_url
+        uuid generado_por FK
+        timestamp fecha
+    }
+
+    AUDITORIA_LOGS {
+        uuid id PK
+        uuid actor_id FK
+        varchar accion
+        varchar modulo
+        varchar ip
+        text detalle_json
+        timestamp fecha
+    }
+
+    CONTACTO_MENSAJES {
+        uuid id PK
+        varchar nombre
+        varchar email
+        varchar telefono
+        text mensaje
+        boolean leido
+        timestamp fecha
+    }
+
+    USUARIOS ||--o{ OTP_CHALLENGES : tiene
+    USUARIOS ||--o{ PASSWORD_RESETS : tiene
     USUARIOS ||--o{ SESIONES : tiene
-    USUARIOS ||--o{ PASSWORD_RESETS : usa
+    USUARIOS ||--o{ HUERTOS : posee
+    USUARIOS ||--o{ ALERTAS : responsable
+    USUARIOS ||--o{ CHAT_CONVERSACIONES : inicia
+    USUARIOS ||--o{ AUDITORIA_LOGS : genera
+    USUARIOS ||--o{ REPORTES : genera
+
+    REGIONES ||--o{ USUARIOS : agrupa
+    REGIONES ||--o{ HUERTOS : contiene
+
+    HUERTOS ||--o{ HUERTO_CULTIVOS : siembra
+    CULTIVOS ||--o{ HUERTO_CULTIVOS : cataloga
+    HUERTO_CULTIVOS ||--o{ PLANTIOS : geolocaliza
+
+    HUERTOS ||--o{ PLAGA_DETECCIONES : detecta
+    CULTIVOS ||--o{ PLAGA_DETECCIONES : afecta
+    HUERTOS ||--o{ ALERTAS : genera
 
     CHAT_CONVERSACIONES ||--o{ CHAT_MENSAJES : contiene
-    USUARIOS ||--o{ CHAT_CONVERSACIONES : participa
-
-    HUERTOS ||--o{ HUERTO_CULTIVOS : relacion
-    CULTIVOS ||--o{ HUERTO_CULTIVOS : relacion
-    HUERTO_CULTIVOS ||--o{ PLANTIOS : geolocaliza
 ```
 
-> El ER extendido conserva las 18 tablas listadas en sección 3.2.
+> Diagrama completo, en un solo bloque Mermaid, para modelado de la BD final.
 
 ---
 
@@ -372,7 +569,6 @@ erDiagram
 | Alertas | `GET/POST/PATCH/DELETE /alertas` |
 | Chatbot | `GET /chatbot/metricas`, `GET /chatbot/conversaciones`, `POST /chatbot/...` |
 | Reportes | `GET/POST/DELETE /reportes`, `GET /reportes/:id/download` |
-| Integraciones | `GET /integraciones`, `POST /integraciones/:id/test` |
 | Auditoría | `GET /auditoria` |
 | Público | `POST /public/contacto`, `GET /public/testimonios`, `GET /public/faqs` |
 
@@ -412,7 +608,7 @@ Campos principales (según interfaces actuales):
 - `Huerto`: nombre, usuario, municipio, región, cultivosActivos, estado, salud, alertas
 - `Region`: nombre, usuarios, huertos, detecciones, actividad
 - `PlagaDeteccion`: imagenUrl, plaga, confianza, cultivo, ubicacion, fecha, severidad, estado
-- `Alerta`: titulo, tipo, severidad, estado, region, fecha, responsable
+- `Alerta`: titulo, tipo (`Plaga`/`Riego`/`Sistema`), severidad, estado, region, fecha, responsable
 
 ### 6.3 Validaciones de negocio sugeridas para API con DB
 
@@ -503,7 +699,7 @@ DATABASE_URL=postgresql://user:pass@localhost:5432/huerto_connect
 | Regiones/Mapa | `regiones`, `plantios` | `GET /regiones`, `GET /regiones/:id/plantios` |
 | Plagas/Alertas | `plaga_detecciones`, `alertas` | `GET/POST/PATCH/...` |
 | Chatbot | `chat_conversaciones`, `chat_mensajes`, `chat_metricas` | `GET/POST /chatbot/...` |
-| Reportes/Integraciones | `reportes`, `integraciones` | `GET/POST /reportes`, `GET/POST /integraciones` |
+| Reportes | `reportes` | `GET/POST /reportes` |
 | Auditoría | `auditoria_logs` | `GET /auditoria` |
 | Contacto landing | `contacto_mensajes` | `POST /public/contacto` |
 
