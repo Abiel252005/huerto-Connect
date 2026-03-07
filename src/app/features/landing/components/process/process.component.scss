@@ -1,7 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
 // Color Palette Based On The Image (Adopted to Dark Green)
-$bg-deep: #051F20; // very dark navy/space -> dark green
+$bg-deep: #051F20; // fallback only, sections use var(--color-dark-deep)
 $bg-panel: #0E3435; // slightly lighter panels
 $bg-phone: #14494A; // phone base background
 $bg-phone-card: #1C6162;
@@ -24,7 +24,7 @@ $border-accent: rgba(0, 212, 161, 0.3);
 .proceso-section {
     position: relative;
     min-height: 100vh;
-    background: $bg-deep;
+    background: var(--color-dark-deep, #051F20);
     color: $text-main;
     padding: 15px 20px 80px 20px; // Very small top padding to push phone up
     scroll-margin-top: 70px; // Matched exactly to header height to avoid white gap
@@ -40,7 +40,19 @@ $border-accent: rgba(0, 212, 161, 0.3);
     width: 100%;
     height: 100%;
     z-index: -1;
-    background-image: radial-gradient(circle at top right, #092c2a, #051F20);
+    background: var(--color-dark-deep, #051F20);
+
+    &::after {
+        content: '';
+        position: absolute;
+        top: 30%;
+        left: 50%;
+        width: 80%;
+        height: 60%;
+        transform: translateX(-50%);
+        background: radial-gradient(ellipse, rgba(9, 44, 42, 0.4) 0%, transparent 70%);
+        pointer-events: none;
+    }
 
     .stars {
         // Basic static dots using box-shadow for a starry sky
