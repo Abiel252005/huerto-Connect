@@ -1,7 +1,36 @@
 footer {
-    background-color: var(--color-dark-footer);
+    background: linear-gradient(180deg, var(--color-dark-deep) 0%, #031415 100%);
     color: white;
     font-size: 0.95rem;
+    position: relative;
+
+    // Elegant glowing separator line at top
+    &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: linear-gradient(to right,
+                transparent 5%,
+                rgba(0, 212, 161, 0.25) 30%,
+                rgba(0, 212, 161, 0.4) 50%,
+                rgba(0, 212, 161, 0.25) 70%,
+                transparent 95%);
+    }
+
+    // Subtle glow aura beneath separator
+    &::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 10%;
+        right: 10%;
+        height: 80px;
+        background: radial-gradient(ellipse at top, rgba(0, 212, 161, 0.06) 0%, transparent 70%);
+        pointer-events: none;
+    }
 }
 
 /* Newsletter Section */
@@ -64,17 +93,18 @@ footer {
             gap: 8px;
             padding: 12px 25px;
             border-radius: 6px;
-            /* Less rounded than main buttons */
         }
     }
 }
 
 /* Main Footer Content */
 .footer-main {
-    padding: 60px 20px;
+    padding: 70px 20px 50px;
     display: grid;
     grid-template-columns: 1fr;
     gap: 50px;
+    position: relative;
+    z-index: 1;
 
     @media (min-width: 992px) {
         grid-template-columns: 1.5fr 1fr 1fr 1fr;
@@ -90,6 +120,12 @@ footer {
 
         .logo-icon {
             color: var(--color-primary);
+            filter: drop-shadow(0 0 6px rgba(0, 212, 161, 0.3));
+            transition: filter 0.3s ease;
+        }
+
+        &:hover .logo-icon {
+            filter: drop-shadow(0 0 10px rgba(0, 212, 161, 0.5));
         }
 
         .logo-text {
@@ -101,25 +137,36 @@ footer {
             .text-green {
                 color: var(--color-primary);
             }
-
-            /* Assuming Connect part is green if needed */
         }
     }
 
     p {
-        color: rgba(255, 255, 255, 0.7);
-        line-height: 1.6;
+        color: rgba(255, 255, 255, 0.6);
+        line-height: 1.7;
         max-width: 300px;
+        font-size: 0.9rem;
     }
 }
 
 .footer-links {
     h4 {
         color: white;
-        /* Title color */
-        font-size: 1rem;
-        margin-bottom: 25px;
+        font-size: 0.95rem;
+        margin-bottom: 24px;
         font-weight: 600;
+        position: relative;
+        padding-bottom: 10px;
+
+        &::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 24px;
+            height: 2px;
+            background: var(--color-primary);
+            border-radius: 2px;
+        }
     }
 
     ul {
@@ -130,13 +177,32 @@ footer {
             margin-bottom: 12px;
 
             a {
-                color: rgba(255, 255, 255, 0.6);
+                color: rgba(255, 255, 255, 0.55);
                 text-decoration: none;
-                transition: color 0.2s;
                 font-size: 0.9rem;
+                display: inline-flex;
+                align-items: center;
+                gap: 0;
+                transition: color 0.3s ease, transform 0.3s ease, gap 0.3s ease;
+
+                &::before {
+                    content: '';
+                    display: inline-block;
+                    width: 0;
+                    height: 1px;
+                    background: var(--color-primary);
+                    transition: width 0.3s ease;
+                    vertical-align: middle;
+                }
 
                 &:hover {
                     color: var(--color-primary);
+                    transform: translateX(4px);
+                    gap: 6px;
+
+                    &::before {
+                        width: 12px;
+                    }
                 }
             }
         }
@@ -145,16 +211,18 @@ footer {
 
 /* Bottom Bar */
 .footer-bottom {
-    border-top: 1px solid rgba(255, 255, 255, 0.05);
-    padding: 30px 0;
-    color: rgba(255, 255, 255, 0.4);
-    font-size: 0.85rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    padding: 24px 0;
+    color: rgba(255, 255, 255, 0.35);
+    font-size: 0.82rem;
+    position: relative;
+    z-index: 1;
 
     .bottom-content {
         display: flex;
         flex-direction: column;
         align-items: center;
-        gap: 15px;
+        gap: 12px;
 
         @media (min-width: 768px) {
             flex-direction: row;
