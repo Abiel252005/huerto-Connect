@@ -209,6 +209,19 @@
     font-size: 16px;
 }
 
+.container-input .toggle-password {
+    color: #6b9e8d;
+    font-size: 20px;
+    cursor: pointer;
+    transition: color 160ms ease, transform 160ms ease;
+    flex-shrink: 0;
+}
+
+.container-input .toggle-password:hover {
+    color: #1f6a54;
+    transform: scale(1.1);
+}
+
 .container-form a {
     color: #1f6a54;
     font-size: 14px;

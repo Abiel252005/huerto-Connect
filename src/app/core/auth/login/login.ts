@@ -24,18 +24,20 @@ interface SproutParticle {
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class LoginComponent implements OnDestroy {
-  constructor(private readonly router: Router) {}
+  constructor(private readonly router: Router) { }
 
   isRegister = false;
 
   // Login Data
   loginEmail = '';
   loginPassword = '';
+  showLoginPassword = false;
 
   // Register Data
   registerName = '';
   registerEmail = '';
   registerPassword = '';
+  showRegisterPassword = false;
 
   windXPx = 0;
   windYPx = 0;
@@ -47,6 +49,14 @@ export class LoginComponent implements OnDestroy {
 
   toggleMode() {
     this.isRegister = !this.isRegister;
+  }
+
+  toggleLoginPassword() {
+    this.showLoginPassword = !this.showLoginPassword;
+  }
+
+  toggleRegisterPassword() {
+    this.showRegisterPassword = !this.showRegisterPassword;
   }
 
   onPointerMove(event: PointerEvent) {
