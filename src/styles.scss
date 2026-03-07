@@ -18,7 +18,7 @@
   --color-bg-soft: #f8faf9;
 
   /* Dark shades — harmonious progression */
-  --color-dark-deep: #062B22;
+  --color-dark-deep: #051F20;
   /* Features / Contact bg — slightly deeper  */
   --color-dark-footer: #041F18;
   /* Footer body — deepest */
@@ -132,7 +132,7 @@ section {
   z-index: 0;
 }
 
-.leaf-fall-section > .container {
+.leaf-fall-section>.container {
   position: relative;
   z-index: 2;
 }
@@ -175,21 +175,22 @@ section {
 @keyframes sectionLeafRain {
   0% {
     transform:
-      translate(-50%, calc(-50% - 12vh))
-      rotate(var(--leaf-rotation, 0deg));
+      translate(-50%, calc(-50% - 12vh)) rotate(var(--leaf-rotation, 0deg));
   }
+
   100% {
     transform:
-      translate(calc(-50% + (var(--leaf-drift-x, 0px) * 0.4)), calc(-50% + 116vh))
-      rotate(calc(var(--leaf-rotation, 0deg) + 26deg));
+      translate(calc(-50% + (var(--leaf-drift-x, 0px) * 0.4)), calc(-50% + 116vh)) rotate(calc(var(--leaf-rotation, 0deg) + 26deg));
   }
 }
 
 @keyframes sectionLeafSway {
+
   0%,
   100% {
     margin-left: -2px;
   }
+
   50% {
     margin-left: 3px;
   }
