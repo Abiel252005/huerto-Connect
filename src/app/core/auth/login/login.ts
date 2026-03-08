@@ -1,9 +1,9 @@
-import { CUSTOM_ELEMENTS_SCHEMA, Component, OnDestroy } from '@angular/core';
+import { CUSTOM_ELEMENTS_SCHEMA, Component, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router, RouterModule } from '@angular/router';
+import { ActivatedRoute, ParamMap, Router, RouterModule } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
-import { AuthService, SendOtpResponse } from '../services/auth.service';
+import { AuthService, AuthSession, SendOtpResponse } from '../services/auth.service';
 import {
   evaluatePasswordStrength,
   sanitizeEmail,
@@ -53,12 +53,14 @@ type PasswordFieldKey =
   styleUrls: ['./login.scss'],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
-export class LoginComponent implements OnDestroy {
+export class LoginComponent implements OnInit, OnDestroy {
   constructor(
     private readonly router: Router,
+    private readonly route: ActivatedRoute,
     private readonly authService: AuthService
   ) {
-    if (this.authService.isAuthenticated()) {
+    const isMagicResetFlow = this.isMagicResetFlow(this.route.snapshot.queryParamMap);
+    if (this.authService.isAuthenticated() && !isMagicResetFlow) {
       void this.router.navigate(['/admin']);
     }
   }
@@ -175,6 +177,48 @@ export class LoginComponent implements OnDestroy {
   private regOtpCountdownFrame: number | null = null;
 
   sprouts: SproutParticle[] = this.createSprouts(90);
+
+  ngOnInit() {
+    this.consumeEmailLinkParams();
+  }
+
+  private isMagicResetFlow(params: ParamMap): boolean {
+    return (
+      params.get('source') === 'email-link' &&
+      (params.get('magicLinkStatus') ?? '').trim().toLowerCase() === 'ok' &&
+      (params.get('flow') ?? '').trim().toLowerCase() === 'forgot-reset' &&
+      this.normalizeMagicLinkToken(params.get('resetToken')).length > 0
+    );
+  }
+
+  private consumeEmailLinkParams() {
+    const params = this.route.snapshot.queryParamMap;
+    if (params.get('source') !== 'email-link') {
+      return;
+    }
+
+    const status = (params.get('magicLinkStatus') ?? '').trim().toLowerCase();
+    const flow = (params.get('flow') ?? '').trim().toLowerCase();
+
+    if (status !== 'ok') {
+      this.applyEmailLinkErrorState(params);
+      this.clearEmailLinkQueryParams();
+      return;
+    }
+
+    if (flow === 'forgot-reset') {
+      this.applyEmailLinkResetState(params);
+      this.clearEmailLinkQueryParams();
+      return;
+    }
+
+    if (flow === 'magic-login') {
+      this.applyEmailLinkLoginSession(params);
+      return;
+    }
+
+    this.clearEmailLinkQueryParams();
+  }
 
   toggleMode() {
     this.isRegister = !this.isRegister;
@@ -1051,6 +1095,104 @@ export class LoginComponent implements OnDestroy {
     this.stopOtpTimer();
     this.stopForgotOtpTimer();
     this.stopRegOtpTimer();
+  }
+
+  private applyEmailLinkResetState(params: ParamMap) {
+    const resetToken = this.normalizeMagicLinkToken(params.get('resetToken'));
+    if (!resetToken) {
+      this.authStep = 'credentials';
+      this.loginErrorMessage = 'El enlace de recuperación expiró o es inválido. Solicita uno nuevo.';
+      return;
+    }
+
+    this.resetForgotPasswordFlow();
+    this.isRegister = false;
+    this.authStep = 'forgot-reset';
+    this.forgotResetToken = resetToken;
+    this.forgotEmail = sanitizeEmail(params.get('userEmail') ?? '');
+    this.forgotInfoMessage = 'Código verificado. Define tu nueva contraseña.';
+    this.forgotErrorMessage = '';
+    this.loginErrorMessage = '';
+  }
+
+  private applyEmailLinkLoginSession(params: ParamMap) {
+    const token = this.normalizeMagicLinkToken(params.get('sessionToken'));
+    const expiresAtRaw = (params.get('sessionExpiresAt') ?? '').trim();
+    const expiresAtMs = Date.parse(expiresAtRaw);
+
+    if (!token || Number.isNaN(expiresAtMs) || expiresAtMs <= Date.now()) {
+      this.authStep = 'credentials';
+      this.loginErrorMessage = 'La sesión del enlace expiró. Solicita un nuevo código.';
+      this.clearEmailLinkQueryParams();
+      return;
+    }
+
+    const userEmail = sanitizeEmail(params.get('userEmail') ?? '');
+    const userName = sanitizePlainText(params.get('userName') ?? 'Usuario', {
+      trim: true,
+      collapseWhitespace: true,
+      stripHtml: true,
+      maxLength: 80
+    });
+    const userId = this.normalizeMagicLinkToken(params.get('userId')) || 'usr-email-link';
+
+    const session: AuthSession = {
+      token,
+      expiresAt: new Date(expiresAtMs).toISOString(),
+      user: {
+        id: userId,
+        email: userEmail || 'usuario@huertoconnect.com',
+        name: userName || 'Usuario'
+      }
+    };
+
+    this.authService.setSession(session);
+
+    const redirectTo = this.normalizeRedirectPath(params.get('redirectTo'));
+    void this.router.navigateByUrl(redirectTo, { replaceUrl: true });
+  }
+
+  private applyEmailLinkErrorState(params: ParamMap) {
+    const message = sanitizePlainText(params.get('magicLinkMessage') ?? '', {
+      trim: true,
+      collapseWhitespace: true,
+      stripHtml: true,
+      maxLength: 180
+    });
+
+    this.authStep = 'credentials';
+    this.isRegister = false;
+    this.loginInfoMessage = '';
+    this.otpInfoMessage = '';
+    this.otpErrorMessage = '';
+    this.loginErrorMessage =
+      message || 'El enlace expiró o es inválido. Solicita un nuevo código de verificación.';
+  }
+
+  private clearEmailLinkQueryParams() {
+    void this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: {},
+      replaceUrl: true
+    });
+  }
+
+  private normalizeMagicLinkToken(value: string | null): string {
+    const token = String(value ?? '').trim();
+    if (!token) {
+      return '';
+    }
+
+    return /^[A-Za-z0-9_-]{16,256}$/.test(token) ? token : '';
+  }
+
+  private normalizeRedirectPath(value: string | null): string {
+    const raw = String(value ?? '').trim();
+    if (!raw || !raw.startsWith('/') || raw.startsWith('//')) {
+      return '/admin';
+    }
+
+    return raw;
   }
 
   private startWindLoop() {

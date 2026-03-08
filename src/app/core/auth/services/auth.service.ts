@@ -159,6 +159,10 @@ export class AuthService {
     }
   }
 
+  setSession(session: AuthSession): void {
+    this.persistSession(session);
+  }
+
   private persistSession(session: AuthSession): void {
     if (typeof window !== 'undefined') {
       window.sessionStorage.setItem(AUTH_SESSION_STORAGE_KEY, JSON.stringify(session));
