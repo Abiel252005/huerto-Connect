@@ -206,6 +206,26 @@
     transform: translateY(-1px);
 }
 
+.container-input.input-error {
+    border-color: #dc3545;
+    box-shadow: 0 0 0 2px rgba(220, 53, 69, 0.14);
+}
+
+.container-input.input-success {
+    border-color: #22a06b;
+    box-shadow: 0 0 0 2px rgba(34, 160, 107, 0.13);
+}
+
+.container-input.input-error:focus-within {
+    border-color: #dc3545;
+    box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.2);
+}
+
+.container-input.input-success:focus-within {
+    border-color: #22a06b;
+    box-shadow: 0 0 0 3px rgba(34, 160, 107, 0.2);
+}
+
 .container-input ion-icon {
     color: #3f7261;
     font-size: 20px;
@@ -214,11 +234,41 @@
 .container-input input {
     border: none;
     outline: none;
-    width: 100%;
+    flex: 1 1 auto;
+    min-width: 0;
+    width: auto;
     height: 100%;
     background-color: inherit;
     color: #1a4a3c;
     font-size: 16px;
+}
+
+.password-toggle {
+    width: 30px;
+    height: 30px;
+    border: none;
+    border-radius: 8px;
+    background: transparent;
+    color: #3f7261;
+    cursor: pointer;
+    display: grid;
+    place-items: center;
+    flex: 0 0 auto;
+    transition: background-color 120ms ease, color 120ms ease;
+}
+
+.password-toggle:hover {
+    background: rgba(111, 190, 160, 0.16);
+    color: #21624e;
+}
+
+.password-toggle:focus-visible {
+    outline: 2px solid rgba(35, 169, 122, 0.5);
+    outline-offset: 1px;
+}
+
+.password-toggle ion-icon {
+    font-size: 18px;
 }
 
 .input-row {
@@ -258,12 +308,8 @@
     background: #ef4444;
 }
 
-.strength-fill.fair {
+.strength-fill.medium {
     background: #f59e0b;
-}
-
-.strength-fill.good {
-    background: #22c55e;
 }
 
 .strength-fill.strong {
@@ -280,16 +326,23 @@
     color: #ef4444;
 }
 
-.strength-label.fair {
+.strength-label.medium {
     color: #d97706;
-}
-
-.strength-label.good {
-    color: #16a34a;
 }
 
 .strength-label.strong {
     color: #047857;
+}
+
+.field-hint {
+    width: 100%;
+    margin: -2px 0 2px;
+    font-size: 12px;
+    line-height: 1.35;
+}
+
+.field-hint--error {
+    color: #b4233f;
 }
 
 .container-form a {

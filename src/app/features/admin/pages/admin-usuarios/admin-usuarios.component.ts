@@ -44,12 +44,48 @@ export class AdminUsuariosComponent implements OnInit {
   editVisible = false;
   editData: Record<string, unknown> | null = null;
   readonly editFields: EditField[] = [
-    { key: 'nombre', label: 'Nombre', type: 'text', required: true },
-    { key: 'correo', label: 'Correo', type: 'email', required: true },
-    { key: 'region', label: 'Región', type: 'text' },
-    { key: 'rol', label: 'Rol', type: 'select', options: ['Admin', 'Productor', 'Tecnico'] },
-    { key: 'estado', label: 'Estado', type: 'select', options: ['Activo', 'Inactivo', 'Suspendido'] },
-    { key: 'huertos', label: 'Huertos', type: 'number' }
+    {
+      key: 'nombre',
+      label: 'Nombre',
+      type: 'text',
+      required: true,
+      validation: { kind: 'name', minLength: 2, maxLength: 50 }
+    },
+    {
+      key: 'correo',
+      label: 'Correo',
+      type: 'email',
+      required: true,
+      validation: { kind: 'email' }
+    },
+    {
+      key: 'region',
+      label: 'Región',
+      type: 'text',
+      validation: { kind: 'text', minLength: 2, maxLength: 80 }
+    },
+    {
+      key: 'rol',
+      label: 'Rol',
+      type: 'select',
+      options: ['Admin', 'Productor', 'Tecnico'],
+      required: true,
+      validation: { kind: 'select' }
+    },
+    {
+      key: 'estado',
+      label: 'Estado',
+      type: 'select',
+      options: ['Activo', 'Inactivo', 'Suspendido'],
+      required: true,
+      validation: { kind: 'select' }
+    },
+    {
+      key: 'huertos',
+      label: 'Huertos',
+      type: 'number',
+      validation: { kind: 'number', integer: true, min: 0, max: 10000, maxDigits: 5 }
+    }
   ];
 
   fields: FilterField[] = [

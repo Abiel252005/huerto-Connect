@@ -44,11 +44,39 @@ export class AdminRegionesComponent implements OnInit {
   editVisible = false;
   editData: Record<string, unknown> | null = null;
   readonly editFields: EditField[] = [
-    { key: 'nombre', label: 'Nombre', type: 'text', required: true },
-    { key: 'usuarios', label: 'Usuarios', type: 'number' },
-    { key: 'huertos', label: 'Huertos', type: 'number' },
-    { key: 'detecciones', label: 'Detecciones', type: 'number' },
-    { key: 'actividad', label: 'Actividad', type: 'select', options: ['Alta', 'Media', 'Baja'] }
+    {
+      key: 'nombre',
+      label: 'Nombre',
+      type: 'text',
+      required: true,
+      validation: { kind: 'text', minLength: 2, maxLength: 80 }
+    },
+    {
+      key: 'usuarios',
+      label: 'Usuarios',
+      type: 'number',
+      validation: { kind: 'number', integer: true, min: 0, max: 10000, maxDigits: 5 }
+    },
+    {
+      key: 'huertos',
+      label: 'Huertos',
+      type: 'number',
+      validation: { kind: 'number', integer: true, min: 0, max: 10000, maxDigits: 5 }
+    },
+    {
+      key: 'detecciones',
+      label: 'Detecciones',
+      type: 'number',
+      validation: { kind: 'number', integer: true, min: 0, max: 10000, maxDigits: 5 }
+    },
+    {
+      key: 'actividad',
+      label: 'Actividad',
+      type: 'select',
+      options: ['Alta', 'Media', 'Baja'],
+      required: true,
+      validation: { kind: 'select' }
+    }
   ];
 
   readonly rowIdentity = (region: Region): string => region.id;

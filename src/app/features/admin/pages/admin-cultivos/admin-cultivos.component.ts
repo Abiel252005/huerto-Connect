@@ -41,12 +41,40 @@ export class AdminCultivosComponent implements OnInit {
   editVisible = false;
   editData: Record<string, unknown> | null = null;
   readonly editFields: EditField[] = [
-    { key: 'nombre', label: 'Nombre', type: 'text', required: true },
-    { key: 'temporada', label: 'Temporada', type: 'text' },
-    { key: 'dificultad', label: 'Dificultad', type: 'select', options: ['Baja', 'Media', 'Alta'] },
-    { key: 'riego', label: 'Riego', type: 'text' },
-    { key: 'fertilizacion', label: 'Fertilización', type: 'text' },
-    { key: 'activo', label: 'Activo', type: 'checkbox' }
+    {
+      key: 'nombre',
+      label: 'Nombre',
+      type: 'text',
+      required: true,
+      validation: { kind: 'text', minLength: 2, maxLength: 80 }
+    },
+    {
+      key: 'temporada',
+      label: 'Temporada',
+      type: 'text',
+      validation: { kind: 'text', minLength: 2, maxLength: 40 }
+    },
+    {
+      key: 'dificultad',
+      label: 'Dificultad',
+      type: 'select',
+      options: ['Baja', 'Media', 'Alta'],
+      required: true,
+      validation: { kind: 'select' }
+    },
+    {
+      key: 'riego',
+      label: 'Riego',
+      type: 'text',
+      validation: { kind: 'text', minLength: 5, maxLength: 120 }
+    },
+    {
+      key: 'fertilizacion',
+      label: 'Fertilización',
+      type: 'text',
+      validation: { kind: 'text', minLength: 5, maxLength: 120 }
+    },
+    { key: 'activo', label: 'Activo', type: 'checkbox', validation: { kind: 'checkbox' } }
   ];
 
   readonly rowIdentity = (cultivo: Cultivo): string => cultivo.id;

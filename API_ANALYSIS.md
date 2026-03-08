@@ -8,7 +8,7 @@
 
 1. [API actual implementada](#1-api-actual-implementada)
 2. [Flujos de trabajo reales](#2-flujos-de-trabajo-reales)
-3. [Base de datos — 17 tablas](#3-base-de-datos--17-tablas)
+3. [Base de datos — 18 tablas](#3-base-de-datos--18-tablas)
 4. [Diagrama ER (núcleo)](#4-diagrama-er-nucleo)
 5. [Endpoints (implementados y por construir)](#5-endpoints-implementados-y-por-construir)
 6. [Modelos y validaciones (login + dashboard)](#6-modelos-y-validaciones-login--dashboard)
@@ -192,7 +192,7 @@ Por lo tanto, la base debe soportar consultas agregadas eficientes (`COUNT`, fil
 
 ---
 
-## 3. Base de datos — 17 tablas
+## 3. Base de datos — 18 tablas
 
 ### 3.1 Principios de diseño
 
@@ -238,6 +238,7 @@ Estas tablas cubren lo que ya existe en frontend y API hoy:
 | 15 | `reportes` | Sistema | `nombre`, `tipo`, `estado`, `archivo_url`, `generado_por`, `fecha` | `generado_por -> usuarios.id` | Módulo reportes | Mock |
 | 16 | `auditoria_logs` | Sistema | `actor_id`, `accion`, `modulo`, `ip`, `detalle_json`, `fecha` | `actor_id -> usuarios.id` | Auditoría de eventos críticos | Diseño |
 | 17 | `contacto_mensajes` | Público | `nombre`, `email`, `telefono`, `mensaje`, `leido`, `fecha` | — | Formulario de contacto landing | Mock |
+| 18 | `testimonios_landing` | Público | `nombre`, `email`, `rol`, `ubicacion`, `comentario`, `calificacion`, `avatar_url`, `cover_url`, `aprobado`, `activo`, `created_at` | `usuario_id -> usuarios.id` (nullable) | Carrusel de testimonios y comentarios de usuarios en landing | Diseño |
 
 > `ALERTAS.tipo` queda en `Plaga`, `Riego`, `Sistema`.  
 > `Riego` se conserva para recordatorios/agenda manual; **sin IoT** por ahora.
@@ -287,6 +288,8 @@ Estas tablas cubren lo que ya existe en frontend y API hoy:
 - `plaga_detecciones(huerto_id, fecha, severidad, estado)`
 - `chat_conversaciones(usuario_id, fecha)`
 - `auditoria_logs(actor_id, fecha)`
+- `testimonios_landing(aprobado, activo, created_at)`
+- `testimonios_landing(usuario_id, created_at)`
 
 ### 3.6 Campos calculados (NO persistir)
 
@@ -310,6 +313,27 @@ Se obtienen con `COUNT()` y `JOIN`.
 | `plaga.ubicacion` | `plaga_detecciones.huerto_id -> huertos.municipio` |
 | `plaga.cultivo` | `plaga_detecciones.cultivo_id -> cultivos.nombre` |
 | `chat.region` | `chat_conversaciones.usuario_id -> usuarios.region_id -> regiones.nombre` |
+
+### 3.8 Tabla para comentarios/testimonios de la landing
+
+Basado en el componente `testimonials` del frontend (`name`, `role`, `location`, `text`, `rating`, `image`, `cover`), la tabla propuesta es:
+
+| Campo frontend (`Testimonial`) | Columna DB (`testimonios_landing`) | Regla recomendada |
+|---|---|---|
+| `name` | `nombre` | requerido, 2..100 |
+| `role` | `rol` | opcional, 0..100 |
+| `location` | `ubicacion` | opcional, 0..100 |
+| `text` | `comentario` | requerido, 20..800 |
+| `rating` | `calificacion` | requerido, entero 1..5 |
+| `image` | `avatar_url` | opcional, URL válida |
+| `cover` | `cover_url` | opcional, URL válida |
+
+Campos operativos adicionales para producción:
+
+- `email` (contacto/moderación del autor; no se muestra en el carrusel).
+- `usuario_id` nullable (si el comentario viene de un usuario autenticado).
+- `aprobado` y `activo` para flujo de moderación antes de publicar.
+- `created_at` y `updated_at` para ordenamiento cronológico y auditoría básica.
 
 ---
 
@@ -506,6 +530,23 @@ erDiagram
         timestamp fecha
     }
 
+    TESTIMONIOS_LANDING {
+        uuid id PK
+        uuid usuario_id FK "nullable"
+        varchar nombre
+        varchar email "nullable"
+        varchar rol "nullable"
+        varchar ubicacion "nullable"
+        text comentario
+        int calificacion "1..5"
+        varchar avatar_url "nullable"
+        varchar cover_url "nullable"
+        boolean aprobado "default false"
+        boolean activo "default true"
+        timestamp created_at
+        timestamp updated_at
+    }
+
     USUARIOS ||--o{ OTP_CHALLENGES : tiene
     USUARIOS ||--o{ PASSWORD_RESETS : tiene
     USUARIOS ||--o{ SESIONES : tiene
@@ -514,6 +555,7 @@ erDiagram
     USUARIOS ||--o{ CHAT_CONVERSACIONES : inicia
     USUARIOS ||--o{ AUDITORIA_LOGS : genera
     USUARIOS ||--o{ REPORTES : genera
+    USUARIOS ||--o{ TESTIMONIOS_LANDING : comenta
 
     REGIONES ||--o{ USUARIOS : agrupa
     REGIONES ||--o{ HUERTOS : contiene
@@ -570,7 +612,7 @@ erDiagram
 | Chatbot | `GET /chatbot/metricas`, `GET /chatbot/conversaciones`, `POST /chatbot/...` |
 | Reportes | `GET/POST/DELETE /reportes`, `GET /reportes/:id/download` |
 | Auditoría | `GET /auditoria` |
-| Público | `POST /public/contacto`, `GET /public/testimonios`, `GET /public/faqs` |
+| Público | `POST /public/contacto`, `GET /public/testimonios`, `POST /public/testimonios`, `GET /public/faqs` |
 
 ---
 
@@ -609,11 +651,14 @@ Campos principales (según interfaces actuales):
 - `Region`: nombre, usuarios, huertos, detecciones, actividad
 - `PlagaDeteccion`: imagenUrl, plaga, confianza, cultivo, ubicacion, fecha, severidad, estado
 - `Alerta`: titulo, tipo (`Plaga`/`Riego`/`Sistema`), severidad, estado, region, fecha, responsable
+- `TestimonioLanding`: nombre, email?, rol?, ubicacion?, comentario, calificacion, avatarUrl?, coverUrl?, aprobado, activo
 
 ### 6.3 Validaciones de negocio sugeridas para API con DB
 
 - No permitir `verify-otp` si challenge expirado o superó intentos.
 - En `reset-password`, invalidar token después de uso.
+- En `public/testimonios`, permitir publicar solo si `calificacion` está entre 1 y 5 y `comentario` cumple longitud mínima.
+- Mostrar en landing solo testimonios con `aprobado = true` y `activo = true`.
 - Registrar auditoría en eventos críticos:
   - login
   - logout
@@ -648,6 +693,7 @@ Campos principales (según interfaces actuales):
 3. **Fase CRUD completo**
 - Habilitar endpoints admin por módulo
 - Paginación, filtros, soft-delete, auditoría
+- Añadir moderación de `testimonios_landing` (aprobar/rechazar/ocultar) y alta pública por landing
 
 ### 7.3 Checklist técnico para BD
 
@@ -701,9 +747,11 @@ DATABASE_URL=postgresql://user:pass@localhost:5432/huerto_connect
 | Chatbot | `chat_conversaciones`, `chat_mensajes`, `chat_metricas` | `GET/POST /chatbot/...` |
 | Reportes | `reportes` | `GET/POST /reportes` |
 | Auditoría | `auditoria_logs` | `GET /auditoria` |
+| Testimonios landing (lectura) | `testimonios_landing` | `GET /public/testimonios` |
+| Comentarios landing (envío usuario) | `testimonios_landing` | `POST /public/testimonios` |
 | Contacto landing | `contacto_mensajes` | `POST /public/contacto` |
 
 ---
 
-> Actualizado al estado real de código (frontend + API) al **2026-03-07**.
-> Este archivo ya refleja el flujo nuevo de login/recuperación y la base de datos necesaria para soportar dashboard y módulos admin.
+> Actualizado al estado real de código (frontend + API) al **2026-03-08**.
+> Este archivo ya refleja el flujo nuevo de login/recuperación, dashboard, módulos admin y la tabla nueva para comentarios/testimonios de landing.

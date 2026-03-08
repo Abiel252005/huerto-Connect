@@ -4,6 +4,15 @@ import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 import { AuthService, SendOtpResponse } from '../services/auth.service';
+import {
+  evaluatePasswordStrength,
+  sanitizeEmail,
+  sanitizePassword,
+  sanitizePlainText,
+  validateEmailValue,
+  validateNameValue,
+  validatePasswordValue
+} from '../../../shared/validators';
 
 interface SproutParticle {
   x: number;
@@ -16,6 +25,25 @@ interface SproutParticle {
   opacity: number;
   rotate: number;
 }
+
+type LoginFieldKey =
+  | 'loginEmail'
+  | 'loginPassword'
+  | 'forgotEmail'
+  | 'forgotNewPassword'
+  | 'forgotConfirmPassword'
+  | 'registerName'
+  | 'registerApellidos'
+  | 'registerEmail'
+  | 'registerPassword'
+  | 'registerConfirmPassword';
+
+type PasswordFieldKey =
+  | 'loginPassword'
+  | 'forgotNewPassword'
+  | 'forgotConfirmPassword'
+  | 'registerPassword'
+  | 'registerConfirmPassword';
 
 @Component({
   selector: 'app-login',
@@ -100,11 +128,39 @@ export class LoginComponent implements OnDestroy {
   regCodeDigits = ['', '', '', '', '', ''];
   private regOtpCode = '';
 
-  passwordStrength: { percent: number; level: string; label: string } = {
+  showLoginPassword = false;
+  showForgotNewPassword = false;
+  showForgotConfirmPassword = false;
+  showRegisterPassword = false;
+  showRegisterConfirmPassword = false;
+
+  passwordStrength: { percent: number; level: 'weak' | 'medium' | 'strong'; label: string } = {
     percent: 0,
     level: 'weak',
     label: ''
   };
+
+  private readonly optionalFields: LoginFieldKey[] = ['registerApellidos'];
+  private readonly fieldTouchedState: Record<LoginFieldKey, boolean> = {
+    loginEmail: false,
+    loginPassword: false,
+    forgotEmail: false,
+    forgotNewPassword: false,
+    forgotConfirmPassword: false,
+    registerName: false,
+    registerApellidos: false,
+    registerEmail: false,
+    registerPassword: false,
+    registerConfirmPassword: false
+  };
+
+  private readonly maxFailedLoginAttempts = 5;
+  private readonly loginLockDurationMs = 5 * 60 * 1000;
+  private readonly maxLoginDelayMs = 5000;
+  private readonly baseLoginDelayMs = 700;
+  private failedLoginAttempts = 0;
+  private loginLockedUntilMs = 0;
+  private loginDelayUntilMs = 0;
 
   windXPx = 0;
   windYPx = 0;
@@ -122,6 +178,15 @@ export class LoginComponent implements OnDestroy {
 
   toggleMode() {
     this.isRegister = !this.isRegister;
+    this.resetPasswordVisibility();
+    this.loginErrorMessage = '';
+    this.registerErrorMessage = '';
+    if (this.isRegister) {
+      this.resetFieldTouchedState(['registerName', 'registerApellidos', 'registerEmail', 'registerPassword', 'registerConfirmPassword']);
+      return;
+    }
+
+    this.resetFieldTouchedState(['loginEmail', 'loginPassword']);
   }
 
   onPointerMove(event: PointerEvent) {
@@ -144,6 +209,159 @@ export class LoginComponent implements OnDestroy {
     this.targetWindXPx = 0;
     this.targetWindYPx = 0;
     this.startWindLoop();
+  }
+
+  onFieldBlur(field: LoginFieldKey) {
+    this.fieldTouchedState[field] = true;
+  }
+
+  onPasswordToggleMouseDown(event: MouseEvent) {
+    // Keep focus on the input to avoid blur-triggered layout jumps.
+    event.preventDefault();
+  }
+
+  onPasswordToggleClick(event: MouseEvent, field: PasswordFieldKey) {
+    event.preventDefault();
+    event.stopPropagation();
+    this.togglePasswordVisibility(field);
+  }
+
+  togglePasswordVisibility(field: PasswordFieldKey) {
+    switch (field) {
+      case 'loginPassword':
+        this.showLoginPassword = !this.showLoginPassword;
+        break;
+      case 'forgotNewPassword':
+        this.showForgotNewPassword = !this.showForgotNewPassword;
+        break;
+      case 'forgotConfirmPassword':
+        this.showForgotConfirmPassword = !this.showForgotConfirmPassword;
+        break;
+      case 'registerPassword':
+        this.showRegisterPassword = !this.showRegisterPassword;
+        break;
+      case 'registerConfirmPassword':
+        this.showRegisterConfirmPassword = !this.showRegisterConfirmPassword;
+        break;
+    }
+  }
+
+  getPasswordToggleIcon(field: PasswordFieldKey): string {
+    const isVisible = this.isPasswordVisible(field);
+    return isVisible ? 'eye-off-outline' : 'eye-outline';
+  }
+
+  getPasswordInputType(field: PasswordFieldKey): 'text' | 'password' {
+    return this.isPasswordVisible(field) ? 'text' : 'password';
+  }
+
+  onLoginEmailChange(value: string) {
+    this.loginEmail = sanitizeEmail(value);
+  }
+
+  onLoginPasswordChange(value: string) {
+    this.loginPassword = sanitizePassword(value);
+  }
+
+  onForgotEmailChange(value: string) {
+    this.forgotEmail = sanitizeEmail(value);
+  }
+
+  onForgotNewPasswordChange(value: string) {
+    this.forgotNewPassword = sanitizePassword(value);
+  }
+
+  onForgotConfirmPasswordChange(value: string) {
+    this.forgotConfirmPassword = sanitizePassword(value);
+  }
+
+  onRegisterNameChange(value: string) {
+    this.registerName = sanitizePlainText(value, {
+      trim: false,
+      collapseWhitespace: true,
+      stripHtml: true,
+      maxLength: 50
+    });
+  }
+
+  onRegisterApellidosChange(value: string) {
+    this.registerApellidos = sanitizePlainText(value, {
+      trim: false,
+      collapseWhitespace: true,
+      stripHtml: true,
+      maxLength: 50
+    });
+  }
+
+  onRegisterEmailChange(value: string) {
+    this.registerEmail = sanitizeEmail(value);
+  }
+
+  onRegisterPasswordChange(value: string) {
+    this.registerPassword = sanitizePassword(value);
+    this.passwordStrength = evaluatePasswordStrength(this.registerPassword);
+  }
+
+  onRegisterConfirmPasswordChange(value: string) {
+    this.registerConfirmPassword = sanitizePassword(value);
+  }
+
+  getFieldError(field: LoginFieldKey): string | null {
+    if (!this.fieldTouchedState[field]) {
+      return null;
+    }
+
+    const errors = this.getFieldErrors(field);
+    return errors[0] ?? null;
+  }
+
+  isFieldInvalid(field: LoginFieldKey): boolean {
+    return this.fieldTouchedState[field] && this.getFieldErrors(field).length > 0;
+  }
+
+  isFieldValid(field: LoginFieldKey): boolean {
+    if (!this.fieldTouchedState[field]) {
+      return false;
+    }
+
+    if (this.getFieldErrors(field).length > 0) {
+      return false;
+    }
+
+    if (this.optionalFields.includes(field)) {
+      return this.getFieldValue(field).length > 0;
+    }
+
+    return true;
+  }
+
+  isCredentialsFormValid(): boolean {
+    return this.getFieldErrors('loginEmail').length === 0 && this.getFieldErrors('loginPassword').length === 0;
+  }
+
+  isLoginTemporarilyRestricted(): boolean {
+    return this.getLoginSecurityMessage() !== null;
+  }
+
+  isForgotEmailFormValid(): boolean {
+    return this.getFieldErrors('forgotEmail').length === 0;
+  }
+
+  isForgotResetFormValid(): boolean {
+    return (
+      this.getFieldErrors('forgotNewPassword').length === 0 &&
+      this.getFieldErrors('forgotConfirmPassword').length === 0
+    );
+  }
+
+  isRegisterFormValid(): boolean {
+    return (
+      this.getFieldErrors('registerName').length === 0 &&
+      this.getFieldErrors('registerApellidos').length === 0 &&
+      this.getFieldErrors('registerEmail').length === 0 &&
+      this.getFieldErrors('registerPassword').length === 0 &&
+      this.getFieldErrors('registerConfirmPassword').length === 0
+    );
   }
 
   onAuthSubmit() {
@@ -175,7 +393,11 @@ export class LoginComponent implements OnDestroy {
       return;
     }
 
-    const email = this.loginEmail.trim().toLowerCase();
+    this.markFieldsAsTouched(['loginEmail', 'loginPassword']);
+    this.loginEmail = sanitizeEmail(this.loginEmail);
+    this.loginPassword = sanitizePassword(this.loginPassword);
+
+    const email = this.loginEmail;
     const password = this.loginPassword;
 
     this.loginErrorMessage = '';
@@ -183,8 +405,14 @@ export class LoginComponent implements OnDestroy {
     this.otpErrorMessage = '';
     this.otpInfoMessage = '';
 
-    if (!email || !password) {
-      this.loginErrorMessage = 'Ingresa correo y contrasena para continuar.';
+    if (!this.isCredentialsFormValid()) {
+      this.loginErrorMessage = this.getCredentialsValidationError();
+      return;
+    }
+
+    const loginSecurityMessage = this.getLoginSecurityMessage();
+    if (loginSecurityMessage) {
+      this.loginErrorMessage = loginSecurityMessage;
       return;
     }
 
@@ -202,7 +430,9 @@ export class LoginComponent implements OnDestroy {
         this.otpCode = '';
         this.canResendOtp = false;
         this.stopOtpTimer();
-        this.loginErrorMessage = this.extractErrorMessage(error, 'No fue posible iniciar sesion.');
+        this.registerFailedLoginAttempt();
+        const backendError = this.extractErrorMessage(error, 'No fue posible iniciar sesion.');
+        this.loginErrorMessage = this.composeLoginError(backendError);
       }
     });
   }
@@ -210,13 +440,14 @@ export class LoginComponent implements OnDestroy {
   onStartForgotPassword() {
     this.resetForgotPasswordFlow();
     this.authStep = 'forgot-email';
-    this.forgotEmail = this.loginEmail.trim().toLowerCase();
+    this.forgotEmail = sanitizeEmail(this.loginEmail);
     this.loginErrorMessage = '';
     this.loginInfoMessage = '';
     this.otpErrorMessage = '';
     this.otpInfoMessage = '';
     this.forgotErrorMessage = '';
     this.forgotInfoMessage = '';
+    this.fieldTouchedState.forgotEmail = false;
   }
 
   onRequestPasswordResetOtp() {
@@ -224,7 +455,9 @@ export class LoginComponent implements OnDestroy {
       return;
     }
 
-    const email = this.forgotEmail.trim().toLowerCase();
+    this.markFieldsAsTouched(['forgotEmail']);
+    this.forgotEmail = sanitizeEmail(this.forgotEmail);
+    const email = this.forgotEmail;
     this.forgotChallengeId = '';
     this.forgotResetToken = '';
     this.canResendForgotOtp = false;
@@ -233,8 +466,8 @@ export class LoginComponent implements OnDestroy {
     this.forgotErrorMessage = '';
     this.forgotInfoMessage = '';
 
-    if (!email) {
-      this.forgotErrorMessage = 'Ingresa tu correo para recuperar la contraseña.';
+    if (!this.isForgotEmailFormValid()) {
+      this.forgotErrorMessage = this.getFieldErrors('forgotEmail')[0] ?? 'Ingresa tu correo para continuar.';
       return;
     }
 
@@ -333,8 +566,11 @@ export class LoginComponent implements OnDestroy {
       return;
     }
 
+    this.markFieldsAsTouched(['forgotNewPassword', 'forgotConfirmPassword']);
+    this.forgotNewPassword = sanitizePassword(this.forgotNewPassword);
+    this.forgotConfirmPassword = sanitizePassword(this.forgotConfirmPassword);
+
     const newPassword = this.forgotNewPassword;
-    const confirmPassword = this.forgotConfirmPassword;
 
     this.forgotErrorMessage = '';
 
@@ -343,13 +579,11 @@ export class LoginComponent implements OnDestroy {
       return;
     }
 
-    if (newPassword.length < 6) {
-      this.forgotErrorMessage = 'La contraseña debe tener al menos 6 caracteres.';
-      return;
-    }
-
-    if (newPassword !== confirmPassword) {
-      this.forgotErrorMessage = 'Las contraseñas no coinciden.';
+    if (!this.isForgotResetFormValid()) {
+      this.forgotErrorMessage =
+        this.getFieldErrors('forgotNewPassword')[0] ??
+        this.getFieldErrors('forgotConfirmPassword')[0] ??
+        'Revisa los datos de contraseña.';
       return;
     }
 
@@ -470,31 +704,39 @@ export class LoginComponent implements OnDestroy {
       return;
     }
 
-    const nombre = this.registerName.trim();
-    const apellidos = this.registerApellidos.trim();
-    const email = this.registerEmail.trim().toLowerCase();
+    this.markFieldsAsTouched([
+      'registerName',
+      'registerApellidos',
+      'registerEmail',
+      'registerPassword',
+      'registerConfirmPassword'
+    ]);
+
+    this.registerName = sanitizePlainText(this.registerName, {
+      trim: true,
+      collapseWhitespace: true,
+      stripHtml: true,
+      maxLength: 50
+    });
+    this.registerApellidos = sanitizePlainText(this.registerApellidos, {
+      trim: true,
+      collapseWhitespace: true,
+      stripHtml: true,
+      maxLength: 50
+    });
+    this.registerEmail = sanitizeEmail(this.registerEmail);
+    this.registerPassword = sanitizePassword(this.registerPassword);
+    this.registerConfirmPassword = sanitizePassword(this.registerConfirmPassword);
+
+    const nombre = this.registerName;
+    const apellidos = this.registerApellidos;
+    const email = this.registerEmail;
     const password = this.registerPassword;
-    const confirmPassword = this.registerConfirmPassword;
 
     this.registerErrorMessage = '';
 
-    if (!nombre) {
-      this.registerErrorMessage = 'El nombre es requerido.';
-      return;
-    }
-
-    if (!email) {
-      this.registerErrorMessage = 'El correo electrónico es requerido.';
-      return;
-    }
-
-    if (password.length < 6) {
-      this.registerErrorMessage = 'La contraseña debe tener al menos 6 caracteres.';
-      return;
-    }
-
-    if (password !== confirmPassword) {
-      this.registerErrorMessage = 'Las contraseñas no coinciden.';
+    if (!this.isRegisterFormValid()) {
+      this.registerErrorMessage = this.getRegisterValidationError();
       return;
     }
 
@@ -615,6 +857,8 @@ export class LoginComponent implements OnDestroy {
     this.regOtpErrorMessage = '';
     this.canResendRegisterOtp = false;
     this.stopRegOtpTimer();
+    this.showRegisterPassword = false;
+    this.showRegisterConfirmPassword = false;
   }
 
   onRegCodeDigitInput(index: number, value: string) {
@@ -661,28 +905,6 @@ export class LoginComponent implements OnDestroy {
 
     const nextIndex = Math.min(normalized.length, this.regCodeDigits.length - 1);
     this.focusRegCodeDigit(nextIndex);
-  }
-
-  updatePasswordStrength() {
-    const p = this.registerPassword;
-    let score = 0;
-
-    if (p.length >= 6) score++;
-    if (p.length >= 10) score++;
-    if (/[A-Z]/.test(p) && /[a-z]/.test(p)) score++;
-    if (/\d/.test(p)) score++;
-    if (/[^A-Za-z0-9]/.test(p)) score++;
-
-    const levels: { level: string; label: string; percent: number }[] = [
-      { level: 'weak', label: 'Débil', percent: 20 },
-      { level: 'weak', label: 'Débil', percent: 30 },
-      { level: 'fair', label: 'Regular', percent: 50 },
-      { level: 'good', label: 'Buena', percent: 75 },
-      { level: 'strong', label: 'Fuerte', percent: 100 }
-    ];
-
-    const index = Math.min(score, levels.length - 1);
-    this.passwordStrength = levels[index];
   }
 
   onVerifyOtp() {
@@ -818,6 +1040,7 @@ export class LoginComponent implements OnDestroy {
     this.otpErrorMessage = '';
     this.canResendOtp = false;
     this.stopOtpTimer();
+    this.showLoginPassword = false;
   }
 
   ngOnDestroy() {
@@ -885,6 +1108,7 @@ export class LoginComponent implements OnDestroy {
   }
 
   private configureOtpStep(response: SendOtpResponse) {
+    this.resetLoginSecurityState();
     this.authStep = 'otp';
     this.otpChallengeId = response.challengeId;
     this.maskedLoginEmail = response.maskedEmail;
@@ -1139,6 +1363,207 @@ export class LoginComponent implements OnDestroy {
     el.select();
   }
 
+  private getFieldErrors(field: LoginFieldKey): string[] {
+    switch (field) {
+      case 'loginEmail':
+        return validateEmailValue(this.loginEmail, {
+          required: true,
+          label: 'El correo electrónico'
+        });
+      case 'loginPassword':
+        return validatePasswordValue(this.loginPassword, {
+          required: true,
+          minLength: 8,
+          maxLength: 64,
+          requireStrongPattern: false,
+          label: 'La contraseña'
+        });
+      case 'forgotEmail':
+        return validateEmailValue(this.forgotEmail, {
+          required: true,
+          label: 'El correo electrónico'
+        });
+      case 'forgotNewPassword':
+        return validatePasswordValue(this.forgotNewPassword, {
+          required: true,
+          minLength: 8,
+          maxLength: 64,
+          requireStrongPattern: true,
+          label: 'La nueva contraseña'
+        });
+      case 'forgotConfirmPassword':
+        return this.validatePasswordConfirmation(
+          this.forgotConfirmPassword,
+          this.forgotNewPassword,
+          'La confirmación de contraseña'
+        );
+      case 'registerName':
+        return validateNameValue(this.registerName, {
+          required: true,
+          label: 'El nombre'
+        });
+      case 'registerApellidos':
+        return validateNameValue(this.registerApellidos, {
+          required: false,
+          label: 'Los apellidos'
+        });
+      case 'registerEmail':
+        return validateEmailValue(this.registerEmail, {
+          required: true,
+          label: 'El correo electrónico'
+        });
+      case 'registerPassword':
+        return validatePasswordValue(this.registerPassword, {
+          required: true,
+          minLength: 8,
+          maxLength: 64,
+          requireStrongPattern: true,
+          label: 'La contraseña'
+        });
+      case 'registerConfirmPassword':
+        return this.validatePasswordConfirmation(
+          this.registerConfirmPassword,
+          this.registerPassword,
+          'La confirmación de contraseña'
+        );
+      default:
+        return [];
+    }
+  }
+
+  private validatePasswordConfirmation(
+    confirmPasswordValue: string,
+    basePasswordValue: string,
+    label: string
+  ): string[] {
+    const confirmPassword = sanitizePassword(confirmPasswordValue);
+    const basePassword = sanitizePassword(basePasswordValue);
+
+    if (!confirmPassword) {
+      return [`${label} es obligatoria.`];
+    }
+
+    if (confirmPassword.length < 8) {
+      return [`${label} debe tener al menos 8 caracteres.`];
+    }
+
+    if (confirmPassword.length > 64) {
+      return [`${label} no puede exceder 64 caracteres.`];
+    }
+
+    if (confirmPassword !== basePassword) {
+      return ['Las contraseñas no coinciden.'];
+    }
+
+    return [];
+  }
+
+  private getFieldValue(field: LoginFieldKey): string {
+    switch (field) {
+      case 'loginEmail':
+        return this.loginEmail;
+      case 'loginPassword':
+        return this.loginPassword;
+      case 'forgotEmail':
+        return this.forgotEmail;
+      case 'forgotNewPassword':
+        return this.forgotNewPassword;
+      case 'forgotConfirmPassword':
+        return this.forgotConfirmPassword;
+      case 'registerName':
+        return this.registerName;
+      case 'registerApellidos':
+        return this.registerApellidos;
+      case 'registerEmail':
+        return this.registerEmail;
+      case 'registerPassword':
+        return this.registerPassword;
+      case 'registerConfirmPassword':
+        return this.registerConfirmPassword;
+      default:
+        return '';
+    }
+  }
+
+  private markFieldsAsTouched(fields: LoginFieldKey[]) {
+    for (const field of fields) {
+      this.fieldTouchedState[field] = true;
+    }
+  }
+
+  private resetFieldTouchedState(fields: LoginFieldKey[]) {
+    for (const field of fields) {
+      this.fieldTouchedState[field] = false;
+    }
+  }
+
+  private getCredentialsValidationError(): string {
+    return (
+      this.getFieldErrors('loginEmail')[0] ??
+      this.getFieldErrors('loginPassword')[0] ??
+      'Revisa tus credenciales.'
+    );
+  }
+
+  private getRegisterValidationError(): string {
+    return (
+      this.getFieldErrors('registerName')[0] ??
+      this.getFieldErrors('registerApellidos')[0] ??
+      this.getFieldErrors('registerEmail')[0] ??
+      this.getFieldErrors('registerPassword')[0] ??
+      this.getFieldErrors('registerConfirmPassword')[0] ??
+      'Revisa la información de registro.'
+    );
+  }
+
+  private composeLoginError(baseMessage: string): string {
+    const securityMessage = this.getLoginSecurityMessage();
+    if (!securityMessage) {
+      return baseMessage;
+    }
+
+    return `${baseMessage} ${securityMessage}`;
+  }
+
+  private registerFailedLoginAttempt() {
+    this.failedLoginAttempts += 1;
+    const progressiveDelay = Math.min(
+      this.maxLoginDelayMs,
+      this.baseLoginDelayMs * this.failedLoginAttempts
+    );
+    this.loginDelayUntilMs = Date.now() + progressiveDelay;
+
+    if (this.failedLoginAttempts >= this.maxFailedLoginAttempts) {
+      this.loginLockedUntilMs = Date.now() + this.loginLockDurationMs;
+    }
+  }
+
+  private resetLoginSecurityState() {
+    this.failedLoginAttempts = 0;
+    this.loginDelayUntilMs = 0;
+    this.loginLockedUntilMs = 0;
+  }
+
+  private getLoginSecurityMessage(): string | null {
+    const now = Date.now();
+
+    if (now < this.loginLockedUntilMs) {
+      const remainingSeconds = Math.ceil((this.loginLockedUntilMs - now) / 1000);
+      const minutes = Math.floor(remainingSeconds / 60);
+      const seconds = remainingSeconds % 60;
+      return `Acceso bloqueado temporalmente por seguridad. Intenta nuevamente en ${minutes
+        .toString()
+        .padStart(2, '0')}:${seconds.toString().padStart(2, '0')}.`;
+    }
+
+    if (now < this.loginDelayUntilMs) {
+      const remainingSeconds = Math.max(1, Math.ceil((this.loginDelayUntilMs - now) / 1000));
+      return `Espera ${remainingSeconds} segundo(s) antes de volver a intentar.`;
+    }
+
+    return null;
+  }
+
   private resetForgotPasswordFlow() {
     this.stopForgotOtpTimer();
     this.forgotEmail = '';
@@ -1157,5 +1582,35 @@ export class LoginComponent implements OnDestroy {
     this.isVerifyingForgotOtp = false;
     this.isResendingForgotOtp = false;
     this.isSubmittingPasswordReset = false;
+    this.fieldTouchedState.forgotEmail = false;
+    this.fieldTouchedState.forgotNewPassword = false;
+    this.fieldTouchedState.forgotConfirmPassword = false;
+    this.showForgotNewPassword = false;
+    this.showForgotConfirmPassword = false;
+  }
+
+  private resetPasswordVisibility() {
+    this.showLoginPassword = false;
+    this.showForgotNewPassword = false;
+    this.showForgotConfirmPassword = false;
+    this.showRegisterPassword = false;
+    this.showRegisterConfirmPassword = false;
+  }
+
+  private isPasswordVisible(field: PasswordFieldKey): boolean {
+    switch (field) {
+      case 'loginPassword':
+        return this.showLoginPassword;
+      case 'forgotNewPassword':
+        return this.showForgotNewPassword;
+      case 'forgotConfirmPassword':
+        return this.showForgotConfirmPassword;
+      case 'registerPassword':
+        return this.showRegisterPassword;
+      case 'registerConfirmPassword':
+        return this.showRegisterConfirmPassword;
+      default:
+        return false;
+    }
   }
 }

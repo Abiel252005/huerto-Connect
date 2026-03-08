@@ -8,6 +8,7 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { sanitizePlainText } from '../../../../shared/validators';
 
 export interface FilterField {
   id: string;
@@ -33,11 +34,23 @@ export class FiltersBarComponent {
   @Output() fieldsChange = new EventEmitter<FilterField[]>();
 
   onSearch(value: string) {
-    this.searchChange.emit(value);
+    const sanitizedSearch = sanitizePlainText(value, {
+      trim: false,
+      collapseWhitespace: true,
+      stripHtml: true,
+      maxLength: 120
+    });
+    this.searchChange.emit(sanitizedSearch);
   }
 
   onFieldChange(id: string, value: string) {
-    const updated = this.fields.map((field) => (field.id === id ? { ...field, value } : field));
+    const sanitizedValue = sanitizePlainText(value, {
+      trim: true,
+      collapseWhitespace: true,
+      stripHtml: true,
+      maxLength: 80
+    });
+    const updated = this.fields.map((field) => (field.id === id ? { ...field, value: sanitizedValue } : field));
     this.fieldsChange.emit(updated);
   }
 }

@@ -41,14 +41,57 @@ export class AdminHuertosComponent implements OnInit {
   editVisible = false;
   editData: Record<string, unknown> | null = null;
   readonly editFields: EditField[] = [
-    { key: 'nombre', label: 'Nombre', type: 'text', required: true },
-    { key: 'usuario', label: 'Usuario', type: 'text' },
-    { key: 'municipio', label: 'Municipio', type: 'text' },
-    { key: 'region', label: 'Región', type: 'text' },
-    { key: 'cultivosActivos', label: 'Cultivos activos', type: 'number' },
-    { key: 'estado', label: 'Estado', type: 'select', options: ['Optimo', 'Atencion', 'Critico'] },
-    { key: 'salud', label: 'Salud (%)', type: 'number' },
-    { key: 'alertas', label: 'Alertas', type: 'number' }
+    {
+      key: 'nombre',
+      label: 'Nombre',
+      type: 'text',
+      required: true,
+      validation: { kind: 'text', minLength: 2, maxLength: 80 }
+    },
+    {
+      key: 'usuario',
+      label: 'Usuario',
+      type: 'text',
+      validation: { kind: 'text', minLength: 2, maxLength: 80 }
+    },
+    {
+      key: 'municipio',
+      label: 'Municipio',
+      type: 'text',
+      validation: { kind: 'text', minLength: 2, maxLength: 80 }
+    },
+    {
+      key: 'region',
+      label: 'Región',
+      type: 'text',
+      validation: { kind: 'text', minLength: 2, maxLength: 80 }
+    },
+    {
+      key: 'cultivosActivos',
+      label: 'Cultivos activos',
+      type: 'number',
+      validation: { kind: 'number', integer: true, min: 0, max: 10000, maxDigits: 5 }
+    },
+    {
+      key: 'estado',
+      label: 'Estado',
+      type: 'select',
+      options: ['Optimo', 'Atencion', 'Critico'],
+      required: true,
+      validation: { kind: 'select' }
+    },
+    {
+      key: 'salud',
+      label: 'Salud (%)',
+      type: 'number',
+      validation: { kind: 'number', min: 0, max: 100, maxDigits: 3 }
+    },
+    {
+      key: 'alertas',
+      label: 'Alertas',
+      type: 'number',
+      validation: { kind: 'number', integer: true, min: 0, max: 10000, maxDigits: 5 }
+    }
   ];
 
   readonly rowIdentity = (huerto: Huerto): string => huerto.id;

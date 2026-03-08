@@ -70,12 +70,47 @@ export class AdminPlagasComponent implements OnInit {
   editVisible = false;
   editData: Record<string, unknown> | null = null;
   readonly editFields: EditField[] = [
-    { key: 'plaga', label: 'Plaga', type: 'text', required: true },
-    { key: 'confianza', label: 'Confianza (%)', type: 'number' },
-    { key: 'cultivo', label: 'Cultivo', type: 'text' },
-    { key: 'ubicacion', label: 'Ubicación', type: 'text' },
-    { key: 'severidad', label: 'Severidad', type: 'select', options: ['Baja', 'Media', 'Alta'] },
-    { key: 'estado', label: 'Estado', type: 'select', options: ['Pendiente', 'Confirmada', 'Descartada'] }
+    {
+      key: 'plaga',
+      label: 'Plaga',
+      type: 'text',
+      required: true,
+      validation: { kind: 'text', minLength: 2, maxLength: 80 }
+    },
+    {
+      key: 'confianza',
+      label: 'Confianza (%)',
+      type: 'number',
+      validation: { kind: 'number', min: 0, max: 100, maxDigits: 3 }
+    },
+    {
+      key: 'cultivo',
+      label: 'Cultivo',
+      type: 'text',
+      validation: { kind: 'text', minLength: 2, maxLength: 80 }
+    },
+    {
+      key: 'ubicacion',
+      label: 'Ubicación',
+      type: 'text',
+      validation: { kind: 'text', minLength: 2, maxLength: 120 }
+    },
+    {
+      key: 'severidad',
+      label: 'Severidad',
+      type: 'select',
+      options: ['Baja', 'Media', 'Alta'],
+      required: true,
+      validation: { kind: 'select' }
+    },
+    {
+      key: 'estado',
+      label: 'Estado',
+      type: 'select',
+      options: ['Pendiente', 'Confirmada', 'Descartada'],
+      required: true,
+      validation: { kind: 'select' }
+    }
   ];
 
   readonly rowIdentity = (deteccion: PlagaDeteccion): string => deteccion.id;

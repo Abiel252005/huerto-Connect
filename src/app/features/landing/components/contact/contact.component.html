@@ -183,8 +183,13 @@
                                 <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
                                 <circle cx="12" cy="7" r="4"></circle>
                             </svg>
-                            <input type="text" formControlName="name" placeholder="Tu nombre">
+                            <input type="text" formControlName="name" placeholder="Tu nombre" maxlength="50"
+                                [class.input-error]="isControlInvalid('name')"
+                                [class.input-success]="isControlValid('name')">
                         </div>
+                        <p class="field-hint field-hint--error" *ngIf="getControlError('name') as nameError">
+                            {{ nameError }}
+                        </p>
                     </div>
 
                     <div class="row-2">
@@ -198,8 +203,13 @@
                                     </path>
                                     <polyline points="22,6 12,13 2,6"></polyline>
                                 </svg>
-                                <input type="email" formControlName="email" placeholder="tu@email.com">
+                                <input type="email" formControlName="email" placeholder="tu@email.com" maxlength="254"
+                                    [class.input-error]="isControlInvalid('email')"
+                                    [class.input-success]="isControlValid('email')">
                             </div>
+                            <p class="field-hint field-hint--error" *ngIf="getControlError('email') as emailError">
+                                {{ emailError }}
+                            </p>
                         </div>
                         <div class="input-group">
                             <label>Teléfono</label>
@@ -210,17 +220,27 @@
                                         d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z">
                                     </path>
                                 </svg>
-                                <input type="tel" formControlName="phone" placeholder="(228) 000-0000">
+                                <input type="tel" formControlName="phone" placeholder="(228) 000-0000" maxlength="20"
+                                    [class.input-error]="isControlInvalid('phone')"
+                                    [class.input-success]="isControlValid('phone')">
                             </div>
+                            <p class="field-hint field-hint--error" *ngIf="getControlError('phone') as phoneError">
+                                {{ phoneError }}
+                            </p>
                         </div>
                     </div>
 
                     <div class="input-group">
                         <label>Mensaje *</label>
-                        <textarea formControlName="message" placeholder="Cuéntanos sobre tu proyecto..."></textarea>
+                        <textarea formControlName="message" placeholder="Cuéntanos sobre tu proyecto..."
+                            maxlength="500" [class.input-error]="isControlInvalid('message')"
+                            [class.input-success]="isControlValid('message')"></textarea>
+                        <p class="field-hint field-hint--error" *ngIf="getControlError('message') as messageError">
+                            {{ messageError }}
+                        </p>
                     </div>
 
-                    <button type="submit" class="submit-btn" [disabled]="isSubmitting">
+                    <button type="submit" class="submit-btn" [disabled]="isSubmitting || contactForm.invalid">
                         <span class="btn-text">{{ isSubmitting ? 'Enviando...' : 'Enviar Mensaje' }}</span>
                         <svg *ngIf="!isSubmitting" width="18" height="18" viewBox="0 0 24 24" fill="none"
                             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">

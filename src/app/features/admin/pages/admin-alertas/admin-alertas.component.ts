@@ -44,12 +44,49 @@ export class AdminAlertasComponent implements OnInit {
   editVisible = false;
   editData: Record<string, unknown> | null = null;
   readonly editFields: EditField[] = [
-    { key: 'titulo', label: 'Título', type: 'text', required: true },
-    { key: 'tipo', label: 'Tipo', type: 'select', options: ['Plaga', 'Riego', 'Sensor', 'Sistema'] },
-    { key: 'severidad', label: 'Severidad', type: 'select', options: ['Seguro', 'Advertencia', 'Critico'] },
-    { key: 'estado', label: 'Estado', type: 'select', options: ['Abierta', 'En progreso', 'Resuelta'] },
-    { key: 'region', label: 'Región', type: 'text' },
-    { key: 'responsable', label: 'Responsable', type: 'text' }
+    {
+      key: 'titulo',
+      label: 'Título',
+      type: 'text',
+      required: true,
+      validation: { kind: 'text', minLength: 3, maxLength: 100 }
+    },
+    {
+      key: 'tipo',
+      label: 'Tipo',
+      type: 'select',
+      options: ['Plaga', 'Riego', 'Sensor', 'Sistema'],
+      required: true,
+      validation: { kind: 'select' }
+    },
+    {
+      key: 'severidad',
+      label: 'Severidad',
+      type: 'select',
+      options: ['Seguro', 'Advertencia', 'Critico'],
+      required: true,
+      validation: { kind: 'select' }
+    },
+    {
+      key: 'estado',
+      label: 'Estado',
+      type: 'select',
+      options: ['Abierta', 'En progreso', 'Resuelta'],
+      required: true,
+      validation: { kind: 'select' }
+    },
+    {
+      key: 'region',
+      label: 'Región',
+      type: 'text',
+      validation: { kind: 'text', minLength: 2, maxLength: 80 }
+    },
+    {
+      key: 'responsable',
+      label: 'Responsable',
+      type: 'text',
+      validation: { kind: 'name', required: false, minLength: 2, maxLength: 50 }
+    }
   ];
 
   readonly rowIdentity = (alerta: Alerta): string => alerta.id;
