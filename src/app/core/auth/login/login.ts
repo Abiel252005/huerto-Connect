@@ -136,6 +136,10 @@ export class LoginComponent implements OnInit, OnDestroy {
   showRegisterPassword = false;
   showRegisterConfirmPassword = false;
 
+  // Google Auth
+  isGoogleLoading = false;
+  googleErrorMessage = '';
+
   passwordStrength: { percent: number; level: 'weak' | 'medium' | 'strong'; label: string } = {
     percent: 0,
     level: 'weak',
@@ -225,12 +229,96 @@ export class LoginComponent implements OnInit, OnDestroy {
     this.resetPasswordVisibility();
     this.loginErrorMessage = '';
     this.registerErrorMessage = '';
+    this.googleErrorMessage = '';
     if (this.isRegister) {
       this.resetFieldTouchedState(['registerName', 'registerApellidos', 'registerEmail', 'registerPassword', 'registerConfirmPassword']);
       return;
     }
 
     this.resetFieldTouchedState(['loginEmail', 'loginPassword']);
+  }
+
+  onGoogleSignIn() {
+    if (this.isGoogleLoading) {
+      return;
+    }
+
+    this.googleErrorMessage = '';
+    this.loginErrorMessage = '';
+    this.registerErrorMessage = '';
+
+    const googleApi = (window as any)['google'];
+    if (!googleApi?.accounts?.id) {
+      this.googleErrorMessage = 'Google Sign-In no está disponible. Recarga la página.';
+      if (this.isRegister) {
+        this.registerErrorMessage = this.googleErrorMessage;
+      } else {
+        this.loginErrorMessage = this.googleErrorMessage;
+      }
+      return;
+    }
+
+    this.isGoogleLoading = true;
+
+    googleApi.accounts.id.initialize({
+      client_id: '317415195966-k305651dm1g0lr09sl6076r7kl52tnbj.apps.googleusercontent.com',
+      callback: (response: any) => {
+        if (!response?.credential) {
+          this.isGoogleLoading = false;
+          const msg = 'No se recibió respuesta de Google.';
+          if (this.isRegister) {
+            this.registerErrorMessage = msg;
+          } else {
+            this.loginErrorMessage = msg;
+          }
+          return;
+        }
+
+        this.authService.googleAuth(response.credential).subscribe({
+          next: (result) => {
+            this.isGoogleLoading = false;
+            if (result.session) {
+              void this.router.navigate(['/admin']);
+            }
+          },
+          error: (error: unknown) => {
+            this.isGoogleLoading = false;
+            const msg = this.extractErrorMessage(error, 'No fue posible autenticar con Google.');
+            if (this.isRegister) {
+              this.registerErrorMessage = msg;
+            } else {
+              this.loginErrorMessage = msg;
+            }
+          }
+        });
+      },
+      auto_select: false,
+      cancel_on_tap_outside: true
+    });
+
+    googleApi.accounts.id.prompt((notification: any) => {
+      if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
+        // One Tap couldn't display, fall back to popup
+        googleApi.accounts.id.renderButton(
+          document.createElement('div'),
+          { type: 'standard' }
+        );
+        // Use the popup flow instead  
+        googleApi.accounts.oauth2.initCodeClient({
+          client_id: '317415195966-k305651dm1g0lr09sl6076r7kl52tnbj.apps.googleusercontent.com',
+          scope: 'email profile',
+          callback: () => {}
+        });
+        // If One Tap fails, we try the standard sign-in popup
+        this.isGoogleLoading = false;
+        const msg = 'Habilita las ventanas emergentes para Google o intenta de nuevo.';
+        if (this.isRegister) {
+          this.registerErrorMessage = msg;
+        } else {
+          this.loginErrorMessage = msg;
+        }
+      }
+    });
   }
 
   onPointerMove(event: PointerEvent) {

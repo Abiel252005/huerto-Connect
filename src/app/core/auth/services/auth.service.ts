@@ -120,6 +120,18 @@ export class AuthService {
     return this.http.post<ResetPasswordResponse>(`${this.baseUrl}/reset-password`, payload);
   }
 
+  googleAuth(idToken: string): Observable<VerifyOtpResponse> {
+    return this.http
+      .post<VerifyOtpResponse>(`${this.baseUrl}/google`, { idToken })
+      .pipe(
+        tap((response) => {
+          if (response.session) {
+            this.persistSession(response.session);
+          }
+        })
+      );
+  }
+
   getSession(): AuthSession | null {
     if (typeof window === 'undefined') {
       return null;

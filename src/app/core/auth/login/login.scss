@@ -142,27 +142,80 @@
     text-align: center;
 }
 
-.social-networks {
+.google-signin-section {
+    width: 100%;
     display: flex;
+    flex-direction: column;
+    align-items: center;
     gap: 12px;
-    margin-bottom: 10px;
+    margin-bottom: 4px;
+}
+
+.google-signin-btn {
+    width: 100%;
+    max-width: 320px;
+    height: 46px;
+    display: inline-flex;
+    align-items: center;
     justify-content: center;
-}
-
-.social-networks ion-icon {
-    border: 1px solid #a6b6b0;
+    gap: 10px;
+    padding: 0 20px;
     border-radius: 10px;
-    padding: 8px;
+    border: 1px solid #c4d9d0;
+    background: linear-gradient(155deg, #ffffff, #f5faf8);
+    color: #1a4a3c;
+    font-size: 15px;
+    font-weight: 500;
     cursor: pointer;
-    color: #1f5b49;
-    background: linear-gradient(150deg, rgba(255, 255, 255, 0.7), rgba(232, 247, 239, 0.75));
-    transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
+    transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease, background 160ms ease;
+    font-family: inherit;
 }
 
-.social-networks ion-icon:hover {
+.google-signin-btn svg {
+    flex-shrink: 0;
+}
+
+.google-signin-btn:hover {
     transform: translateY(-2px);
-    border-color: #77bda2;
-    box-shadow: 0 8px 14px rgba(32, 105, 78, 0.14);
+    border-color: #8bc4ae;
+    box-shadow: 0 8px 18px rgba(32, 105, 78, 0.12);
+    background: linear-gradient(155deg, #ffffff, #eef7f2);
+}
+
+.google-signin-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 6px rgba(32, 105, 78, 0.1);
+}
+
+.google-signin-btn:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.social-divider {
+    width: 100%;
+    max-width: 320px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.social-divider::before,
+.social-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, #b8d8ca, transparent);
+}
+
+.social-divider span {
+    font-size: 13px !important;
+    color: #6b9e8e !important;
+    font-weight: 400;
+    text-transform: lowercase;
+    margin-bottom: 0 !important;
 }
 
 .container-form span {
