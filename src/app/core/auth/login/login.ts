@@ -1801,12 +1801,7 @@ export class LoginComponent implements OnInit, OnDestroy {
     const now = Date.now();
 
     if (now < this.loginLockedUntilMs) {
-      const remainingSeconds = Math.ceil((this.loginLockedUntilMs - now) / 1000);
-      const minutes = Math.floor(remainingSeconds / 60);
-      const seconds = remainingSeconds % 60;
-      return `Acceso bloqueado temporalmente por seguridad. Intenta nuevamente en ${minutes
-        .toString()
-        .padStart(2, '0')}:${seconds.toString().padStart(2, '0')}.`;
+      return 'Acceso bloqueado temporalmente por seguridad.';
     }
 
     return null;
