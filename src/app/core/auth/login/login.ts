@@ -3,7 +3,9 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, ParamMap, Router, RouterModule } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
-import { AuthService, AuthSession, SendOtpResponse } from '../services/auth.service';
+import { take } from 'rxjs/operators';
+import { getDashboardRouteByRole } from '../auth-role.utils';
+import { AuthService, AuthSession, SendOtpResponse, UserRole } from '../services/auth.service';
 import {
   evaluatePasswordStrength,
   sanitizeEmail,
@@ -61,7 +63,7 @@ export class LoginComponent implements OnInit, OnDestroy {
   ) {
     const isMagicResetFlow = this.isMagicResetFlow(this.route.snapshot.queryParamMap);
     if (this.authService.isAuthenticated() && !isMagicResetFlow) {
-      void this.router.navigate(['/admin']);
+      this.redirectToDashboard(this.authService.getUserRole(), true);
     }
   }
 
@@ -278,7 +280,7 @@ export class LoginComponent implements OnInit, OnDestroy {
           next: (result) => {
             this.isGoogleLoading = false;
             if (result.session) {
-              void this.router.navigate(['/admin']);
+              this.syncCurrentUserAndRedirect(result.session.user.role);
             }
           },
           error: (error: unknown) => {
@@ -940,7 +942,7 @@ export class LoginComponent implements OnInit, OnDestroy {
           this.registerPassword = '';
           this.registerConfirmPassword = '';
           this.setRegCodeDigits('');
-          void this.router.navigate(['/admin']);
+          this.syncCurrentUserAndRedirect(response.session.user.role);
         },
         error: (error: unknown) => {
           this.isVerifyingRegisterOtp = false;
@@ -1077,7 +1079,7 @@ export class LoginComponent implements OnInit, OnDestroy {
           this.stopOtpTimer();
           this.loginPassword = '';
           this.setCodeDigits('');
-          void this.router.navigate(['/admin']);
+          this.syncCurrentUserAndRedirect(response.session.user.role);
         },
         error: (error: unknown) => {
           this.isVerifyingOtp = false;
@@ -1222,7 +1224,9 @@ export class LoginComponent implements OnInit, OnDestroy {
       stripHtml: true,
       maxLength: 80
     });
-    const userId = this.normalizeMagicLinkToken(params.get('userId')) || 'usr-email-link';
+    const userId = this.normalizeUserId(params.get('userId')) || 'usr-email-link';
+    const userRole = this.parseUserRole(params.get('userRole'));
+    const userProfilePicture = this.normalizeOptionalUrl(params.get('userProfilePicture'));
 
     const session: AuthSession = {
       token,
@@ -1230,14 +1234,14 @@ export class LoginComponent implements OnInit, OnDestroy {
       user: {
         id: userId,
         email: userEmail || 'usuario@huertoconnect.com',
-        name: userName || 'Usuario'
+        name: userName || 'Usuario',
+        role: userRole,
+        profile_picture: userProfilePicture
       }
     };
 
     this.authService.setSession(session);
-
-    const redirectTo = this.normalizeRedirectPath(params.get('redirectTo'));
-    void this.router.navigateByUrl(redirectTo, { replaceUrl: true });
+    this.syncCurrentUserAndRedirect(userRole);
   }
 
   private applyEmailLinkErrorState(params: ParamMap) {
@@ -1274,13 +1278,41 @@ export class LoginComponent implements OnInit, OnDestroy {
     return /^[A-Za-z0-9_-]{16,256}$/.test(token) ? token : '';
   }
 
-  private normalizeRedirectPath(value: string | null): string {
-    const raw = String(value ?? '').trim();
-    if (!raw || !raw.startsWith('/') || raw.startsWith('//')) {
-      return '/admin';
+  private normalizeUserId(value: string | null): string {
+    const token = String(value ?? '').trim();
+    if (!token) {
+      return '';
     }
 
-    return raw;
+    return /^[A-Za-z0-9_-]{3,64}$/.test(token) ? token : '';
+  }
+
+  private parseUserRole(value: string | null): UserRole {
+    const role = String(value ?? '').trim().toLowerCase();
+    if (role === 'admin' || role === 'manager' || role === 'user') {
+      return role;
+    }
+    return 'user';
+  }
+
+  private normalizeOptionalUrl(value: string | null): string | null {
+    const normalized = String(value ?? '').trim();
+    return normalized.length > 0 ? normalized : null;
+  }
+
+  private syncCurrentUserAndRedirect(fallbackRole: UserRole | null = null) {
+    this.authService
+      .getMe()
+      .pipe(take(1))
+      .subscribe({
+        next: (user) => this.redirectToDashboard(user.role, true),
+        error: () => this.redirectToDashboard(fallbackRole ?? this.authService.getUserRole(), true)
+      });
+  }
+
+  private redirectToDashboard(role: UserRole | null, replaceUrl = false) {
+    const targetRoute = getDashboardRouteByRole(role);
+    void this.router.navigateByUrl(targetRoute, { replaceUrl });
   }
 
   private startWindLoop() {

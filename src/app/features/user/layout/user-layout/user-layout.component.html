@@ -1,0 +1,50 @@
+<div class="user-shell">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="logo"><ion-icon name="leaf-outline"></ion-icon></div>
+      <div class="brand-meta">
+        <strong>Huerto Connect</strong>
+        <span>Panel de productor</span>
+      </div>
+    </div>
+
+    <div class="profile" *ngIf="currentUser$ | async as user">
+      <div class="avatar">
+        <img
+          [src]="user.profile_picture || defaultAvatar"
+          [alt]="'Foto de ' + user.name"
+          (error)="onAvatarError($event)" />
+      </div>
+      <div class="meta">
+        <strong>{{ user.name }}</strong>
+        <span>{{ getRoleName(user.role) }}</span>
+      </div>
+    </div>
+
+    <nav class="menu">
+      <a
+        *ngFor="let item of navItems"
+        class="menu-item"
+        [routerLink]="item.route"
+        routerLinkActive="active">
+        <ion-icon [name]="item.icon"></ion-icon>
+        <span>{{ item.label }}</span>
+      </a>
+
+      <button type="button" class="menu-item logout" (click)="logout()">
+        <ion-icon name="log-out-outline"></ion-icon>
+        <span>Cerrar sesion</span>
+      </button>
+    </nav>
+  </aside>
+
+  <section class="workspace">
+    <header class="topbar">
+      <h1>Dashboard de usuario</h1>
+      <p>Monitorea tus huertos, alertas y recomendaciones de IA.</p>
+    </header>
+    <main class="content">
+      <router-outlet></router-outlet>
+    </main>
+  </section>
+</div>

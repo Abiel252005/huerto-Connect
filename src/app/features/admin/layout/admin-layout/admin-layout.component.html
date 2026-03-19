@@ -9,16 +9,21 @@
       </div>
     </div>
 
-    <div class="sidebar-profile">
-      <div class="avatar">AR</div>
+    <div class="sidebar-profile" *ngIf="currentUser$ | async as user">
+      <div class="avatar">
+        <img
+          [src]="user.profile_picture || defaultAvatar"
+          [alt]="'Foto de ' + user.name"
+          (error)="onAvatarError($event)" />
+      </div>
       <div class="profile-info">
-        <strong>Admin Root</strong>
-        <span>Admin Global</span>
+        <strong>{{ user.name }}</strong>
+        <span>{{ getRoleName(user.role) }}</span>
       </div>
     </div>
 
     <nav class="menu">
-      <a *ngFor="let item of navItems" class="menu-item" [routerLink]="item.route" routerLinkActive="active"
+      <a *ngFor="let item of visibleNavItems" class="menu-item" [routerLink]="item.route" routerLinkActive="active"
         #rla="routerLinkActive" [style.--item-accent]="item.accent" [style.--item-accent-light]="item.accentLight"
         [attr.aria-current]="rla.isActive ? 'page' : null">
         <ion-icon [name]="item.icon"></ion-icon>
@@ -44,7 +49,7 @@
         <button type="button" class="theme-btn" (click)="toggleTheme()">
           <ion-icon [name]="themeIcon"></ion-icon>
         </button>
-        <button type="button" class="icon-btn" routerLink="/admin/configuracion" aria-label="Configuracion">
+        <button *ngIf="isAdmin" type="button" class="icon-btn" routerLink="/admin/configuracion" aria-label="Configuracion">
           <ion-icon name="settings-outline"></ion-icon>
         </button>
         <button type="button" class="icon-btn"><ion-icon name="notifications-outline"></ion-icon></button>

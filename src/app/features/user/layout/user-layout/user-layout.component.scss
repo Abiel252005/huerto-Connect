@@ -1,0 +1,161 @@
+:host {
+  display: block;
+  min-height: 100vh;
+}
+
+.user-shell {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  background: linear-gradient(145deg, #eef6ef 0%, #e0eee2 100%);
+}
+
+.sidebar {
+  background: #173831;
+  color: #fff;
+  padding: 20px 14px;
+  border-right: 1px solid rgba(255, 255, 255, 0.12);
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 8px;
+}
+
+.logo {
+  width: 34px;
+  height: 34px;
+  border-radius: 9px;
+  background: #3cab83;
+  display: grid;
+  place-items: center;
+}
+
+.logo ion-icon {
+  font-size: 20px;
+}
+
+.brand-meta strong {
+  display: block;
+  font-size: 14px;
+}
+
+.brand-meta span {
+  font-size: 11px;
+  color: #9ec0b3;
+}
+
+.profile {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  background: #2b6b57;
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+}
+
+.avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.avatar span {
+  font-weight: 700;
+}
+
+.profile .meta strong {
+  display: block;
+  font-size: 13px;
+}
+
+.profile .meta span {
+  font-size: 11px;
+  color: #9ec0b3;
+}
+
+.menu {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+}
+
+.menu-item {
+  border: none;
+  text-decoration: none;
+  color: #b7d3c8;
+  font: inherit;
+  background: transparent;
+  border-radius: 10px;
+  padding: 10px 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+}
+
+.menu-item.active,
+.menu-item:hover {
+  color: #ffffff;
+  background: rgba(60, 172, 131, 0.35);
+}
+
+.menu-item.logout {
+  margin-top: auto;
+  color: #f5a8a8;
+}
+
+.workspace {
+  padding: 22px;
+}
+
+.topbar {
+  padding: 14px 18px;
+  border-radius: 14px;
+  background: #ffffff;
+  border: 1px solid #dce8de;
+  box-shadow: 0 8px 18px rgba(31, 79, 63, 0.06);
+}
+
+.topbar h1 {
+  margin: 0;
+  font-size: 20px;
+  color: #173831;
+}
+
+.topbar p {
+  margin: 4px 0 0;
+  color: #4e7166;
+  font-size: 13px;
+}
+
+.content {
+  margin-top: 18px;
+}
+
+@media (max-width: 1024px) {
+  .user-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .sidebar {
+    position: static;
+    height: auto;
+  }
+}

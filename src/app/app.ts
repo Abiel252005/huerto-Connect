@@ -26,8 +26,13 @@ export class AppComponent implements OnInit {
       filter((event): event is NavigationEnd => event instanceof NavigationEnd)
     ).subscribe((event) => {
       const url = event.urlAfterRedirects || event.url;
-      this.showChrome = !url.startsWith('/login') && !url.startsWith('/admin');
-      this.isDashboard = url.startsWith('/admin');
+      const isPrivateDashboardRoute =
+        url.startsWith('/admin') ||
+        url.startsWith('/user') ||
+        url.startsWith('/dashboard');
+
+      this.showChrome = !url.startsWith('/login') && !isPrivateDashboardRoute;
+      this.isDashboard = url.startsWith('/admin') || url.startsWith('/user');
 
       // If we are navigating to admin FROM login, show splash again
       if (this.isDashboard && this.previousUrl.startsWith('/login') && !this.isInitialLoad) {

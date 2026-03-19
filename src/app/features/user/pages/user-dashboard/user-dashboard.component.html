@@ -1,0 +1,81 @@
+<div class="dashboard" *ngIf="vm$ | async as vm">
+  <section class="kpi-grid">
+    <article class="kpi-card">
+      <p>Mis huertos</p>
+      <strong>{{ vm.totalHuertos }}</strong>
+    </article>
+    <article class="kpi-card">
+      <p>Alertas criticas</p>
+      <strong>{{ vm.alertasCriticas }}</strong>
+    </article>
+    <article class="kpi-card">
+      <p>Salud promedio</p>
+      <strong>{{ vm.promedioSalud }}%</strong>
+    </article>
+  </section>
+
+  <section class="grid two">
+    <article class="panel">
+      <header><h3>Mis huertos</h3></header>
+      <div class="list">
+        <div class="list-item" *ngFor="let huerto of vm.huertos; trackBy: trackByHuerto">
+          <div>
+            <strong>{{ huerto.nombre }}</strong>
+            <span>{{ huerto.region }} · {{ huerto.cultivosActivos }} cultivos activos</span>
+          </div>
+          <small [class.warn]="huerto.estado !== 'Optimo'">{{ huerto.salud }}%</small>
+        </div>
+      </div>
+    </article>
+
+    <article class="panel">
+      <header><h3>Alertas de plagas</h3></header>
+      <div class="list">
+        <div class="list-item" *ngFor="let alerta of vm.alertas; trackBy: trackByAlerta">
+          <div>
+            <strong>{{ alerta.titulo }}</strong>
+            <span>{{ alerta.fecha }}</span>
+          </div>
+          <small [class.danger]="alerta.severidad === 'Critico'">{{ alerta.severidad }}</small>
+        </div>
+      </div>
+    </article>
+  </section>
+
+  <section class="grid two">
+    <article class="panel">
+      <header><h3>Recomendaciones del chatbot</h3></header>
+      <div class="list">
+        <div class="list-item" *ngFor="let recomendacion of vm.recomendaciones; trackBy: trackByRecommendation">
+          <div>
+            <strong>{{ recomendacion.tema }}</strong>
+            <span>{{ recomendacion.recomendacion }}</span>
+          </div>
+        </div>
+      </div>
+    </article>
+
+    <article class="panel">
+      <header><h3>Historial de cultivos</h3></header>
+      <div class="list">
+        <div class="list-item" *ngFor="let item of vm.historial; trackBy: trackByHistorial">
+          <div>
+            <strong>{{ item.cultivo }}</strong>
+            <span>{{ item.huerto }} · {{ item.temporada }}</span>
+          </div>
+          <small>{{ item.estado }}</small>
+        </div>
+      </div>
+    </article>
+  </section>
+
+  <section class="panel">
+    <header><h3>Estadisticas de crecimiento</h3></header>
+    <div class="growth-chart">
+      <div class="bar-col" *ngFor="let stat of vm.estadisticas; trackBy: trackByStat">
+        <span class="bar" [style.height.%]="toBarHeight(stat.value, vm.maxGrowthValue)"></span>
+        <strong>{{ stat.label }}</strong>
+      </div>
+    </div>
+  </section>
+</div>
