@@ -379,7 +379,7 @@ export class LoginComponent implements OnInit, OnDestroy {
 
   getPasswordToggleIcon(field: PasswordFieldKey): string {
     const isVisible = this.isPasswordVisible(field);
-    return isVisible ? 'eye-off-outline' : 'eye-outline';
+    return isVisible ? 'eye-outline' : 'eye-off-outline';
   }
 
   getPasswordInputType(field: PasswordFieldKey): 'text' | 'password' {
