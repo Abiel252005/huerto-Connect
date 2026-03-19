@@ -162,13 +162,10 @@ export class LoginComponent implements OnInit, OnDestroy {
     registerConfirmPassword: false
   };
 
-  private readonly maxFailedLoginAttempts = 5;
+  private readonly maxFailedLoginAttempts = 4;
   private readonly loginLockDurationMs = 5 * 60 * 1000;
-  private readonly maxLoginDelayMs = 5000;
-  private readonly baseLoginDelayMs = 700;
   private failedLoginAttempts = 0;
   private loginLockedUntilMs = 0;
-  private loginDelayUntilMs = 0;
 
   windXPx = 0;
   windYPx = 0;
@@ -1780,20 +1777,15 @@ export class LoginComponent implements OnInit, OnDestroy {
 
   private composeLoginError(baseMessage: string): string {
     const securityMessage = this.getLoginSecurityMessage();
-    if (!securityMessage) {
-      return baseMessage;
+    if (securityMessage) {
+      return securityMessage;
     }
 
-    return `${baseMessage} ${securityMessage}`;
+    return baseMessage;
   }
 
   private registerFailedLoginAttempt() {
     this.failedLoginAttempts += 1;
-    const progressiveDelay = Math.min(
-      this.maxLoginDelayMs,
-      this.baseLoginDelayMs * this.failedLoginAttempts
-    );
-    this.loginDelayUntilMs = Date.now() + progressiveDelay;
 
     if (this.failedLoginAttempts >= this.maxFailedLoginAttempts) {
       this.loginLockedUntilMs = Date.now() + this.loginLockDurationMs;
@@ -1802,7 +1794,6 @@ export class LoginComponent implements OnInit, OnDestroy {
 
   private resetLoginSecurityState() {
     this.failedLoginAttempts = 0;
-    this.loginDelayUntilMs = 0;
     this.loginLockedUntilMs = 0;
   }
 
@@ -1816,11 +1807,6 @@ export class LoginComponent implements OnInit, OnDestroy {
       return `Acceso bloqueado temporalmente por seguridad. Intenta nuevamente en ${minutes
         .toString()
         .padStart(2, '0')}:${seconds.toString().padStart(2, '0')}.`;
-    }
-
-    if (now < this.loginDelayUntilMs) {
-      const remainingSeconds = Math.max(1, Math.ceil((this.loginDelayUntilMs - now) / 1000));
-      return `Espera ${remainingSeconds} segundo(s) antes de volver a intentar.`;
     }
 
     return null;
