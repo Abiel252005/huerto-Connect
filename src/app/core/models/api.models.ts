@@ -20,10 +20,11 @@ export interface ChallengeResponse {
 // ---- Response de Autenticación exitosa ----
 export interface AuthTokenResponse {
   message: string;
-  token: string;
-  expiresAt: string;
-  userId: string;
+  token?: string;
+  expiresAt?: string;
+  userId?: string;
   isNewUser?: boolean; // Solo en Google Auth
+  resetToken?: string; // Para flujo de recuperación de contraseña
 }
 
 // ---- Usuario en sesión (GET /auth/session) ----

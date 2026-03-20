@@ -186,8 +186,33 @@ export class AuthService {
     return this.http
       .post<AuthTokenResponse>(`${this.base}/verify-otp`, payload)
       .pipe(
-        tap((res) => this._persistToken(res))
-      ) as Observable<VerifyOtpResponse>;
+        tap((res) => {
+          if (res.token) {
+            this._persistToken(res);
+          }
+        }),
+        switchMap((tokenRes) => {
+          if (tokenRes.resetToken || !tokenRes.token) {
+            return of(tokenRes as unknown as VerifyOtpResponse);
+          }
+          return this.getSession().pipe(
+            map((sessionUser) => {
+              const authUser = this._sessionUserToAuthUser(sessionUser);
+              return {
+                message: tokenRes.message,
+                token: tokenRes.token,
+                expiresAt: tokenRes.expiresAt,
+                userId: tokenRes.userId,
+                session: {
+                  token: tokenRes.token,
+                  expiresAt: tokenRes.expiresAt,
+                  user: authUser,
+                },
+              } as VerifyOtpResponse;
+            })
+          );
+        })
+      );
   }
 
   /** Reenvía el OTP (máx. 3 veces por challenge). */
@@ -356,10 +381,10 @@ export class AuthService {
   private _persistToken(res: AuthTokenResponse): void {
     const existing = this._loadSession();
     const session: AuthSession = {
-      token: res.token,
-      expiresAt: res.expiresAt,
+      token: res.token!,
+      expiresAt: res.expiresAt!,
       userId: res.userId,
-      user: existing?.user ?? { id: res.userId, email: '', name: '', role: 'user', profile_picture: null },
+      user: existing?.user ?? { id: res.userId!, email: '', name: '', role: 'user', profile_picture: null },
     };
     sessionStorage.setItem(SESSION_KEY, JSON.stringify(session));
   }
