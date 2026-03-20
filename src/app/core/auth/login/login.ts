@@ -1302,7 +1302,11 @@ export class LoginComponent implements OnInit, OnDestroy {
       .getMe()
       .pipe(take(1))
       .subscribe({
-        next: (user) => this.redirectToDashboard(user.role, true),
+        next: (user) => {
+          const raw = (user.role as string).toLowerCase();
+          const role: UserRole = raw === 'admin' ? 'admin' : raw === 'tecnico' ? 'manager' : 'user';
+          this.redirectToDashboard(role, true);
+        },
         error: () => this.redirectToDashboard(fallbackRole ?? this.authService.getUserRole(), true)
       });
   }

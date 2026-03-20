@@ -1,8 +1,13 @@
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
-import { Observable, of } from 'rxjs';
+import { Observable, of, forkJoin } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { AuthService } from '../../../core/auth/services/auth.service';
+import { environment } from '../../../../environments/environment';
+import {
+  Huerto as ApiHuerto,
+  Alerta as ApiAlerta,
+} from '../../../core/models/api.models';
 
 export interface UserHuerto {
   id: string;
@@ -47,74 +52,77 @@ export interface UserDashboardData {
   estadisticas: UserGrowthStat[];
 }
 
-interface UserDashboardApiResponse {
-  huertos?: UserHuerto[];
-  alertas?: UserPestAlert[];
-  recomendaciones?: UserChatRecommendation[];
-  historial?: UserCropHistoryItem[];
-  estadisticas?: UserGrowthStat[];
-}
-
-const USER_DASHBOARD_FALLBACK: UserDashboardData = {
-  huertos: [
-    { id: 'uh-01', nombre: 'Huerto Norte', region: 'Veracruz', estado: 'Optimo', cultivosActivos: 6, salud: 91 },
-    { id: 'uh-02', nombre: 'Huerto Familiar', region: 'Xalapa', estado: 'Atencion', cultivosActivos: 4, salud: 72 }
-  ],
-  alertas: [
-    { id: 'ua-01', titulo: 'Riesgo de mildiu en tomate', severidad: 'Advertencia', fecha: 'Hoy 08:30' },
-    { id: 'ua-02', titulo: 'Pulgon detectado en pimiento', severidad: 'Critico', fecha: 'Ayer 17:10' }
-  ],
-  recomendaciones: [
-    { id: 'ur-01', tema: 'Riego', recomendacion: 'Reduce un 15% el riego esta semana por alta humedad.' },
-    { id: 'ur-02', tema: 'Fertilizacion', recomendacion: 'Prioriza potasio para mejorar floracion en ciclo actual.' },
-    { id: 'ur-03', tema: 'Plagas', recomendacion: 'Aplica control biologico preventivo en zonas de sombra.' }
-  ],
-  historial: [
-    { id: 'uc-01', cultivo: 'Tomate saladette', huerto: 'Huerto Norte', temporada: '2025 Otono', estado: 'Cosechado' },
-    { id: 'uc-02', cultivo: 'Lechuga romana', huerto: 'Huerto Familiar', temporada: '2026 Invierno', estado: 'Activo' },
-    { id: 'uc-03', cultivo: 'Chile serrano', huerto: 'Huerto Norte', temporada: '2026 Primavera', estado: 'En seguimiento' }
-  ],
-  estadisticas: [
-    { label: 'Sem 1', value: 42 },
-    { label: 'Sem 2', value: 49 },
-    { label: 'Sem 3', value: 56 },
-    { label: 'Sem 4', value: 63 },
-    { label: 'Sem 5', value: 68 }
-  ]
-};
-
 @Injectable({ providedIn: 'root' })
 export class UserDashboardService {
   private readonly http = inject(HttpClient);
   private readonly authService = inject(AuthService);
-  private readonly baseUrl = 'http://localhost:3000/api/user';
+  private readonly base = environment.apiUrl;
 
   getDashboardData(): Observable<UserDashboardData> {
-    return this.http
-      .get<UserDashboardApiResponse>(`${this.baseUrl}/dashboard`, { headers: this.buildAuthHeaders() })
-      .pipe(
-        map((response) => ({
-          huertos: response.huertos ?? [],
-          alertas: response.alertas ?? [],
-          recomendaciones: response.recomendaciones ?? [],
-          historial: response.historial ?? [],
-          estadisticas: response.estadisticas ?? []
-        })),
-        catchError(() => of(USER_DASHBOARD_FALLBACK))
-      );
+    return forkJoin({
+      huertos: this.http.get<ApiHuerto[]>(`${this.base}/api/huertos`).pipe(catchError(() => of([]))),
+      alertas: this.http.get<ApiAlerta[]>(`${this.base}/api/alertas`).pipe(catchError(() => of([]))),
+    }).pipe(
+      map(({ huertos, alertas }) => ({
+        huertos: huertos.map((h) => this.toUserHuerto(h)),
+        alertas: alertas.slice(0, 5).map((a) => this.toUserAlert(a)),
+        recomendaciones: [],
+        historial: [],
+        estadisticas: this.generateStats(huertos),
+      })),
+      catchError(() =>
+        of({
+          huertos: [],
+          alertas: [],
+          recomendaciones: [],
+          historial: [],
+          estadisticas: [],
+        })
+      )
+    );
   }
 
   getMyHuertos(): Observable<UserHuerto[]> {
-    return this.http
-      .get<{ huertos?: UserHuerto[] }>(`${this.baseUrl}/huertos`, { headers: this.buildAuthHeaders() })
-      .pipe(
-        map((response) => response.huertos ?? []),
-        catchError(() => of(USER_DASHBOARD_FALLBACK.huertos))
-      );
+    return this.http.get<ApiHuerto[]>(`${this.base}/api/huertos`).pipe(
+      map((items) => items.map((h) => this.toUserHuerto(h))),
+      catchError(() => of([]))
+    );
   }
 
-  private buildAuthHeaders(): HttpHeaders {
-    const token = this.authService.getSession()?.token ?? '';
-    return new HttpHeaders({ Authorization: `Bearer ${token}` });
+  private toUserHuerto(h: ApiHuerto): UserHuerto {
+    const estado = h.estado?.toLowerCase();
+    let mappedEstado: 'Optimo' | 'Atencion' | 'Critico' = 'Optimo';
+    if (estado?.includes('crit')) mappedEstado = 'Critico';
+    else if (estado?.includes('alert') || estado?.includes('aten')) mappedEstado = 'Atencion';
+
+    return {
+      id: h.id,
+      nombre: h.nombre,
+      region: h.region_id ?? '',
+      estado: mappedEstado,
+      cultivosActivos: 0,
+      salud: h.salud ?? 100,
+    };
+  }
+
+  private toUserAlert(a: ApiAlerta): UserPestAlert {
+    let sev: 'Seguro' | 'Advertencia' | 'Critico' = 'Seguro';
+    if (a.severidad?.includes('alta') || a.severidad?.includes('crit')) sev = 'Critico';
+    else if (a.severidad?.includes('media')) sev = 'Advertencia';
+
+    return {
+      id: a.id,
+      titulo: a.mensaje ?? 'Alerta',
+      severidad: sev,
+      fecha: a.created_at ?? '',
+    };
+  }
+
+  private generateStats(huertos: ApiHuerto[]): UserGrowthStat[] {
+    if (huertos.length === 0) return [];
+    return huertos.slice(0, 5).map((h, i) => ({
+      label: `Sem ${i + 1}`,
+      value: h.salud ?? 50,
+    }));
   }
 }

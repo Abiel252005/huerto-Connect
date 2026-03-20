@@ -8,3 +8,11 @@ export interface Usuario {
   huertos: number;
   ultimaActividad: string;
 }
+
+export interface UsuarioFiltro {
+  busqueda?: string;
+  region?: string;
+  estado?: Usuario['estado'] | '';
+  rol?: string;
+}
+

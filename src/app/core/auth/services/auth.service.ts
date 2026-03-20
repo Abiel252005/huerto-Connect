@@ -1,45 +1,23 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable, tap, BehaviorSubject } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
+import { BehaviorSubject, Observable, tap, of, switchMap, map } from 'rxjs';
+import { Router } from '@angular/router';
+import { environment } from '../../../../environments/environment';
+import {
+  ChallengeResponse,
+  AuthTokenResponse,
+  SessionUser,
+  SessionInfo,
+  MessageResponse,
+} from '../../models/api.models';
 
-interface SendOtpPayload {
-  email: string;
-  password: string;
-}
+// ---- Tipos exportados (compatibilidad con componentes existentes) ----
 
-interface ForgotPasswordPayload {
-  email: string;
-}
-
-export interface SendOtpResponse {
-  message: string;
-  challengeId: string;
-  expiresAt: string;
-  maskedEmail: string;
-  devOtpCode?: string;
-}
-
-interface RegisterPayload {
-  nombre: string;
-  apellidos: string;
-  email: string;
-  password: string;
-}
-
-interface VerifyOtpPayload {
-  challengeId: string;
-  otpCode: string;
-}
-
-interface ResetPasswordPayload {
-  resetToken: string;
-  newPassword: string;
-}
-
-interface ResendOtpPayload {
-  challengeId: string;
-}
-
+/**
+ * Rol del usuario en formato usado por el frontend existente.
+ * El backend devuelve 'Admin', 'Usuario', 'Tecnico'.
+ * Los componentes usan 'admin', 'manager', 'user'.
+ */
 export type UserRole = 'admin' | 'manager' | 'user';
 
 export interface AuthUser {
@@ -53,13 +31,66 @@ export interface AuthUser {
 export interface AuthSession {
   token: string;
   expiresAt: string;
+  userId?: string;  // opcional para compatibilidad con código existente
   user: AuthUser;
+}
+
+// ---- Payloads de entrada ----
+
+export interface LoginPayload {
+  email: string;
+  password: string;
+}
+
+export interface RegisterPayload {
+  nombre: string;
+  apellidos: string;
+  email: string;
+  password: string;
+  confirmPassword: string;
+}
+
+export interface VerifyOtpPayload {
+  challengeId: string;
+  otpCode: string;
+}
+
+export interface ResendOtpPayload {
+  challengeId: string;
+}
+
+export interface ForgotPasswordPayload {
+  email: string;
+}
+
+export interface ResetPasswordPayload {
+  resetToken: string;
+  newPassword: string;
+}
+
+export interface GoogleAuthPayload {
+  credential: string;
+}
+
+// Re-export para compatibilidad
+export type { ChallengeResponse as SendOtpResponse };
+
+export interface MeResponse {
+  id: string;
+  nombre: string;
+  apellidos: string;
+  email: string;
+  role: string;
+  profile_picture: string | null;
+  auth_provider: string;
 }
 
 export interface VerifyOtpResponse {
   message: string;
+  token: string;
+  expiresAt: string;
+  userId: string;
   session?: AuthSession;
-  user?: AuthUser;
   resetToken?: string;
 }
 
@@ -83,181 +114,286 @@ export interface ResetPasswordResponse {
   message: string;
 }
 
-export interface MeResponse {
-  id: string;
-  name: string;
-  email: string;
-  role: UserRole;
-  profile_picture: string | null;
+// ---- Constants ----
+const SESSION_KEY = 'huerto-auth-session';
+
+// ---- Mapeo de roles backend → frontend ----
+function mapRole(apiRole: string): UserRole {
+  switch (apiRole?.toLowerCase()) {
+    case 'admin': return 'admin';
+    case 'tecnico': return 'manager';
+    default: return 'user';
+  }
 }
 
-const AUTH_SESSION_STORAGE_KEY = 'huerto-auth-session';
-
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable({ providedIn: 'root' })
 export class AuthService {
   private readonly http = inject(HttpClient);
-  private readonly baseUrl = 'http://localhost:3000/api/auth';
+  private readonly router = inject(Router);
+  private readonly base = `${environment.apiUrl}/api/auth`;
 
-  /** BehaviorSubject that holds the current user data (reactive). */
-  private readonly currentUserSubject = new BehaviorSubject<AuthUser | null>(this.loadUserFromSession());
-  readonly currentUser$ = this.currentUserSubject.asObservable();
+  private readonly _user$ = new BehaviorSubject<AuthUser | null>(
+    this._loadUser()
+  );
 
-  requestOtp(payload: SendOtpPayload): Observable<SendOtpResponse> {
-    return this.http.post<SendOtpResponse>(`${this.baseUrl}/send-otp`, payload);
+  /** Observable con el usuario actual (reactivo). */
+  readonly currentUser$ = this._user$.asObservable();
+  readonly user$ = this._user$.asObservable();
+
+  // ----------------------------------------------------------------
+  // Flujo OTP — Login
+  // POST /api/auth/login → ChallengeResponse (challengeId + maskedEmail)
+  // ----------------------------------------------------------------
+
+  /**
+   * Paso 1 Login: valida credenciales y envía OTP al correo.
+   * Responde ChallengeResponse con challengeId para el paso 2.
+   */
+  login(payload: LoginPayload): Observable<ChallengeResponse> {
+    return this.http.post<ChallengeResponse>(`${this.base}/login`, payload);
   }
 
-  register(payload: RegisterPayload): Observable<SendOtpResponse> {
-    return this.http.post<SendOtpResponse>(`${this.baseUrl}/register`, payload);
+  /**
+   * @deprecated Alias de login() para compatibilidad con componentes existentes.
+   * El método correcto en la nueva API es login().
+   */
+  requestOtp(payload: LoginPayload): Observable<ChallengeResponse> {
+    return this.login(payload);
   }
+
+  // ----------------------------------------------------------------
+  // Flujo OTP — Registro
+  // POST /api/auth/register → ChallengeResponse
+  // ----------------------------------------------------------------
+
+  register(payload: Omit<RegisterPayload, 'confirmPassword'> & { confirmPassword?: string }): Observable<ChallengeResponse> {
+    const body = {
+      nombre: payload.nombre,
+      apellidos: payload.apellidos ?? '',
+      email: payload.email,
+      password: payload.password,
+      confirmPassword: payload.confirmPassword ?? payload.password,
+    };
+    return this.http.post<ChallengeResponse>(`${this.base}/register`, body);
+  }
+
+  // ----------------------------------------------------------------
+  // Verificar OTP — paso 2 común
+  // POST /api/auth/verify-otp → AuthTokenResponse (token + userId)
+  // ----------------------------------------------------------------
 
   verifyOtp(payload: VerifyOtpPayload): Observable<VerifyOtpResponse> {
     return this.http
-      .post<VerifyOtpResponse>(`${this.baseUrl}/verify-otp`, payload)
+      .post<AuthTokenResponse>(`${this.base}/verify-otp`, payload)
       .pipe(
-        tap((response) => {
-          if (response.session) {
-            this.persistSession(response.session);
-            this.currentUserSubject.next(response.session.user);
-          }
-        })
+        tap((res) => this._persistToken(res))
+      ) as Observable<VerifyOtpResponse>;
+  }
+
+  /** Reenvía el OTP (máx. 3 veces por challenge). */
+  resendOtp(payload: ResendOtpPayload): Observable<ResendOtpResponse> {
+    return this.http.post<ResendOtpResponse>(`${this.base}/resend-otp`, payload);
+  }
+
+  // ----------------------------------------------------------------
+  // Google SSO
+  // POST /api/auth/google → AuthTokenResponse (sin OTP)
+  // El campo que acepta la API es 'credential', NO 'idToken'
+  // ----------------------------------------------------------------
+
+  googleAuth(credential: string): Observable<VerifyOtpResponse> {
+    return this.http
+      .post<AuthTokenResponse>(`${this.base}/google`, { credential })
+      .pipe(
+        tap((res) => this._persistToken(res)),
+        switchMap((tokenRes) =>
+          this.getSession().pipe(
+            map((sessionUser) => {
+              const authUser = this._sessionUserToAuthUser(sessionUser);
+              return {
+                message: tokenRes.message,
+                token: tokenRes.token,
+                expiresAt: tokenRes.expiresAt,
+                userId: tokenRes.userId,
+                session: {
+                  token: tokenRes.token,
+                  expiresAt: tokenRes.expiresAt,
+                  user: authUser,
+                },
+              } as VerifyOtpResponse;
+            })
+          )
+        )
       );
   }
 
-  resendOtp(payload: ResendOtpPayload): Observable<ResendOtpResponse> {
-    return this.http.post<ResendOtpResponse>(`${this.baseUrl}/resend-otp`, payload);
-  }
+  // ----------------------------------------------------------------
+  // Recuperación de contraseña
+  // ----------------------------------------------------------------
 
   forgotPassword(payload: ForgotPasswordPayload): Observable<ForgotPasswordResponse> {
-    return this.http.post<ForgotPasswordResponse>(`${this.baseUrl}/forgot-password`, payload);
+    return this.http.post<ForgotPasswordResponse>(
+      `${this.base}/forgot-password`,
+      payload
+    );
   }
 
   resetPassword(payload: ResetPasswordPayload): Observable<ResetPasswordResponse> {
-    return this.http.post<ResetPasswordResponse>(`${this.baseUrl}/reset-password`, payload);
+    return this.http.post<ResetPasswordResponse>(
+      `${this.base}/reset-password`,
+      payload
+    );
   }
 
-  googleAuth(idToken: string): Observable<VerifyOtpResponse> {
-    return this.http
-      .post<VerifyOtpResponse>(`${this.baseUrl}/google`, { idToken })
-      .pipe(
-        tap((response) => {
-          if (response.session) {
-            this.persistSession(response.session);
-            this.currentUserSubject.next(response.session.user);
-          }
-        })
-      );
-  }
+  // ----------------------------------------------------------------
+  // Perfil e info del usuario actual
+  // GET /api/auth/session → SessionUser
+  // ----------------------------------------------------------------
 
-  /** Fetches fresh user data from the /auth/me endpoint. */
-  getMe(): Observable<MeResponse> {
-    const session = this.getSession();
-    const headers = new HttpHeaders({
-      Authorization: `Bearer ${session?.token ?? ''}`
-    });
-    return this.http.get<MeResponse>(`${this.baseUrl}/me`, { headers }).pipe(
-      tap((user) => {
-        // Update the stored session user with fresh data
-        const currentSession = this.getSession();
-        if (currentSession) {
-          currentSession.user = {
-            ...currentSession.user,
-            name: user.name,
-            role: user.role,
-            profile_picture: user.profile_picture
-          };
-          this.persistSession(currentSession);
-          this.currentUserSubject.next(currentSession.user);
-        }
+  /**
+   * Valida el JWT activo y retorna los datos del usuario en sesión.
+   * Úsalo en los guards y layouts para hidratar el usuario.
+   */
+  getSession(): Observable<SessionUser> {
+    return this.http.get<SessionUser>(`${this.base}/session`).pipe(
+      tap((u) => {
+        const authUser = this._sessionUserToAuthUser(u);
+        this._user$.next(authUser);
+        this._updateStoredUser(authUser);
       })
     );
   }
 
-  getSession(): AuthSession | null {
-    if (typeof window === 'undefined') {
-      return null;
-    }
-
-    const raw = window.sessionStorage.getItem(AUTH_SESSION_STORAGE_KEY);
-    if (!raw) {
-      return null;
-    }
-
-    try {
-      const parsed = JSON.parse(raw) as AuthSession;
-      if (!parsed.expiresAt || !parsed.token) {
-        this.logout();
-        return null;
-      }
-
-      if (Date.now() >= Date.parse(parsed.expiresAt)) {
-        this.logout();
-        return null;
-      }
-
-      return parsed;
-    } catch {
-      this.logout();
-      return null;
-    }
+  /**
+   * @deprecated Renombrado a getSession(). Mantenido por compatibilidad.
+   * Con la nueva API, GET /auth/me → /auth/session.
+   */
+  getMe(): Observable<SessionUser> {
+    return this.getSession();
   }
+
+  listSessions(): Observable<SessionInfo[]> {
+    return this.http.get<SessionInfo[]>(`${this.base}/sesiones`);
+  }
+
+  revokeSession(sessionId: string): Observable<MessageResponse> {
+    return this.http.delete<MessageResponse>(`${this.base}/sesiones/${sessionId}`);
+  }
+
+  revokeAllSessions(): Observable<MessageResponse> {
+    return this.http.post<MessageResponse>(`${this.base}/sesiones/revoke-all`, {});
+  }
+
+  logout(): Observable<MessageResponse> {
+    return this.http.post<MessageResponse>(`${this.base}/logout`, {}).pipe(
+      tap(() => this._clearSession())
+    );
+  }
+
+  logoutLocal(): void {
+    this._clearSession();
+    this.router.navigate(['/auth/login']);
+  }
+
+  // ----------------------------------------------------------------
+  // Estado local
+  // ----------------------------------------------------------------
 
   isAuthenticated(): boolean {
-    return this.getSession() !== null;
-  }
-
-  /** Returns the current user's role, or null if not authenticated. */
-  getUserRole(): UserRole | null {
-    const session = this.getSession();
-    return session?.user?.role ?? null;
-  }
-
-  /** Returns the current user from the session. */
-  getCurrentUser(): AuthUser | null {
-    const session = this.getSession();
-    return session?.user ?? null;
-  }
-
-  /** Returns the current user for the BehaviorSubject. */
-  get currentUser(): AuthUser | null {
-    return this.currentUserSubject.value;
-  }
-
-  logout(): void {
-    if (typeof window !== 'undefined') {
-      window.sessionStorage.removeItem(AUTH_SESSION_STORAGE_KEY);
-    }
-    this.currentUserSubject.next(null);
-  }
-
-  setSession(session: AuthSession): void {
-    this.persistSession(session);
-    this.currentUserSubject.next(session.user);
-  }
-
-  private persistSession(session: AuthSession): void {
-    if (typeof window !== 'undefined') {
-      window.sessionStorage.setItem(AUTH_SESSION_STORAGE_KEY, JSON.stringify(session));
-    }
-  }
-
-  private loadUserFromSession(): AuthUser | null {
-    if (typeof window === 'undefined') {
-      return null;
-    }
-
-    const raw = window.sessionStorage.getItem(AUTH_SESSION_STORAGE_KEY);
-    if (!raw) {
-      return null;
-    }
-
+    const raw = sessionStorage.getItem(SESSION_KEY);
+    if (!raw) return false;
     try {
-      const session = JSON.parse(raw) as AuthSession;
-      if (!session.token || !session.expiresAt || Date.now() >= Date.parse(session.expiresAt)) {
-        return null;
-      }
-      return session.user ?? null;
+      const s: AuthSession = JSON.parse(raw);
+      return !!s.token && Date.now() < Date.parse(s.expiresAt);
+    } catch {
+      return false;
+    }
+  }
+
+  getToken(): string | null {
+    try {
+      const raw = sessionStorage.getItem(SESSION_KEY);
+      if (!raw) return null;
+      return (JSON.parse(raw) as AuthSession).token ?? null;
+    } catch {
+      return null;
+    }
+  }
+
+  /** Retorna el rol del usuario actual mapeado al formato del frontend. */
+  getUserRole(): UserRole | null {
+    return this._user$.value?.role ?? null;
+  }
+
+  get currentUser(): AuthUser | null {
+    return this._user$.value;
+  }
+
+  getCurrentUser(): AuthUser | null {
+    return this._user$.value;
+  }
+
+  /** Permite establecer la sesión manualmente (compatibilidad con Google SSO). */
+  setSession(session: AuthSession): void {
+    sessionStorage.setItem(SESSION_KEY, JSON.stringify(session));
+    this._user$.next(session.user);
+  }
+
+  // ----------------------------------------------------------------
+  // Helpers privados
+  // ----------------------------------------------------------------
+
+  private _sessionUserToAuthUser(u: SessionUser): AuthUser {
+    return {
+      id: u.id,
+      email: u.email,
+      name: `${u.nombre} ${u.apellidos}`.trim(),
+      role: mapRole(u.role),
+      profile_picture: u.profile_picture ?? null,
+    };
+  }
+
+  private _persistToken(res: AuthTokenResponse): void {
+    const existing = this._loadSession();
+    const session: AuthSession = {
+      token: res.token,
+      expiresAt: res.expiresAt,
+      userId: res.userId,
+      user: existing?.user ?? { id: res.userId, email: '', name: '', role: 'user', profile_picture: null },
+    };
+    sessionStorage.setItem(SESSION_KEY, JSON.stringify(session));
+  }
+
+  private _updateStoredUser(user: AuthUser): void {
+    const session = this._loadSession();
+    if (session) {
+      session.user = user;
+      sessionStorage.setItem(SESSION_KEY, JSON.stringify(session));
+    }
+  }
+
+  private _loadSession(): AuthSession | null {
+    try {
+      const raw = sessionStorage.getItem(SESSION_KEY);
+      if (!raw) return null;
+      return JSON.parse(raw) as AuthSession;
+    } catch {
+      return null;
+    }
+  }
+
+  private _clearSession(): void {
+    sessionStorage.removeItem(SESSION_KEY);
+    this._user$.next(null);
+  }
+
+  private _loadUser(): AuthUser | null {
+    try {
+      const raw = sessionStorage.getItem(SESSION_KEY);
+      if (!raw) return null;
+      const s: AuthSession = JSON.parse(raw);
+      if (!s.token || Date.now() >= Date.parse(s.expiresAt)) return null;
+      return s.user ?? null;
     } catch {
       return null;
     }

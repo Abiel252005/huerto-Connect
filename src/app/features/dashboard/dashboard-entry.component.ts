@@ -42,7 +42,12 @@ export class DashboardEntryComponent implements OnInit {
     this.authService
       .getMe()
       .pipe(
-        map((user) => user.role),
+        map((user) => {
+          // Mapear role del backend (Admin/Usuario/Tecnico) al frontend (admin/user/manager)
+          const roleRaw = (user.role as string).toLowerCase();
+          const role = roleRaw === 'admin' ? 'admin' : roleRaw === 'tecnico' ? 'manager' : 'user';
+          return role as 'admin' | 'manager' | 'user';
+        }),
         catchError(() => of(this.authService.getUserRole())),
         take(1)
       )
