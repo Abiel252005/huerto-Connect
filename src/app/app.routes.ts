@@ -6,6 +6,8 @@ import { roleCanMatchGuard } from './core/auth/guards/role.guard';
 export const routes: Routes = [
   { path: '', component: HomeComponent },
   { path: 'login', component: LoginComponent },
+  { path: 'auth/login', component: LoginComponent },
+  { path: 'auth', pathMatch: 'full', redirectTo: 'login' },
   {
     path: 'dashboard',
     canMatch: [authGuard],

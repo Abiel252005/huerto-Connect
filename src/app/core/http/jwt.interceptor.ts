@@ -1,4 +1,3 @@
-import { Injectable } from '@angular/core';
 import {
   HttpRequest,
   HttpHandlerFn,
@@ -8,6 +7,7 @@ import {
 import { inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { catchError, throwError } from 'rxjs';
+import { AuthService } from '../auth/services/auth.service';
 
 const AUTH_SESSION_STORAGE_KEY = 'huerto-auth-session';
 
@@ -31,6 +31,7 @@ export const jwtInterceptor: HttpInterceptorFn = (
   next: HttpHandlerFn
 ) => {
   const router = inject(Router);
+  const authService = inject(AuthService);
   const token = getToken();
 
   // Inyectar token si existe y la llamada es a la API
@@ -45,17 +46,15 @@ export const jwtInterceptor: HttpInterceptorFn = (
   return next(request).pipe(
     catchError((error: HttpErrorResponse) => {
       if (error.status === 401) {
-        // Token expirado o inválido — limpiar sesión y redirigir al login
-        window.sessionStorage.removeItem(AUTH_SESSION_STORAGE_KEY);
-        router.navigate(['/auth/login'], {
-          queryParams: { reason: 'session_expired' },
-        });
+        // Token expirado o inválido — limpiar sesión + estado reactivo y redirigir.
+        authService.logoutLocal('session_expired');
       }
 
       if (error.status === 403) {
         // Sin acceso — redirigir
-        router.navigate(['/auth/login'], {
+        router.navigate(['/login'], {
           queryParams: { reason: 'access_denied' },
+          replaceUrl: true,
         });
       }
 

@@ -114,6 +114,8 @@ export interface ResetPasswordResponse {
   message: string;
 }
 
+export type LoginRedirectReason = 'session_expired' | 'access_denied';
+
 // ---- Constants ----
 const SESSION_KEY = 'huerto-auth-session';
 
@@ -315,9 +317,12 @@ export class AuthService {
     );
   }
 
-  logoutLocal(): void {
+  logoutLocal(reason?: LoginRedirectReason): void {
     this._clearSession();
-    this.router.navigate(['/auth/login']);
+    void this.router.navigate(['/login'], {
+      queryParams: reason ? { reason } : {},
+      replaceUrl: true,
+    });
   }
 
   // ----------------------------------------------------------------

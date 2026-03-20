@@ -61,8 +61,10 @@ export class LoginComponent implements OnInit, OnDestroy {
     private readonly route: ActivatedRoute,
     private readonly authService: AuthService
   ) {
-    const isMagicResetFlow = this.isMagicResetFlow(this.route.snapshot.queryParamMap);
-    if (this.authService.isAuthenticated() && !isMagicResetFlow) {
+    const params = this.route.snapshot.queryParamMap;
+    const isMagicResetFlow = this.isMagicResetFlow(params);
+    const hasAuthReason = (params.get('reason') ?? '').trim().length > 0;
+    if (this.authService.isAuthenticated() && !isMagicResetFlow && !hasAuthReason) {
       this.redirectToDashboard(this.authService.getUserRole(), true);
     }
   }
@@ -182,6 +184,7 @@ export class LoginComponent implements OnInit, OnDestroy {
   sprouts: SproutParticle[] = this.createSprouts(90);
 
   ngOnInit() {
+    this.consumeAuthReasonParams();
     this.consumeEmailLinkParams();
   }
 
@@ -221,6 +224,32 @@ export class LoginComponent implements OnInit, OnDestroy {
     }
 
     this.clearEmailLinkQueryParams();
+  }
+
+  private consumeAuthReasonParams() {
+    const params = this.route.snapshot.queryParamMap;
+    if (params.get('source') === 'email-link') {
+      return;
+    }
+
+    const reason = (params.get('reason') ?? '').trim().toLowerCase();
+    if (!reason) {
+      return;
+    }
+
+    this.isRegister = false;
+    this.authStep = 'credentials';
+    this.loginErrorMessage = '';
+
+    if (reason === 'session_expired') {
+      this.loginInfoMessage = 'Tu sesión expiró. Inicia sesión nuevamente para continuar.';
+    } else if (reason === 'access_denied') {
+      this.loginInfoMessage = 'No tienes permisos para acceder con esta sesión.';
+    } else {
+      this.loginInfoMessage = 'Inicia sesión para continuar.';
+    }
+
+    this.clearAuthReasonQueryParam();
   }
 
   toggleMode() {
@@ -1262,6 +1291,15 @@ export class LoginComponent implements OnInit, OnDestroy {
     void this.router.navigate([], {
       relativeTo: this.route,
       queryParams: {},
+      replaceUrl: true
+    });
+  }
+
+  private clearAuthReasonQueryParam() {
+    void this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { reason: null },
+      queryParamsHandling: 'merge',
       replaceUrl: true
     });
   }

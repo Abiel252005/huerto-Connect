@@ -26,16 +26,32 @@ export class AppComponent implements OnInit {
       filter((event): event is NavigationEnd => event instanceof NavigationEnd)
     ).subscribe((event) => {
       const url = event.urlAfterRedirects || event.url;
+      const [path, query = ''] = url.split('?');
+      const reason = new URLSearchParams(query).get('reason');
+      if (
+        path === '/' &&
+        (reason === 'session_expired' || reason === 'access_denied')
+      ) {
+        void this.router.navigate(['/login'], {
+          queryParams: { reason },
+          replaceUrl: true
+        });
+        return;
+      }
+
+      const isLoginRoute = url.startsWith('/login') || url.startsWith('/auth/login');
       const isPrivateDashboardRoute =
         url.startsWith('/admin') ||
         url.startsWith('/user') ||
         url.startsWith('/dashboard');
 
-      this.showChrome = !url.startsWith('/login') && !isPrivateDashboardRoute;
+      this.showChrome = !isLoginRoute && !isPrivateDashboardRoute;
       this.isDashboard = url.startsWith('/admin') || url.startsWith('/user');
 
       // If we are navigating to admin FROM login, show splash again
-      if (this.isDashboard && this.previousUrl.startsWith('/login') && !this.isInitialLoad) {
+      const fromLoginRoute =
+        this.previousUrl.startsWith('/login') || this.previousUrl.startsWith('/auth/login');
+      if (this.isDashboard && fromLoginRoute && !this.isInitialLoad) {
         this.showSplash = true;
         // The dashboard CSS handles the background color, we just reset inline style
         document.body.style.backgroundColor = '';
