@@ -9,6 +9,7 @@ interface UserNavItem {
   label: string;
   icon: string;
   route: string;
+  description: string;
 }
 
 @Component({
@@ -25,10 +26,18 @@ export class UserLayoutComponent implements OnInit {
 
   readonly currentUser$ = this.authService.currentUser$;
   readonly defaultAvatar = 'assets/images/default-avatar.svg';
+  readonly todayLabel = this.formatDate('long');
+  readonly shortDateLabel = this.formatDate('short');
   logoutConfirmVisible = false;
+  sidebarOpen = false;
 
   readonly navItems: UserNavItem[] = [
-    { label: 'Dashboard personal', icon: 'grid-outline', route: '/user/dashboard' }
+    {
+      label: 'Dashboard personal',
+      icon: 'grid-outline',
+      route: '/user/dashboard',
+      description: 'Resumen de estado, alertas y recomendaciones.'
+    }
   ];
 
   ngOnInit(): void {
@@ -57,6 +66,7 @@ export class UserLayoutComponent implements OnInit {
   }
 
   requestLogout(): void {
+    this.closeSidebar();
     this.logoutConfirmVisible = true;
   }
 
@@ -75,5 +85,22 @@ export class UserLayoutComponent implements OnInit {
 
   cancelLogout(): void {
     this.logoutConfirmVisible = false;
+  }
+
+  toggleSidebar(): void {
+    this.sidebarOpen = !this.sidebarOpen;
+  }
+
+  closeSidebar(): void {
+    this.sidebarOpen = false;
+  }
+
+  private formatDate(format: 'long' | 'short'): string {
+    const options = format === 'long'
+      ? ({ weekday: 'long', day: 'numeric', month: 'long' } as const)
+      : ({ day: '2-digit', month: 'short' } as const);
+
+    const value = new Intl.DateTimeFormat('es-MX', options).format(new Date());
+    return value.charAt(0).toUpperCase() + value.slice(1);
   }
 }
