@@ -42,6 +42,7 @@ export class AdminRegionesComponent implements OnInit {
 
   // ── Edit modal state ──
   editVisible = false;
+  isCreateMode = false;
   editData: Record<string, unknown> | null = null;
   readonly editFields: EditField[] = [
     {
@@ -91,6 +92,14 @@ export class AdminRegionesComponent implements OnInit {
 
   readonly actions: ActionDef<Region>[] = [
     {
+      id: 'crear',
+      label: 'Crear',
+      icon: 'add-outline',
+      variant: 'ghost',
+      requiresSelection: false,
+      handler: () => this.crearRegion()
+    },
+    {
       id: 'editar',
       label: 'Editar',
       icon: 'create-outline',
@@ -119,11 +128,7 @@ export class AdminRegionesComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    this.regionesService.getRegiones().subscribe((regiones) => {
-      this.regiones = regiones;
-      this.syncSelectedRegion();
-      this.cdr.markForCheck();
-    });
+    this.loadRegiones();
   }
 
   onSelectedChange(region: Region | null) {
@@ -134,9 +139,23 @@ export class AdminRegionesComponent implements OnInit {
     this.selectedRegion = null;
   }
 
+  private crearRegion() {
+    this.isCreateMode = true;
+    this.editData = {
+      nombre: '',
+      usuarios: 0,
+      huertos: 0,
+      detecciones: 0,
+      actividad: 'Media',
+    };
+    this.editVisible = true;
+    this.cdr.markForCheck();
+  }
+
   // ── Edit ──
   private editarRegion(selected: Region | null) {
     if (!selected) { return; }
+    this.isCreateMode = false;
     this.editData = { ...selected } as unknown as Record<string, unknown>;
     this.editVisible = true;
     this.cdr.markForCheck();
@@ -144,18 +163,44 @@ export class AdminRegionesComponent implements OnInit {
 
   onEditSave(data: Record<string, unknown>) {
     const updated = data as unknown as Region;
-    this.regiones = this.regiones.map((item) =>
-      item.id === updated.id ? { ...item, ...updated } : item
-    );
-    this.editVisible = false;
-    this.editData = null;
-    this.syncSelectedRegion();
-    this.cdr.markForCheck();
-    this.toast.success(`Región "${updated.nombre}" actualizada correctamente`);
+    const creating = this.isCreateMode;
+    const request$ = creating
+      ? this.regionesService.createRegion(updated)
+      : this.regionesService.updateRegion(updated.id, updated);
+
+    request$.subscribe({
+      next: (saved) => {
+        if (creating) {
+          this.regiones = [saved, ...this.regiones];
+        } else {
+          this.regiones = this.regiones.map((item) =>
+            item.id === saved.id ? { ...item, ...saved } : item
+          );
+        }
+        this.editVisible = false;
+        this.isCreateMode = false;
+        this.editData = null;
+        this.syncSelectedRegion();
+        this.cdr.markForCheck();
+        this.toast.success(
+          creating
+            ? `Región "${saved.nombre}" creada correctamente`
+            : `Región "${saved.nombre}" actualizada correctamente`
+        );
+      },
+      error: () => {
+        this.toast.error(
+          creating
+            ? 'No se pudo crear la región en el servidor'
+            : 'No se pudo actualizar la región en el servidor'
+        );
+      },
+    });
   }
 
   onEditCancel() {
     this.editVisible = false;
+    this.isCreateMode = false;
     this.editData = null;
   }
 
@@ -168,12 +213,24 @@ export class AdminRegionesComponent implements OnInit {
     this.confirmIcon = 'flash-outline';
     this.confirmLabel = 'Priorizar';
     this.pendingAction = () => {
-      this.regiones = this.regiones.map((item) =>
-        item.id === selected.id ? { ...item, actividad: 'Alta' } : item
-      );
-      this.syncSelectedRegion();
-      this.cdr.markForCheck();
-      this.toast.success(`Región "${selected.nombre}" priorizada correctamente`);
+      this.regionesService.priorizarRegion(selected.id).subscribe({
+        next: (saved) => {
+          this.regiones = this.regiones.map((item) =>
+            item.id === selected.id
+              ? { ...item, nombre: saved.nombre, actividad: 'Alta' }
+              : item
+          );
+          this.syncSelectedRegion();
+          this.confirmVisible = false;
+          this.cdr.markForCheck();
+          this.toast.success(`Región "${selected.nombre}" priorizada correctamente`);
+        },
+        error: () => {
+          this.confirmVisible = false;
+          this.cdr.markForCheck();
+          this.toast.error('No se pudo priorizar la región en el servidor');
+        },
+      });
     };
     this.confirmVisible = true;
     this.cdr.markForCheck();
@@ -188,22 +245,27 @@ export class AdminRegionesComponent implements OnInit {
     this.confirmIcon = 'trash-outline';
     this.confirmLabel = 'Eliminar';
     this.pendingAction = () => {
-      this.regiones = this.regiones.filter((item) => item.id !== selected.id);
-      this.selectedRegion = null;
-      this.cdr.markForCheck();
-      this.toast.success(`Región "${selected.nombre}" eliminada correctamente`);
+      this.regionesService.deleteRegion(selected.id).subscribe((ok) => {
+        this.confirmVisible = false;
+        if (!ok) {
+          this.cdr.markForCheck();
+          this.toast.error('No se pudo eliminar la región en el servidor');
+          return;
+        }
+        this.regiones = this.regiones.filter((item) => item.id !== selected.id);
+        this.selectedRegion = null;
+        this.cdr.markForCheck();
+        this.toast.success(`Región "${selected.nombre}" eliminada correctamente`);
+      });
     };
     this.confirmVisible = true;
     this.cdr.markForCheck();
   }
 
   onConfirm() {
-    if (this.pendingAction) {
-      this.pendingAction();
-    }
+    const action = this.pendingAction;
     this.pendingAction = null;
-    this.confirmVisible = false;
-    this.cdr.markForCheck();
+    action?.();
   }
 
   onCancelConfirm() {
@@ -214,5 +276,13 @@ export class AdminRegionesComponent implements OnInit {
   private syncSelectedRegion() {
     if (!this.selectedRegion) { return; }
     this.selectedRegion = this.regiones.find((item) => item.id === this.selectedRegion?.id) ?? null;
+  }
+
+  private loadRegiones() {
+    this.regionesService.getRegiones().subscribe((regiones) => {
+      this.regiones = regiones;
+      this.syncSelectedRegion();
+      this.cdr.markForCheck();
+    });
   }
 }

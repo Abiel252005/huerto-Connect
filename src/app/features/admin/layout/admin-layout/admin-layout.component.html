@@ -1,5 +1,16 @@
 <div class="admin-shell" [attr.data-theme]="theme">
   <app-toast-notification></app-toast-notification>
+  <app-confirm-dialog
+    [visible]="logoutConfirmVisible"
+    title="Cerrar sesión"
+    message="¿Seguro que deseas cerrar sesión ahora?"
+    icon="log-out-outline"
+    variant="warning"
+    confirmLabel="Sí, cerrar sesión"
+    cancelLabel="Cancelar"
+    (confirm)="confirmLogout()"
+    (cancel)="cancelLogout()">
+  </app-confirm-dialog>
   <aside class="sidebar">
     <div class="brand">
       <div class="logo"><ion-icon name="leaf-outline"></ion-icon></div>
@@ -31,7 +42,7 @@
         <i class="active-dot" *ngIf="rla.isActive" aria-hidden="true"></i>
       </a>
 
-      <button type="button" class="menu-item menu-logout" (click)="logout()">
+      <button type="button" class="menu-item menu-logout" (click)="requestLogout()">
         <ion-icon name="log-out-outline"></ion-icon>
         <span>Cerrar sesión</span>
       </button>

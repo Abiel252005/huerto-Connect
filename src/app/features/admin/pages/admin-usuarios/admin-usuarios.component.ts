@@ -42,6 +42,7 @@ export class AdminUsuariosComponent implements OnInit {
 
   // ── Edit modal state ──
   editVisible = false;
+  isCreateMode = false;
   editData: Record<string, unknown> | null = null;
   readonly editFields: EditField[] = [
     {
@@ -57,6 +58,13 @@ export class AdminUsuariosComponent implements OnInit {
       type: 'email',
       required: true,
       validation: { kind: 'email' }
+    },
+    {
+      key: 'password',
+      label: 'Contraseña temporal',
+      type: 'text',
+      placeholder: 'Mínimo 6 caracteres (solo para crear)',
+      validation: { kind: 'text', minLength: 6, maxLength: 128, required: false }
     },
     {
       key: 'region',
@@ -107,6 +115,14 @@ export class AdminUsuariosComponent implements OnInit {
 
   readonly actions: ActionDef<Usuario>[] = [
     {
+      id: 'crear',
+      label: 'Crear',
+      icon: 'add-outline',
+      variant: 'ghost',
+      requiresSelection: false,
+      handler: () => this.crearUsuario()
+    },
+    {
       id: 'editar',
       label: 'Editar',
       icon: 'create-outline',
@@ -149,28 +165,76 @@ export class AdminUsuariosComponent implements OnInit {
     this.selectedUsuario = null;
   }
 
+  private crearUsuario() {
+    this.isCreateMode = true;
+    this.editData = {
+      nombre: '',
+      correo: '',
+      password: '',
+      region: '',
+      rol: 'Productor',
+      estado: 'Activo',
+      huertos: 0,
+      ultimaActividad: '',
+    };
+    this.editVisible = true;
+    this.cdr.markForCheck();
+  }
+
   // ── Edit ──
   private editarUsuario(selected: Usuario | null) {
     if (!selected) { return; }
-    this.editData = { ...selected } as unknown as Record<string, unknown>;
+    this.isCreateMode = false;
+    this.editData = { ...selected, password: '' } as unknown as Record<string, unknown>;
     this.editVisible = true;
     this.cdr.markForCheck();
   }
 
   onEditSave(data: Record<string, unknown>) {
+    const creating = this.isCreateMode;
+    const rawPassword = String(data['password'] ?? '');
+    if (creating && rawPassword.trim().length < 6) {
+      this.toast.error('La contraseña temporal debe tener al menos 6 caracteres');
+      return;
+    }
     const updated = data as unknown as Usuario;
-    this.usuarios = this.usuarios.map((item) =>
-      item.id === updated.id ? { ...item, ...updated } : item
-    );
-    this.editVisible = false;
-    this.editData = null;
-    this.syncSelectedUsuario();
-    this.cdr.markForCheck();
-    this.toast.success(`Usuario "${updated.nombre}" actualizado correctamente`);
+    const request$ = creating
+      ? this.usuariosService.createUsuario(data)
+      : this.usuariosService.updateUsuario(updated.id, updated);
+
+    request$.subscribe({
+      next: (saved) => {
+        if (creating) {
+          this.usuarios = [saved, ...this.usuarios];
+        } else {
+          this.usuarios = this.usuarios.map((item) =>
+            item.id === saved.id ? { ...item, ...saved } : item
+          );
+        }
+        this.editVisible = false;
+        this.isCreateMode = false;
+        this.editData = null;
+        this.syncSelectedUsuario();
+        this.cdr.markForCheck();
+        this.toast.success(
+          creating
+            ? `Usuario "${saved.nombre}" creado correctamente`
+            : `Usuario "${saved.nombre}" actualizado correctamente`
+        );
+      },
+      error: () => {
+        this.toast.error(
+          creating
+            ? 'No se pudo crear el usuario en el servidor'
+            : 'No se pudo actualizar el usuario en el servidor'
+        );
+      },
+    });
   }
 
   onEditCancel() {
     this.editVisible = false;
+    this.isCreateMode = false;
     this.editData = null;
   }
 
@@ -186,13 +250,21 @@ export class AdminUsuariosComponent implements OnInit {
 
   onConfirmDelete() {
     if (!this.pendingDeleteId) { return; }
-    const nombre = this.usuarios.find((u) => u.id === this.pendingDeleteId)?.nombre ?? '';
-    this.usuarios = this.usuarios.filter((item) => item.id !== this.pendingDeleteId);
-    this.selectedUsuario = null;
-    this.pendingDeleteId = null;
-    this.confirmVisible = false;
-    this.cdr.markForCheck();
-    this.toast.success(`Usuario "${nombre}" eliminado correctamente`);
+    const deleteId = this.pendingDeleteId;
+    const nombre = this.usuarios.find((u) => u.id === deleteId)?.nombre ?? '';
+    this.usuariosService.deleteUsuario(deleteId).subscribe((ok) => {
+      this.confirmVisible = false;
+      if (!ok) {
+        this.cdr.markForCheck();
+        this.toast.error('No se pudo eliminar el usuario en el servidor');
+        return;
+      }
+      this.usuarios = this.usuarios.filter((item) => item.id !== deleteId);
+      this.selectedUsuario = null;
+      this.pendingDeleteId = null;
+      this.cdr.markForCheck();
+      this.toast.success(`Usuario "${nombre}" eliminado correctamente`);
+    });
   }
 
   onCancelDelete() {

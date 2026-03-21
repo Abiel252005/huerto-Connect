@@ -68,11 +68,11 @@ export class AdminAuditoriaComponent implements OnInit {
     if (!selected) {
       return;
     }
-    console.log('Detalle log', selected.id);
+    // Placeholder para ver detalle
   }
 
   private exportarCsv() {
-    console.log('Exportar auditoria CSV');
+    // Placeholder para exportar CSV
   }
 
   private syncSelectedLog() {

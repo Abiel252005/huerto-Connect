@@ -148,7 +148,6 @@ export class DataService {
     }
 
     sendContactForm(data: ContactData): Observable<boolean> {
-        console.log('Sending contact data to API:', data);
         return of(true).pipe(delay(1500)); // Simulate API call time
     }
 }

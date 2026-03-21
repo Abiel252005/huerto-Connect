@@ -6,8 +6,9 @@ import {
   inject
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { ToastNotificationComponent } from '../../components/toast-notification/toast-notification.component';
+import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
 import { getRoleLabel } from '../../../../core/auth/auth-role.utils';
 import { AuthService, UserRole } from '../../../../core/auth/services/auth.service';
 
@@ -23,7 +24,7 @@ interface NavItem {
 @Component({
   selector: 'app-admin-layout',
   standalone: true,
-  imports: [CommonModule, RouterLink, RouterLinkActive, RouterOutlet, ToastNotificationComponent],
+  imports: [CommonModule, RouterLink, RouterLinkActive, RouterOutlet, ToastNotificationComponent, ConfirmDialogComponent],
   templateUrl: './admin-layout.component.html',
   styleUrls: ['./admin-layout.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -31,11 +32,11 @@ interface NavItem {
 })
 export class AdminLayoutComponent implements OnInit {
   private static readonly THEME_STORAGE_KEY = 'huerto-admin-theme';
-  private readonly router = inject(Router);
   private readonly authService = inject(AuthService);
 
   readonly currentUser$ = this.authService.currentUser$;
   readonly defaultAvatar = 'assets/images/default-avatar.svg';
+  logoutConfirmVisible = false;
 
   theme: 'dark' | 'light' = this.loadTheme();
 
@@ -158,9 +159,25 @@ export class AdminLayoutComponent implements OnInit {
     }
   }
 
-  logout() {
-    this.authService.logout();
-    this.router.navigate(['/login']);
+  requestLogout() {
+    this.logoutConfirmVisible = true;
+  }
+
+  confirmLogout() {
+    this.logoutConfirmVisible = false;
+    this.authService.logout().subscribe({
+      next: () => {
+        this.authService.logoutLocal();
+      },
+      error: () => {
+        // Si la sesión ya venció en backend, limpiamos cliente de todos modos.
+        this.authService.logoutLocal();
+      },
+    });
+  }
+
+  cancelLogout() {
+    this.logoutConfirmVisible = false;
   }
 
   private loadTheme(): 'dark' | 'light' {

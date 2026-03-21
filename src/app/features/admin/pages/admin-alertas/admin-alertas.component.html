@@ -24,7 +24,7 @@
 </section>
 
 <!-- Edit Modal -->
-<app-edit-modal [visible]="editVisible" [title]="'Editar alerta'" [fields]="editFields" [data]="editData"
+<app-edit-modal [visible]="editVisible" [title]="isCreateMode ? 'Crear alerta' : 'Editar alerta'" [fields]="editFields" [data]="editData"
   (save)="onEditSave($event)" (cancel)="onEditCancel()"></app-edit-modal>
 
 <!-- Confirm Dialog -->

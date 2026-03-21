@@ -39,6 +39,7 @@ export class AdminHuertosComponent implements OnInit {
 
   // ── Edit modal state ──
   editVisible = false;
+  isCreateMode = false;
   editData: Record<string, unknown> | null = null;
   readonly editFields: EditField[] = [
     {
@@ -108,6 +109,14 @@ export class AdminHuertosComponent implements OnInit {
 
   readonly actions: ActionDef<Huerto>[] = [
     {
+      id: 'crear',
+      label: 'Crear',
+      icon: 'add-outline',
+      variant: 'ghost',
+      requiresSelection: false,
+      handler: () => this.crearHuerto()
+    },
+    {
       id: 'editar',
       label: 'Editar',
       icon: 'create-outline',
@@ -136,11 +145,7 @@ export class AdminHuertosComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    this.huertosService.getHuertos().subscribe((huertos) => {
-      this.huertos = huertos;
-      this.syncSelectedHuerto();
-      this.cdr.markForCheck();
-    });
+    this.loadHuertos();
   }
 
   onSelectedChange(huerto: Huerto | null) {
@@ -151,9 +156,26 @@ export class AdminHuertosComponent implements OnInit {
     this.selectedHuerto = null;
   }
 
+  private crearHuerto() {
+    this.isCreateMode = true;
+    this.editData = {
+      nombre: '',
+      usuario: '',
+      municipio: '',
+      region: '',
+      cultivosActivos: 0,
+      estado: 'Optimo',
+      salud: 100,
+      alertas: 0,
+    };
+    this.editVisible = true;
+    this.cdr.markForCheck();
+  }
+
   // ── Edit ──
   private editarHuerto(selected: Huerto | null) {
     if (!selected) { return; }
+    this.isCreateMode = false;
     this.editData = { ...selected } as unknown as Record<string, unknown>;
     this.editVisible = true;
     this.cdr.markForCheck();
@@ -161,30 +183,63 @@ export class AdminHuertosComponent implements OnInit {
 
   onEditSave(data: Record<string, unknown>) {
     const updated = data as unknown as Huerto;
-    this.huertos = this.huertos.map((item) =>
-      item.id === updated.id ? { ...item, ...updated } : item
-    );
-    this.editVisible = false;
-    this.editData = null;
-    this.syncSelectedHuerto();
-    this.cdr.markForCheck();
-    this.toast.success(`Huerto "${updated.nombre}" actualizado correctamente`);
+    const creating = this.isCreateMode;
+    const request$ = creating
+      ? this.huertosService.createHuerto(updated)
+      : this.huertosService.updateHuerto(updated.id, updated);
+
+    request$.subscribe({
+      next: (saved) => {
+        if (creating) {
+          this.huertos = [saved, ...this.huertos];
+        } else {
+          this.huertos = this.huertos.map((item) =>
+            item.id === saved.id ? { ...item, ...saved } : item
+          );
+        }
+        this.editVisible = false;
+        this.isCreateMode = false;
+        this.editData = null;
+        this.syncSelectedHuerto();
+        this.cdr.markForCheck();
+        this.toast.success(
+          creating
+            ? `Huerto "${saved.nombre}" creado correctamente`
+            : `Huerto "${saved.nombre}" actualizado correctamente`
+        );
+      },
+      error: () => {
+        this.toast.error(
+          creating
+            ? 'No se pudo crear el huerto en el servidor'
+            : 'No se pudo actualizar el huerto en el servidor'
+        );
+      },
+    });
   }
 
   onEditCancel() {
     this.editVisible = false;
+    this.isCreateMode = false;
     this.editData = null;
   }
 
   // ── Revision ──
   private marcarRevision(selected: Huerto | null) {
     if (!selected) { return; }
-    this.huertos = this.huertos.map((item) =>
-      item.id === selected.id ? { ...item, estado: 'Atencion' } : item
-    );
-    this.syncSelectedHuerto();
-    this.cdr.markForCheck();
-    this.toast.warning(`Huerto "${selected.nombre}" marcado para revisión`);
+    this.huertosService.markHuertoRevision(selected.id).subscribe({
+      next: (saved) => {
+        this.huertos = this.huertos.map((item) =>
+          item.id === selected.id ? { ...item, ...saved } : item
+        );
+        this.syncSelectedHuerto();
+        this.cdr.markForCheck();
+        this.toast.warning(`Huerto "${selected.nombre}" marcado para revisión`);
+      },
+      error: () => {
+        this.toast.error('No se pudo marcar revisión en el servidor');
+      },
+    });
   }
 
   // ── Delete ──
@@ -199,13 +254,20 @@ export class AdminHuertosComponent implements OnInit {
 
   onConfirmDelete() {
     if (!this.pendingDeleteId) { return; }
-    const nombre = this.huertos.find((h) => h.id === this.pendingDeleteId)?.nombre ?? '';
-    this.huertos = this.huertos.filter((item) => item.id !== this.pendingDeleteId);
-    this.selectedHuerto = null;
-    this.pendingDeleteId = null;
-    this.confirmVisible = false;
-    this.cdr.markForCheck();
-    this.toast.success(`Huerto "${nombre}" eliminado correctamente`);
+    const deleteId = this.pendingDeleteId;
+    const nombre = this.huertos.find((h) => h.id === deleteId)?.nombre ?? '';
+    this.huertosService.deleteHuerto(deleteId).subscribe((ok) => {
+      if (!ok) {
+        this.toast.error('No se pudo eliminar el huerto en el servidor');
+        return;
+      }
+      this.huertos = this.huertos.filter((item) => item.id !== deleteId);
+      this.selectedHuerto = null;
+      this.pendingDeleteId = null;
+      this.confirmVisible = false;
+      this.cdr.markForCheck();
+      this.toast.success(`Huerto "${nombre}" eliminado correctamente`);
+    });
   }
 
   onCancelDelete() {
@@ -216,5 +278,13 @@ export class AdminHuertosComponent implements OnInit {
   private syncSelectedHuerto() {
     if (!this.selectedHuerto) { return; }
     this.selectedHuerto = this.huertos.find((item) => item.id === this.selectedHuerto?.id) ?? null;
+  }
+
+  private loadHuertos() {
+    this.huertosService.getHuertos().subscribe((huertos) => {
+      this.huertos = huertos;
+      this.syncSelectedHuerto();
+      this.cdr.markForCheck();
+    });
   }
 }

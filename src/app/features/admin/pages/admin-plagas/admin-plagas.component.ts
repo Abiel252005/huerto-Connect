@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, CUSTOM_ELEMENTS_SCHEMA, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AdminDataTableComponent } from '../../components/admin-data-table/admin-data-table.component';
+import { SelectedActionBarComponent } from '../../components/selected-action-bar/selected-action-bar.component';
 import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
 import { EditModalComponent, EditField } from '../../components/edit-modal/edit-modal.component';
 import { ToastService } from '../../components/toast-notification/toast-notification.component';
@@ -15,6 +16,7 @@ import { PlagasService } from '../../services/plagas.service';
   imports: [
     CommonModule,
     AdminDataTableComponent,
+    SelectedActionBarComponent,
     ConfirmDialogComponent,
     EditModalComponent,
     StatusBadgeComponent
@@ -68,8 +70,15 @@ export class AdminPlagasComponent implements OnInit {
 
   // ── Edit modal state ──
   editVisible = false;
+  isCreateMode = false;
   editData: Record<string, unknown> | null = null;
   readonly editFields: EditField[] = [
+    {
+      key: 'imagenUrl',
+      label: 'URL de imagen',
+      type: 'text',
+      validation: { kind: 'text', minLength: 0, maxLength: 500 }
+    },
     {
       key: 'plaga',
       label: 'Plaga',
@@ -91,8 +100,9 @@ export class AdminPlagasComponent implements OnInit {
     },
     {
       key: 'ubicacion',
-      label: 'Ubicación',
+      label: 'Huerto ID',
       type: 'text',
+      required: true,
       validation: { kind: 'text', minLength: 2, maxLength: 120 }
     },
     {
@@ -127,6 +137,14 @@ export class AdminPlagasComponent implements OnInit {
   ];
 
   readonly actions: ActionDef<PlagaDeteccion>[] = [
+    {
+      id: 'crear',
+      label: 'Crear',
+      icon: 'add-outline',
+      variant: 'ghost',
+      requiresSelection: false,
+      handler: () => this.crearDeteccion()
+    },
     {
       id: 'editar',
       label: 'Editar',
@@ -176,28 +194,72 @@ export class AdminPlagasComponent implements OnInit {
     this.selectedDeteccion = null;
   }
 
+  private crearDeteccion() {
+    this.isCreateMode = true;
+    this.editData = {
+      imagenUrl: '',
+      plaga: '',
+      confianza: 0,
+      cultivo: '',
+      ubicacion: '',
+      fecha: '',
+      severidad: 'Baja',
+      estado: 'Pendiente',
+    };
+    this.editVisible = true;
+    this.cdr.markForCheck();
+  }
+
   // ── Edit ──
   private editarDeteccion(selected: PlagaDeteccion | null) {
     if (!selected) { return; }
+    this.isCreateMode = false;
     this.editData = { ...selected } as unknown as Record<string, unknown>;
     this.editVisible = true;
     this.cdr.markForCheck();
   }
 
   onEditSave(data: Record<string, unknown>) {
-    const updated = this.withMatchedImage(data as unknown as PlagaDeteccion);
-    this.detecciones = this.detecciones.map((item) =>
-      item.id === updated.id ? { ...item, ...updated } : item
-    );
-    this.editVisible = false;
-    this.editData = null;
-    this.syncSelectedDeteccion();
-    this.cdr.markForCheck();
-    this.toast.success(`Detección "${updated.plaga}" actualizada correctamente`);
+    const updated = data as unknown as PlagaDeteccion;
+    const creating = this.isCreateMode;
+    const request$ = creating
+      ? this.plagasService.createDeteccion(updated)
+      : this.plagasService.updateDeteccion(updated.id, updated);
+
+    request$.subscribe({
+      next: (saved) => {
+        const withImage = this.withMatchedImage(saved);
+        if (creating) {
+          this.detecciones = [withImage, ...this.detecciones];
+        } else {
+          this.detecciones = this.detecciones.map((item) =>
+            item.id === withImage.id ? { ...item, ...withImage } : item
+          );
+        }
+        this.editVisible = false;
+        this.isCreateMode = false;
+        this.editData = null;
+        this.syncSelectedDeteccion();
+        this.cdr.markForCheck();
+        this.toast.success(
+          creating
+            ? `Detección "${withImage.plaga}" creada correctamente`
+            : `Detección "${withImage.plaga}" actualizada correctamente`
+        );
+      },
+      error: () => {
+        this.toast.error(
+          creating
+            ? 'No se pudo crear la detección en el servidor'
+            : 'No se pudo actualizar la detección en el servidor'
+        );
+      },
+    });
   }
 
   onEditCancel() {
     this.editVisible = false;
+    this.isCreateMode = false;
     this.editData = null;
   }
 

@@ -1,8 +1,9 @@
 import { CUSTOM_ELEMENTS_SCHEMA, ChangeDetectionStrategy, Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { AuthService, UserRole } from '../../../../core/auth/services/auth.service';
 import { getRoleLabel } from '../../../../core/auth/auth-role.utils';
+import { ConfirmDialogComponent } from '../../../admin/components/confirm-dialog/confirm-dialog.component';
 
 interface UserNavItem {
   label: string;
@@ -13,7 +14,7 @@ interface UserNavItem {
 @Component({
   selector: 'app-user-layout',
   standalone: true,
-  imports: [CommonModule, RouterLink, RouterLinkActive, RouterOutlet],
+  imports: [CommonModule, RouterLink, RouterLinkActive, RouterOutlet, ConfirmDialogComponent],
   templateUrl: './user-layout.component.html',
   styleUrls: ['./user-layout.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -21,10 +22,10 @@ interface UserNavItem {
 })
 export class UserLayoutComponent implements OnInit {
   private readonly authService = inject(AuthService);
-  private readonly router = inject(Router);
 
   readonly currentUser$ = this.authService.currentUser$;
   readonly defaultAvatar = 'assets/images/default-avatar.svg';
+  logoutConfirmVisible = false;
 
   readonly navItems: UserNavItem[] = [
     { label: 'Dashboard personal', icon: 'grid-outline', route: '/user/dashboard' }
@@ -55,8 +56,24 @@ export class UserLayoutComponent implements OnInit {
     target.src = this.defaultAvatar;
   }
 
-  logout(): void {
-    this.authService.logout();
-    void this.router.navigate(['/login']);
+  requestLogout(): void {
+    this.logoutConfirmVisible = true;
+  }
+
+  confirmLogout(): void {
+    this.logoutConfirmVisible = false;
+    this.authService.logout().subscribe({
+      next: () => {
+        this.authService.logoutLocal();
+      },
+      error: () => {
+        // Si backend responde 401/403, limpiamos sesión local igual.
+        this.authService.logoutLocal();
+      },
+    });
+  }
+
+  cancelLogout(): void {
+    this.logoutConfirmVisible = false;
   }
 }

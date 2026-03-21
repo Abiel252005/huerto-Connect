@@ -66,7 +66,7 @@ export class AdminIntegracionesComponent implements OnInit {
     if (!selected) {
       return;
     }
-    console.log('Configurar integracion', selected.nombre);
+    // Placeholder para configurar
   }
 
   private toggleEstado(selected: IntegracionItem | null) {

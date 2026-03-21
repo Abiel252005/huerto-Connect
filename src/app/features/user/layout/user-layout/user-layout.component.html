@@ -1,4 +1,15 @@
 <div class="user-shell">
+  <app-confirm-dialog
+    [visible]="logoutConfirmVisible"
+    title="Cerrar sesión"
+    message="¿Seguro que deseas cerrar sesión ahora?"
+    icon="log-out-outline"
+    variant="warning"
+    confirmLabel="Sí, cerrar sesión"
+    cancelLabel="Cancelar"
+    (confirm)="confirmLogout()"
+    (cancel)="cancelLogout()">
+  </app-confirm-dialog>
   <aside class="sidebar">
     <div class="brand">
       <div class="logo"><ion-icon name="leaf-outline"></ion-icon></div>
@@ -31,7 +42,7 @@
         <span>{{ item.label }}</span>
       </a>
 
-      <button type="button" class="menu-item logout" (click)="logout()">
+      <button type="button" class="menu-item logout" (click)="requestLogout()">
         <ion-icon name="log-out-outline"></ion-icon>
         <span>Cerrar sesion</span>
       </button>

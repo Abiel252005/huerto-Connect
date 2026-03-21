@@ -24,7 +24,7 @@
 </div>
 
 <!-- Edit Modal -->
-<app-edit-modal [visible]="editVisible" [title]="'Editar región'" [fields]="editFields" [data]="editData"
+<app-edit-modal [visible]="editVisible" [title]="isCreateMode ? 'Crear región' : 'Editar región'" [fields]="editFields" [data]="editData"
   (save)="onEditSave($event)" (cancel)="onEditCancel()"></app-edit-modal>
 
 <!-- Confirm Dialog -->

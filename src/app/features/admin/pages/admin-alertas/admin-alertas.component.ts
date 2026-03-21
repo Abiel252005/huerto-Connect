@@ -42,6 +42,7 @@ export class AdminAlertasComponent implements OnInit {
 
   // ── Edit modal state ──
   editVisible = false;
+  isCreateMode = false;
   editData: Record<string, unknown> | null = null;
   readonly editFields: EditField[] = [
     {
@@ -77,8 +78,9 @@ export class AdminAlertasComponent implements OnInit {
     },
     {
       key: 'region',
-      label: 'Región',
+      label: 'Huerto ID',
       type: 'text',
+      required: true,
       validation: { kind: 'text', minLength: 2, maxLength: 80 }
     },
     {
@@ -101,6 +103,14 @@ export class AdminAlertasComponent implements OnInit {
   ];
 
   readonly actions: ActionDef<Alerta>[] = [
+    {
+      id: 'crear',
+      label: 'Crear',
+      icon: 'add-outline',
+      variant: 'ghost',
+      requiresSelection: false,
+      handler: () => this.crearAlerta()
+    },
     {
       id: 'editar',
       label: 'Editar',
@@ -145,9 +155,24 @@ export class AdminAlertasComponent implements OnInit {
     this.selectedAlerta = null;
   }
 
+  private crearAlerta() {
+    this.isCreateMode = true;
+    this.editData = {
+      titulo: '',
+      tipo: 'Sistema',
+      severidad: 'Advertencia',
+      estado: 'Abierta',
+      region: '',
+      responsable: '',
+    };
+    this.editVisible = true;
+    this.cdr.markForCheck();
+  }
+
   // ── Edit ──
   private editarAlerta(selected: Alerta | null) {
     if (!selected) { return; }
+    this.isCreateMode = false;
     this.editData = { ...selected } as unknown as Record<string, unknown>;
     this.editVisible = true;
     this.cdr.markForCheck();
@@ -155,18 +180,44 @@ export class AdminAlertasComponent implements OnInit {
 
   onEditSave(data: Record<string, unknown>) {
     const updated = data as unknown as Alerta;
-    this.alertas = this.alertas.map((item) =>
-      item.id === updated.id ? { ...item, ...updated } : item
-    );
-    this.editVisible = false;
-    this.editData = null;
-    this.syncSelectedAlerta();
-    this.cdr.markForCheck();
-    this.toast.success(`Alerta "${updated.titulo}" actualizada correctamente`);
+    const creating = this.isCreateMode;
+    const request$ = creating
+      ? this.alertasService.createAlerta(updated)
+      : this.alertasService.updateAlerta(updated.id, updated);
+
+    request$.subscribe({
+      next: (saved) => {
+        if (creating) {
+          this.alertas = [saved, ...this.alertas];
+        } else {
+          this.alertas = this.alertas.map((item) =>
+            item.id === saved.id ? { ...item, ...saved } : item
+          );
+        }
+        this.editVisible = false;
+        this.isCreateMode = false;
+        this.editData = null;
+        this.syncSelectedAlerta();
+        this.cdr.markForCheck();
+        this.toast.success(
+          creating
+            ? `Alerta "${saved.titulo}" creada correctamente`
+            : `Alerta "${saved.titulo}" actualizada correctamente`
+        );
+      },
+      error: () => {
+        this.toast.error(
+          creating
+            ? 'No se pudo crear la alerta en el servidor'
+            : 'No se pudo actualizar la alerta en el servidor'
+        );
+      },
+    });
   }
 
   onEditCancel() {
     this.editVisible = false;
+    this.isCreateMode = false;
     this.editData = null;
   }
 
@@ -203,10 +254,17 @@ export class AdminAlertasComponent implements OnInit {
     this.confirmIcon = 'trash-outline';
     this.confirmLabel = 'Eliminar';
     this.pendingAction = () => {
-      this.alertas = this.alertas.filter((item) => item.id !== selected.id);
-      this.selectedAlerta = null;
-      this.cdr.markForCheck();
-      this.toast.success(`Alerta "${selected.titulo}" eliminada correctamente`);
+      this.alertasService.deleteAlerta(selected.id).subscribe((ok) => {
+        if (!ok) {
+          this.cdr.markForCheck();
+          this.toast.error('No se pudo eliminar la alerta en el servidor');
+          return;
+        }
+        this.alertas = this.alertas.filter((item) => item.id !== selected.id);
+        this.selectedAlerta = null;
+        this.cdr.markForCheck();
+        this.toast.success(`Alerta "${selected.titulo}" eliminada correctamente`);
+      });
     };
     this.confirmVisible = true;
     this.cdr.markForCheck();

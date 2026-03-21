@@ -27,7 +27,7 @@
 </section>
 
 <!-- Edit Modal -->
-<app-edit-modal [visible]="editVisible" [title]="'Editar usuario'" [fields]="editFields" [data]="editData"
+<app-edit-modal [visible]="editVisible" [title]="isCreateMode ? 'Crear usuario' : 'Editar usuario'" [fields]="editFields" [data]="editData"
   (save)="onEditSave($event)" (cancel)="onEditCancel()"></app-edit-modal>
 
 <!-- Confirm Delete Dialog -->

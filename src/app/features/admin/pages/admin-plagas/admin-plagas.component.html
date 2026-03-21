@@ -4,6 +4,16 @@
     <small>Revision de imagenes, confianza y feedback al modelo</small>
   </header>
 
+  <app-selected-action-bar [title]="'Detección seleccionada'" [selected]="selectedDeteccion" [actions]="actions"
+    [summaryTemplate]="deteccionSummary" (clearSelection)="clearSelection()"></app-selected-action-bar>
+
+  <ng-template #deteccionSummary let-deteccion>
+    <p>
+      {{ deteccion.plaga }} · {{ deteccion.ubicacion }} · Confianza:
+      {{ deteccion.confianza }}% · Estado: {{ deteccion.estado }}
+    </p>
+  </ng-template>
+
   <app-admin-data-table [rows]="detecciones" [columns]="columns" [selected]="selectedDeteccion"
     [rowIdentity]="rowIdentity" [emptyMessage]="'No hay detecciones disponibles.'"
     (selectedChange)="onSelectedChange($event)">
@@ -22,7 +32,7 @@
 </section>
 
 <!-- Edit Modal -->
-<app-edit-modal [visible]="editVisible" [title]="'Editar detección'" [fields]="editFields" [data]="editData"
+<app-edit-modal [visible]="editVisible" [title]="isCreateMode ? 'Crear detección' : 'Editar detección'" [fields]="editFields" [data]="editData"
   (save)="onEditSave($event)" (cancel)="onEditCancel()"></app-edit-modal>
 
 <!-- Confirm Dialog -->

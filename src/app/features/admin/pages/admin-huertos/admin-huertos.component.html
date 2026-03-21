@@ -31,7 +31,7 @@
 </section>
 
 <!-- Edit Modal -->
-<app-edit-modal [visible]="editVisible" [title]="'Editar huerto'" [fields]="editFields" [data]="editData"
+<app-edit-modal [visible]="editVisible" [title]="isCreateMode ? 'Crear huerto' : 'Editar huerto'" [fields]="editFields" [data]="editData"
   (save)="onEditSave($event)" (cancel)="onEditCancel()"></app-edit-modal>
 
 <!-- Confirm Delete Dialog -->

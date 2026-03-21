@@ -19,3 +19,6 @@
     </ng-template>
   </app-admin-data-table>
 </section>
+
+<app-edit-modal [visible]="editVisible" [title]="isCreateMode ? 'Crear reporte' : 'Editar reporte'" [fields]="editFields"
+  [data]="editData" (save)="onEditSave($event)" (cancel)="onEditCancel()"></app-edit-modal>
