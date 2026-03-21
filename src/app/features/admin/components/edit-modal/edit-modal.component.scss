@@ -193,7 +193,7 @@ select.form-control {
 
 .checkbox-wrap input[type='checkbox']:checked::after {
     content: '✓';
-    color: var(--admin-btn-main-text);
+    color: #f3fff9;
     font-size: 11px;
     font-weight: 700;
 }
@@ -240,22 +240,26 @@ select.form-control {
 }
 
 .btn-save {
-    border: 1px solid color-mix(in srgb, var(--admin-accent) 36%, transparent);
-    background: linear-gradient(130deg, var(--admin-accent), var(--admin-accent-2));
-    color: var(--admin-btn-main-text);
-    box-shadow: 0 4px 18px color-mix(in srgb, var(--admin-accent) 18%, transparent);
+    border: 1px solid #133830;
+    background: linear-gradient(135deg, #235347, #173831);
+    color: #f4fff9;
+    box-shadow: 0 6px 20px rgba(19, 56, 48, 0.3);
 }
 
 .btn-save:hover {
     transform: translateY(-1px);
-    box-shadow: 0 6px 24px color-mix(in srgb, var(--admin-accent) 28%, transparent);
+    box-shadow: 0 10px 26px rgba(19, 56, 48, 0.4);
 }
 
 .btn-save:disabled {
-    opacity: 0.55;
+    opacity: 1;
+    border-color: #365e55;
+    background: linear-gradient(135deg, #4f7169, #44645d);
+    color: #e9f5ef;
     cursor: not-allowed;
     transform: none;
     box-shadow: none;
+    filter: none;
 }
 
 .btn-cancel:active,

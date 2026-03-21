@@ -1,5 +1,7 @@
-import { Injectable } from '@angular/core';
-import { Observable, of, delay } from 'rxjs';
+import { Injectable, inject } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable, of, delay, map, catchError } from 'rxjs';
+import { environment } from '../../../environments/environment';
 
 export interface Testimonial {
     name: string;
@@ -44,6 +46,8 @@ export interface HeaderLink {
     providedIn: 'root'
 })
 export class DataService {
+    private readonly http = inject(HttpClient);
+    private readonly publicBase = `${environment.apiUrl}/api/public`;
 
     constructor() { }
 
@@ -148,6 +152,19 @@ export class DataService {
     }
 
     sendContactForm(data: ContactData): Observable<boolean> {
-        return of(true).pipe(delay(1500)); // Simulate API call time
+        const payload = {
+            nombre: data.name,
+            email: data.email,
+            telefono: data.phone ?? '',
+            mensaje: data.message
+        };
+
+        return this.http.post(`${this.publicBase}/contacto`, payload).pipe(
+            map(() => true),
+            catchError((error) => {
+                console.error('Error sending contact form:', error);
+                return of(false);
+            })
+        );
     }
 }

@@ -1,9 +1,8 @@
 <app-splash-screen *ngIf="showSplash" (splashComplete)="onSplashComplete()"></app-splash-screen>
 
-<!-- Header/Footer only on landing pages (not login/admin) -->
-<app-header *ngIf="!showSplash && showChrome"></app-header>
-
 <div class="page-content" [class.page-visible]="!showSplash || isDashboard">
+  <!-- Header/Footer only on landing pages (not login/admin) -->
+  <app-header *ngIf="!showSplash && showChrome"></app-header>
   <main>
     <router-outlet></router-outlet>
   </main>
