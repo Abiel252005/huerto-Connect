@@ -1,12 +1,20 @@
-import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable, of, forkJoin } from 'rxjs';
-import { catchError, map } from 'rxjs/operators';
-import { AuthService } from '../../../core/auth/services/auth.service';
-import { environment } from '../../../../environments/environment';
+import { catchError, map, switchMap } from 'rxjs/operators';
+import { HuertosService } from '../../../core/services/huertos.service';
+import { PlagasService } from '../../../core/services/plagas.service';
+import { CultivosService } from '../../../core/services/cultivos.service';
+import { ChatbotService } from '../../../core/services/chatbot.service';
+import { RegionesService } from '../../../core/services/regiones.service';
 import {
-  Huerto as ApiHuerto,
   Alerta as ApiAlerta,
+  ChatConversacion as ApiChatConversacion,
+  ChatMensaje as ApiChatMensaje,
+  Cultivo as ApiCultivo,
+  Huerto as ApiHuerto,
+  Prediccion as ApiPrediccion,
+  Region as ApiRegion,
+  Siembra as ApiSiembra,
 } from '../../../core/models/api.models';
 
 export interface UserHuerto {
@@ -54,50 +62,91 @@ export interface UserDashboardData {
 
 @Injectable({ providedIn: 'root' })
 export class UserDashboardService {
-  private readonly http = inject(HttpClient);
-  private readonly authService = inject(AuthService);
-  private readonly base = environment.apiUrl;
+  private readonly huertosService = inject(HuertosService);
+  private readonly plagasService = inject(PlagasService);
+  private readonly cultivosService = inject(CultivosService);
+  private readonly chatbotService = inject(ChatbotService);
+  private readonly regionesService = inject(RegionesService);
 
   getDashboardData(): Observable<UserDashboardData> {
     return forkJoin({
-      huertos: this.http.get<ApiHuerto[]>(`${this.base}/api/huertos`).pipe(catchError(() => of([]))),
-      alertas: this.http.get<ApiAlerta[]>(`${this.base}/api/alertas`).pipe(catchError(() => of([]))),
+      huertos: this.huertosService.list().pipe(catchError(() => of([]))),
+      alertas: this.plagasService.getAlertas().pipe(catchError(() => of([]))),
+      predicciones: this.plagasService.getPredicciones().pipe(catchError(() => of([]))),
+      conversaciones: this.chatbotService.getConversaciones().pipe(catchError(() => of([]))),
+      cultivos: this.cultivosService.list().pipe(catchError(() => of([]))),
+      regiones: this.regionesService.list().pipe(catchError(() => of([]))),
     }).pipe(
-      map(({ huertos, alertas }) => {
-        const mappedHuertos = huertos.map((h) => this.toUserHuerto(h));
-        const mappedAlertas = alertas
-          .map((a) => this.toUserAlert(a))
-          .sort((a, b) => this.toTime(b.fecha) - this.toTime(a.fecha))
-          .slice(0, 6);
+      switchMap((sources) => {
+        if (sources.huertos.length === 0) {
+          return of(this.buildDashboardData(sources, new Map<string, ApiSiembra[]>()));
+        }
 
-        return {
-          huertos: mappedHuertos,
-          alertas: mappedAlertas,
-          recomendaciones: this.generateRecommendations(mappedHuertos, mappedAlertas),
-          historial: this.generateHistory(mappedHuertos),
-          estadisticas: this.generateStats(mappedHuertos),
-        };
+        const siembraRequests = sources.huertos.map((huerto) =>
+          this.cultivosService.getSiembrasByHuerto(huerto.id).pipe(
+            catchError(() => of([] as ApiSiembra[])),
+            map((siembras) => ({ huertoId: huerto.id, siembras }))
+          )
+        );
+
+        return forkJoin(siembraRequests).pipe(
+          map((entries) => {
+            const siembrasByHuerto = new Map<string, ApiSiembra[]>(
+              entries.map((entry) => [entry.huertoId, entry.siembras])
+            );
+            return this.buildDashboardData(sources, siembrasByHuerto);
+          })
+        );
       }),
-      catchError(() =>
-        of({
-          huertos: [],
-          alertas: [],
-          recomendaciones: [],
-          historial: [],
-          estadisticas: [],
-        })
-      )
+      catchError(() => of(this.emptyDashboardData()))
     );
   }
 
   getMyHuertos(): Observable<UserHuerto[]> {
-    return this.http.get<ApiHuerto[]>(`${this.base}/api/huertos`).pipe(
-      map((items) => items.map((h) => this.toUserHuerto(h))),
+    return this.huertosService.list().pipe(
+      map((items) => items.map((h) => this.toUserHuerto(h, h.municipio || 'Region sin asignar', 0))),
       catchError(() => of([]))
     );
   }
 
-  private toUserHuerto(h: ApiHuerto): UserHuerto {
+  private buildDashboardData(
+    sources: {
+      huertos: ApiHuerto[];
+      alertas: ApiAlerta[];
+      predicciones: ApiPrediccion[];
+      conversaciones: ApiChatConversacion[];
+      cultivos: ApiCultivo[];
+      regiones: ApiRegion[];
+    },
+    siembrasByHuerto: Map<string, ApiSiembra[]>
+  ): UserDashboardData {
+    const regionNameById = new Map<string, string>();
+    sources.regiones.forEach((region) => {
+      regionNameById.set(region.id, region.nombre);
+    });
+
+    const mappedHuertos = sources.huertos.map((huerto) => {
+      const regionName = huerto.region_id ? regionNameById.get(huerto.region_id) : undefined;
+      const fallbackRegion = huerto.municipio || 'Region sin asignar';
+      const cultivosActivos = siembrasByHuerto.get(huerto.id)?.length ?? 0;
+      return this.toUserHuerto(huerto, regionName || fallbackRegion, cultivosActivos);
+    });
+
+    const mappedAlertas = [...sources.alertas]
+      .sort((a, b) => this.toTime(b.created_at) - this.toTime(a.created_at))
+      .slice(0, 6)
+      .map((alerta) => this.toUserAlert(alerta));
+
+    return {
+      huertos: mappedHuertos,
+      alertas: mappedAlertas,
+      recomendaciones: this.buildRecommendations(sources.predicciones, sources.conversaciones),
+      historial: this.buildHistory(siembrasByHuerto, mappedHuertos, sources.cultivos),
+      estadisticas: this.buildGrowthStats(sources.huertos),
+    };
+  }
+
+  private toUserHuerto(h: ApiHuerto, regionName: string, cultivosActivos: number): UserHuerto {
     const estado = h.estado?.toLowerCase();
     let mappedEstado: 'Optimo' | 'Atencion' | 'Critico' = 'Optimo';
     if (estado?.includes('crit')) mappedEstado = 'Critico';
@@ -106,9 +155,9 @@ export class UserDashboardService {
     return {
       id: h.id,
       nombre: h.nombre,
-      region: h.region_id || h.municipio || 'Region sin asignar',
+      region: regionName,
       estado: mappedEstado,
-      cultivosActivos: Math.max(1, Math.round((h.salud ?? 55) / 20)),
+      cultivosActivos,
       salud: h.salud ?? 100,
     };
   }
@@ -127,91 +176,215 @@ export class UserDashboardService {
     };
   }
 
-  private generateStats(huertos: UserHuerto[]): UserGrowthStat[] {
-    if (huertos.length === 0) {
-      return [];
+  private buildRecommendations(
+    predicciones: ApiPrediccion[],
+    conversaciones: ApiChatConversacion[]
+  ): UserChatRecommendation[] {
+    const fromPredicciones: UserChatRecommendation[] = [...predicciones]
+      .filter((item) => !!item.recomendacion)
+      .sort((a, b) => (b.probabilidad ?? 0) - (a.probabilidad ?? 0))
+      .slice(0, 4)
+      .map((item, index) => ({
+        id: `pred-${item.id}`,
+        tema: this.predictionTopic(item, index),
+        recomendacion: this.cleanText(item.recomendacion ?? ''),
+      }));
+
+    if (fromPredicciones.length >= 4) {
+      return fromPredicciones;
     }
 
-    const avg = Math.round(huertos.reduce((acc, item) => acc + item.salud, 0) / huertos.length);
-    const labels = ['Sem 1', 'Sem 2', 'Sem 3', 'Sem 4', 'Sem 5'];
-
-    return labels.map((label, index) => {
-      const reference = huertos[index % huertos.length];
-      const rawValue = Math.round(reference.salud * 0.62 + avg * 0.38 + (index - 2) * 3);
-
-      return {
-        label,
-        value: this.clamp(rawValue, 20, 100)
-      };
-    });
-  }
-
-  private generateRecommendations(huertos: UserHuerto[], alertas: UserPestAlert[]): UserChatRecommendation[] {
-    const result: UserChatRecommendation[] = [];
-    const criticAlert = alertas.find((item) => item.severidad === 'Critico');
-    const warningHuerto = huertos.find((item) => item.estado !== 'Optimo');
-    const bestHuerto = huertos.reduce<UserHuerto | null>((best, current) => {
-      if (!best || current.salud > best.salud) {
-        return current;
+    const fromChat = this.extractChatRecommendations(conversaciones);
+    const all = [...fromPredicciones, ...fromChat];
+    const seen = new Set<string>();
+    return all.filter((item) => {
+      const key = `${item.tema}|${item.recomendacion}`;
+      if (seen.has(key)) {
+        return false;
       }
-      return best;
-    }, null);
-
-    if (criticAlert) {
-      result.push({
-        id: `rec-alert-${criticAlert.id}`,
-        tema: 'Atiende alerta critica',
-        recomendacion: `Prioriza la alerta "${criticAlert.titulo}" y confirma inspeccion antes de finalizar el dia.`
-      });
-    }
-
-    if (warningHuerto) {
-      result.push({
-        id: `rec-huerto-${warningHuerto.id}`,
-        tema: 'Ajuste preventivo de huerto',
-        recomendacion: `Realiza revision de humedad y nutrientes en ${warningHuerto.nombre} para recuperar su salud.`
-      });
-    }
-
-    if (bestHuerto) {
-      result.push({
-        id: `rec-best-${bestHuerto.id}`,
-        tema: 'Replicar buenas practicas',
-        recomendacion: `Documenta el manejo aplicado en ${bestHuerto.nombre} y reutilizalo en el resto de huertos.`
-      });
-    }
-
-    result.push({
-      id: 'rec-routine',
-      tema: 'Rutina diaria recomendada',
-      recomendacion: 'Verifica riego temprano, registra observaciones y cierra el dia con seguimiento de alertas pendientes.'
-    });
-
-    return result.slice(0, 4);
+      seen.add(key);
+      return true;
+    }).slice(0, 4);
   }
 
-  private generateHistory(huertos: UserHuerto[]): UserCropHistoryItem[] {
-    const cultivos = ['Tomate saladette', 'Chile jalapeno', 'Pepino', 'Calabaza', 'Lechuga romana'];
-    const temporadas = ['Primavera 2026', 'Invierno 2025', 'Otono 2025', 'Verano 2025'];
+  private extractChatRecommendations(conversaciones: ApiChatConversacion[]): UserChatRecommendation[] {
+    const ordered = [...conversaciones].sort(
+      (a, b) => this.toTime(b.actualizada_at ?? b.creada_at) - this.toTime(a.actualizada_at ?? a.creada_at)
+    );
 
-    return huertos.slice(0, 5).map((huerto, index) => {
-      const estado = huerto.salud >= 85
-        ? 'Produccion estable'
-        : huerto.salud >= 65
-          ? 'Seguimiento activo'
-          : 'Recuperacion programada';
+    const recommendations: UserChatRecommendation[] = [];
+    for (const conversation of ordered) {
+      const assistantMessage = this.pickAssistantMessage(conversation.mensajes ?? []);
+      if (!assistantMessage) {
+        continue;
+      }
 
-      return {
-        id: `hist-${huerto.id}`,
-        cultivo: cultivos[index % cultivos.length],
-        huerto: huerto.nombre,
-        temporada: temporadas[index % temporadas.length],
-        estado,
-      };
-    });
+      recommendations.push({
+        id: `chat-${conversation.id}`,
+        tema: this.inferTopic(assistantMessage),
+        recomendacion: this.toSummary(assistantMessage)
+      });
+    }
+
+    return recommendations.slice(0, 4);
   }
 
-  private toTime(value: string): number {
+  private buildHistory(
+    siembrasByHuerto: Map<string, ApiSiembra[]>,
+    huertos: UserHuerto[],
+    cultivos: ApiCultivo[]
+  ): UserCropHistoryItem[] {
+    const cultivoById = new Map<string, string>();
+    cultivos.forEach((item) => {
+      cultivoById.set(item.id, item.nombre);
+    });
+
+    const huertoById = new Map<string, string>();
+    huertos.forEach((item) => {
+      huertoById.set(item.id, item.nombre);
+    });
+
+    const historySource: Array<{ huertoId: string; siembra: ApiSiembra }> = [];
+    siembrasByHuerto.forEach((siembras, huertoId) => {
+      siembras.forEach((siembra) => {
+        historySource.push({ huertoId, siembra });
+      });
+    });
+
+    return historySource
+      .sort((a, b) => this.toTime(b.siembra.fecha_siembra) - this.toTime(a.siembra.fecha_siembra))
+      .slice(0, 10)
+      .map(({ huertoId, siembra }) => ({
+        id: siembra.id,
+        cultivo: cultivoById.get(siembra.cultivo_id) ?? 'Cultivo sin catalogo',
+        huerto: huertoById.get(huertoId) ?? 'Huerto sin nombre',
+        temporada: this.toSeasonLabel(siembra.fecha_siembra),
+        estado: this.mapSiembraStatus(siembra.estado),
+      }));
+  }
+
+  private buildGrowthStats(huertos: ApiHuerto[]): UserGrowthStat[] {
+    return [...huertos]
+      .sort((a, b) => this.toTime(a.created_at) - this.toTime(b.created_at))
+      .slice(-5)
+      .map((huerto, index) => ({
+        label: this.toShortLabel(huerto.nombre, index),
+        value: this.clamp(huerto.salud ?? 0, 0, 100),
+      }));
+  }
+
+  private predictionTopic(prediccion: ApiPrediccion, index: number): string {
+    const confidence = prediccion.probabilidad != null
+      ? ` (${Math.round(prediccion.probabilidad)}%)`
+      : '';
+
+    if (prediccion.plaga_id) {
+      return `Prevencion de plagas${confidence}`;
+    }
+    if (prediccion.cultivo_id) {
+      return `Recomendacion de cultivo${confidence}`;
+    }
+    if (prediccion.huerto_id) {
+      return `Accion sugerida por huerto${confidence}`;
+    }
+    return `Sugerencia IA #${index + 1}${confidence}`;
+  }
+
+  private pickAssistantMessage(messages: ApiChatMensaje[]): string | null {
+    for (let index = messages.length - 1; index >= 0; index--) {
+      const message = messages[index];
+      const content = this.cleanText(message?.contenido ?? '');
+      if (message?.rol === 'assistant' && content.length > 16) {
+        return content;
+      }
+    }
+    return null;
+  }
+
+  private inferTopic(text: string): string {
+    const normalized = text.toLowerCase();
+    if (normalized.includes('plaga') || normalized.includes('hongo') || normalized.includes('insecto')) {
+      return 'Prevencion de plagas';
+    }
+    if (normalized.includes('riego') || normalized.includes('humedad') || normalized.includes('agua')) {
+      return 'Ajuste de riego';
+    }
+    if (normalized.includes('fertiliz') || normalized.includes('nutri')) {
+      return 'Nutricion de cultivo';
+    }
+    return 'Recomendacion del asistente';
+  }
+
+  private toSummary(text: string): string {
+    const sentence = text.split(/[.!?]/).find((part) => part.trim().length > 16);
+    if (!sentence) {
+      return text.slice(0, 220);
+    }
+    return sentence.trim();
+  }
+
+  private mapSiembraStatus(value: string | undefined): string {
+    const normalized = (value ?? '').toLowerCase();
+    if (normalized.includes('cosech')) {
+      return 'Cosechado';
+    }
+    if (normalized.includes('perd')) {
+      return 'Perdido';
+    }
+    if (normalized.includes('activ')) {
+      return 'Activo';
+    }
+    return value || 'Registrado';
+  }
+
+  private toSeasonLabel(value: string | undefined): string {
+    if (!value) {
+      return 'Sin fecha';
+    }
+
+    const parsed = new Date(value);
+    if (Number.isNaN(parsed.getTime())) {
+      return 'Sin fecha';
+    }
+
+    const month = parsed.getMonth() + 1;
+    const year = parsed.getFullYear();
+
+    if (month === 12 || month <= 2) {
+      return `Invierno ${year}`;
+    }
+    if (month <= 5) {
+      return `Primavera ${year}`;
+    }
+    if (month <= 8) {
+      return `Verano ${year}`;
+    }
+    return `Otono ${year}`;
+  }
+
+  private toShortLabel(name: string, index: number): string {
+    const clean = (name || '').trim();
+    if (!clean) {
+      return `H${index + 1}`;
+    }
+    return clean.length <= 8 ? clean : `${clean.slice(0, 7)}...`;
+  }
+
+  private emptyDashboardData(): UserDashboardData {
+    return {
+      huertos: [],
+      alertas: [],
+      recomendaciones: [],
+      historial: [],
+      estadisticas: [],
+    };
+  }
+
+  private cleanText(value: string): string {
+    return value.replace(/\s+/g, ' ').trim();
+  }
+
+  private toTime(value: string | undefined | null): number {
     if (!value) {
       return 0;
     }

@@ -155,11 +155,18 @@ export interface Notificacion {
   usuario_id: string;
   titulo: string;
   mensaje: string;
-  tipo: 'info' | 'alerta' | 'error' | 'exito';
+  tipo: 'info' | 'alerta' | 'error' | 'exito' | 'warning';
   leida: boolean;
   referencia_id?: string | null;
   referencia_tipo?: string | null;
   fecha: string | null;
+}
+
+export interface NotificacionesResumen {
+  total: number;
+  no_leidas: number;
+  leidas: number;
+  por_tipo: Record<string, number>;
 }
 
 // ============================================================

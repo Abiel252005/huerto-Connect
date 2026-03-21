@@ -1,16 +1,24 @@
 import {
   CUSTOM_ELEMENTS_SCHEMA,
   ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
+  DestroyRef,
+  HostListener,
   OnInit,
   inject
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { switchMap, timer } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ToastNotificationComponent } from '../../components/toast-notification/toast-notification.component';
+import { ToastService } from '../../components/toast-notification/toast-notification.component';
 import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
 import { getRoleLabel } from '../../../../core/auth/auth-role.utils';
 import { AuthService, UserRole } from '../../../../core/auth/services/auth.service';
+import { Notificacion } from '../../../../core/models/api.models';
+import { AdminNotificationsService } from '../../services/admin-notifications.service';
 
 interface NavItem {
   label: string;
@@ -31,14 +39,20 @@ interface NavItem {
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class AdminLayoutComponent implements OnInit {
-  private static readonly THEME_STORAGE_KEY = 'huerto-admin-theme';
   private readonly authService = inject(AuthService);
+  private readonly cdr = inject(ChangeDetectorRef);
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly notificationsService = inject(AdminNotificationsService);
+  private readonly toast = inject(ToastService);
+  private readonly router = inject(Router);
 
   readonly currentUser$ = this.authService.currentUser$;
   readonly defaultAvatar = 'assets/images/default-avatar.svg';
+  readonly notifications$ = this.notificationsService.notifications$;
+  readonly notificationsSummary$ = this.notificationsService.resumen$;
   logoutConfirmVisible = false;
-
-  theme: 'dark' | 'light' = this.loadTheme();
+  notificationsOpen = false;
+  unreadCount = 0;
 
   readonly navItems: NavItem[] = [
     {
@@ -108,6 +122,20 @@ export class AdminLayoutComponent implements OnInit {
   ];
 
   ngOnInit(): void {
+    this.notificationsSummary$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((count) => {
+        this.unreadCount = count.no_leidas;
+        this.cdr.markForCheck();
+      });
+
+    timer(0, 45000)
+      .pipe(
+        switchMap(() => this.notificationsService.refresh()),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe();
+
     if (!this.authService.isAuthenticated()) {
       return;
     }
@@ -144,22 +172,82 @@ export class AdminLayoutComponent implements OnInit {
     target.src = this.defaultAvatar;
   }
 
-  get themeIcon(): string {
-    return this.theme === 'dark' ? 'sunny-outline' : 'moon-outline';
-  }
-
-  get themeLabel(): string {
-    return this.theme === 'dark' ? 'Tema claro' : 'Tema oscuro';
-  }
-
-  toggleTheme() {
-    this.theme = this.theme === 'dark' ? 'light' : 'dark';
-    if (typeof window !== 'undefined') {
-      window.localStorage.setItem(AdminLayoutComponent.THEME_STORAGE_KEY, this.theme);
+  toggleNotifications(event: MouseEvent): void {
+    event.stopPropagation();
+    this.notificationsOpen = !this.notificationsOpen;
+    if (this.notificationsOpen) {
+      this.notificationsService.refresh().subscribe();
     }
   }
 
+  onNotificationClick(notification: Notificacion): void {
+    if (!notification.leida) {
+      this.notificationsService.markAsRead(notification.id).subscribe((ok) => {
+        if (!ok) {
+          this.toast.error('No se pudo actualizar la notificación en el servidor');
+        }
+      });
+    }
+
+    const targetRoute = this.resolveNotificationRoute(notification);
+    if (targetRoute) {
+      void this.router.navigateByUrl(targetRoute);
+      this.notificationsOpen = false;
+    }
+  }
+
+  markAllAsRead(): void {
+    this.notificationsService.markAllAsRead().subscribe((ok) => {
+      if (!ok) {
+        this.toast.error('No se pudieron marcar todas como leídas');
+        return;
+      }
+      this.toast.success('Notificaciones actualizadas');
+    });
+  }
+
+  refreshNotifications(): void {
+    this.notificationsService.refresh().subscribe((items) => {
+      if (items.length === 0) {
+        this.toast.info('No hay nuevas notificaciones por ahora');
+      }
+    });
+  }
+
+  getNotificationIcon(type: Notificacion['tipo']): string {
+    switch (type) {
+      case 'alerta':
+      case 'warning':
+        return 'warning-outline';
+      case 'error':
+        return 'alert-circle-outline';
+      case 'exito':
+        return 'checkmark-done-circle-outline';
+      default:
+        return 'information-circle-outline';
+    }
+  }
+
+  formatNotificationDate(value: string | null): string {
+    if (!value) {
+      return 'Sin fecha';
+    }
+
+    const parsed = new Date(value);
+    if (Number.isNaN(parsed.getTime())) {
+      return 'Sin fecha';
+    }
+
+    return new Intl.DateTimeFormat('es-MX', {
+      day: '2-digit',
+      month: 'short',
+      hour: '2-digit',
+      minute: '2-digit'
+    }).format(parsed);
+  }
+
   requestLogout() {
+    this.notificationsOpen = false;
     this.logoutConfirmVisible = true;
   }
 
@@ -180,12 +268,38 @@ export class AdminLayoutComponent implements OnInit {
     this.logoutConfirmVisible = false;
   }
 
-  private loadTheme(): 'dark' | 'light' {
-    if (typeof window === 'undefined') {
-      return 'light';
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: Event): void {
+    if (!this.notificationsOpen) {
+      return;
     }
 
-    const storedTheme = window.localStorage.getItem(AdminLayoutComponent.THEME_STORAGE_KEY);
-    return storedTheme === 'dark' ? 'dark' : 'light';
+    const target = event.target as HTMLElement | null;
+    if (target?.closest('.notifications')) {
+      return;
+    }
+
+    this.notificationsOpen = false;
+    this.cdr.markForCheck();
+  }
+
+  private resolveNotificationRoute(notification: Notificacion): string {
+    const referenceType = (notification.referencia_tipo ?? '').toLowerCase();
+    if (referenceType.includes('reporte')) {
+      return '/admin/reportes';
+    }
+    if (referenceType.includes('huerto')) {
+      return '/admin/huertos';
+    }
+    if (referenceType.includes('usuario')) {
+      return '/admin/usuarios';
+    }
+    if (referenceType.includes('plaga') || referenceType.includes('predic')) {
+      return '/admin/plagas';
+    }
+    if (referenceType.includes('chat')) {
+      return '/admin/chatbot';
+    }
+    return '/admin/dashboard';
   }
 }
