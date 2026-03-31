@@ -1,0 +1,53 @@
+<div class="grid">
+  <section class="panel">
+    <header class="head">
+      <h3>Usuarios por region</h3>
+      <small>Datos reales conectados al backend</small>
+    </header>
+    <div class="chart-wrap">
+      <canvas #usuariosRegionCanvas></canvas>
+      <div class="chart-empty" *ngIf="usuariosRegionData.length === 0">
+        Sin información de usuarios por región.
+      </div>
+    </div>
+  </section>
+
+  <section class="panel">
+    <header class="head">
+      <h3>Detecciones por severidad</h3>
+      <small>Datos reales conectados al backend</small>
+    </header>
+    <div class="chart-wrap">
+      <canvas #plagasSeveridadCanvas></canvas>
+      <div class="chart-empty" *ngIf="plagasSeveridadData.length === 0">
+        Sin información de detecciones por severidad.
+      </div>
+    </div>
+  </section>
+
+  <section class="panel">
+    <header class="head">
+      <h3>Uso del chatbot por tema</h3>
+      <small>Datos reales conectados al backend</small>
+    </header>
+    <div class="chart-wrap">
+      <canvas #chatbotTemaCanvas></canvas>
+      <div class="chart-empty" *ngIf="chatbotTemaData.length === 0">
+        Sin información de uso del chatbot.
+      </div>
+    </div>
+  </section>
+
+  <section class="panel panel-wide">
+    <header class="head">
+      <h3>Comparativa regional</h3>
+      <small>Datos reales conectados al backend</small>
+    </header>
+    <div class="chart-wrap">
+      <canvas #comparativaRegionalCanvas></canvas>
+      <div class="chart-empty" *ngIf="comparativaRegionalData.labels.length === 0">
+        Sin información comparativa por región.
+      </div>
+    </div>
+  </section>
+</div>
