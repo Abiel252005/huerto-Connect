@@ -78,11 +78,12 @@ export class KpiCardComponent implements AfterViewInit, OnDestroy, OnChanges {
     gradient.addColorStop(0, gradientStart);
     gradient.addColorStop(1, gradientEnd);
 
-    const isBar = this.chartType === 'bar';
-    const isLine = this.chartType === 'line' || this.chartType === 'area';
-    const fill = this.chartType === 'area';
-
-    let actualType: keyof ChartTypeRegistry = isBar ? 'bar' : 'line';
+    const isLineOnly = this.chartType === 'line';
+    const fill = !isLineOnly;
+    const actualType: keyof ChartTypeRegistry = 'line';
+    const tension = this.chartType === 'bar' ? 0.22 : 0.4;
+    const pointRadius = isLineOnly ? 2 : 0;
+    const pointHoverRadius = isLineOnly ? 4 : 3;
 
     this.chartInstance = new Chart(ctx, {
       type: actualType,
@@ -90,18 +91,16 @@ export class KpiCardComponent implements AfterViewInit, OnDestroy, OnChanges {
         labels: this.spark.map((_, i) => i.toString()),
         datasets: [{
           data: this.spark,
-          borderColor: isBar ? 'transparent' : primaryColor,
-          backgroundColor: isBar ? primaryColor : (fill ? gradient : 'transparent'),
-          borderWidth: isBar ? 0 : 2,
-          pointRadius: 0,
-          pointHoverRadius: isLine ? 4 : 0,
+          borderColor: primaryColor,
+          backgroundColor: fill ? gradient : 'transparent',
+          borderWidth: 2,
+          pointRadius,
+          pointHoverRadius,
           pointBackgroundColor: '#ffffff',
           pointBorderColor: primaryColor,
           pointBorderWidth: 2,
           fill: fill,
-          tension: 0.4,
-          borderRadius: isBar ? 4 : 0,
-          barPercentage: 0.6
+          tension
         }]
       },
       options: {

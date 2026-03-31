@@ -24,3 +24,10 @@ td {
   border-bottom: 1px solid var(--admin-line-soft);
 }
 
+.empty {
+  text-align: center;
+  color: var(--admin-text-dim);
+  padding: 22px 10px;
+  font-size: 13px;
+  border-bottom: none;
+}

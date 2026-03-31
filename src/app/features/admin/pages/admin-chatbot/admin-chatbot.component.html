@@ -25,7 +25,7 @@
           <div class="chat-header">
             <strong>{{ chat.usuario }}</strong>
             <span class="chat-region">{{ chat.region }}</span>
-            <small class="chat-time">{{ chat.fecha }}</small>
+            <small class="chat-time">{{ formatFecha(chat.fecha) }}</small>
           </div>
           <div class="chat-message">
             <span class="chat-topic">[{{ chat.tema }}]</span> {{ chat.ultimoMensaje }}

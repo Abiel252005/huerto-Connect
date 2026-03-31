@@ -7,7 +7,7 @@
     [summaryTemplate]="reporteSummary" (clearSelection)="clearSelection()"></app-selected-action-bar>
 
   <ng-template #reporteSummary let-reporte>
-    <p>{{ reporte.nombre }} · {{ reporte.tipo }} · {{ reporte.fecha }} · Estado: {{ reporte.estado }}</p>
+    <p>{{ reporte.nombre }} · {{ reporte.tipo }} · {{ formatFecha(reporte.fecha) }} · Estado: {{ reporte.estado }}</p>
   </ng-template>
 
   <app-admin-data-table [rows]="reportes" [columns]="columns" [selected]="selectedReporte" [rowIdentity]="rowIdentity"

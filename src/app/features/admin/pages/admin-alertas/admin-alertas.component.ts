@@ -9,6 +9,7 @@ import { EditModalComponent, EditField } from '../../components/edit-modal/edit-
 import { ToastService } from '../../components/toast-notification/toast-notification.component';
 import { StatusBadgeComponent } from '../../components/status-badge/status-badge.component';
 import { AlertasService } from '../../services/alertas.service';
+import { formatAdminDate } from '../../utils/date-format.util';
 
 @Component({
   selector: 'app-admin-alertas',
@@ -99,7 +100,7 @@ export class AdminAlertasComponent implements OnInit {
     { key: 'region', header: 'Region', cell: (row) => row.region, width: '150px' },
     { key: 'severidad', header: 'Severidad', cell: (row) => row.severidad, align: 'center', width: '120px', isCustom: true },
     { key: 'estado', header: 'Estado', cell: (row) => row.estado, align: 'center', width: '120px', isCustom: true },
-    { key: 'fecha', header: 'Fecha', cell: (row) => row.fecha, width: '130px' }
+    { key: 'fecha', header: 'Fecha', cell: (row) => formatAdminDate(row.fecha), width: '150px' }
   ];
 
   readonly actions: ActionDef<Alerta>[] = [

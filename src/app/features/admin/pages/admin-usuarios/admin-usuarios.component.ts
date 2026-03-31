@@ -10,6 +10,7 @@ import { StatusBadgeComponent } from '../../components/status-badge/status-badge
 import { Usuario } from '../../models/usuario.model';
 import { ActionDef, ColumnDef } from '../../models/table-def.model';
 import { UsuariosService } from '../../services/usuarios.service';
+import { formatAdminDate } from '../../utils/date-format.util';
 
 @Component({
   selector: 'app-admin-usuarios',
@@ -110,7 +111,7 @@ export class AdminUsuariosComponent implements OnInit {
     { key: 'rol', header: 'Rol', cell: (row) => row.rol, align: 'center', width: '110px' },
     { key: 'huertos', header: 'Huertos', cell: (row) => row.huertos, align: 'center', width: '90px' },
     { key: 'estado', header: 'Estado', cell: (row) => row.estado, align: 'center', width: '120px', isCustom: true },
-    { key: 'ultimaActividad', header: 'Ultima actividad', cell: (row) => row.ultimaActividad, width: '130px' }
+    { key: 'ultimaActividad', header: 'Ultima actividad', cell: (row) => formatAdminDate(row.ultimaActividad), width: '160px' }
   ];
 
   readonly actions: ActionDef<Usuario>[] = [

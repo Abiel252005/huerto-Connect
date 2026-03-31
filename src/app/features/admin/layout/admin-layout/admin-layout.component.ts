@@ -19,6 +19,7 @@ import { getRoleLabel } from '../../../../core/auth/auth-role.utils';
 import { AuthService, UserRole } from '../../../../core/auth/services/auth.service';
 import { Notificacion } from '../../../../core/models/api.models';
 import { AdminNotificationsService } from '../../services/admin-notifications.service';
+import { formatAdminDate } from '../../utils/date-format.util';
 
 interface NavItem {
   label: string;
@@ -229,21 +230,7 @@ export class AdminLayoutComponent implements OnInit {
   }
 
   formatNotificationDate(value: string | null): string {
-    if (!value) {
-      return 'Sin fecha';
-    }
-
-    const parsed = new Date(value);
-    if (Number.isNaN(parsed.getTime())) {
-      return 'Sin fecha';
-    }
-
-    return new Intl.DateTimeFormat('es-MX', {
-      day: '2-digit',
-      month: 'short',
-      hour: '2-digit',
-      minute: '2-digit'
-    }).format(parsed);
+    return formatAdminDate(value);
   }
 
   requestLogout() {

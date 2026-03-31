@@ -9,6 +9,7 @@ import { StatusBadgeComponent } from '../../components/status-badge/status-badge
 import { PlagaDeteccion } from '../../models/plaga-deteccion.model';
 import { ActionDef, ColumnDef } from '../../models/table-def.model';
 import { PlagasService } from '../../services/plagas.service';
+import { formatAdminDate } from '../../utils/date-format.util';
 
 @Component({
   selector: 'app-admin-plagas',
@@ -133,7 +134,7 @@ export class AdminPlagasComponent implements OnInit {
     { key: 'ubicacion', header: 'Ubicacion', cell: (row) => row.ubicacion, width: '130px' },
     { key: 'severidad', header: 'Severidad', cell: (row) => row.severidad, align: 'center', width: '110px', isCustom: true },
     { key: 'estado', header: 'Estado', cell: (row) => row.estado, align: 'center', width: '130px', isCustom: true },
-    { key: 'fecha', header: 'Fecha', cell: (row) => row.fecha, width: '140px' }
+    { key: 'fecha', header: 'Fecha', cell: (row) => this.formatFecha(row.fecha), width: '160px' }
   ];
 
   readonly actions: ActionDef<PlagaDeteccion>[] = [
@@ -267,6 +268,10 @@ export class AdminPlagasComponent implements OnInit {
     const image = event.target as HTMLImageElement | null;
     if (!image || image.src.includes(this.fallbackEvidenceImage)) { return; }
     image.src = this.fallbackEvidenceImage;
+  }
+
+  formatFecha(value: string | null): string {
+    return formatAdminDate(value);
   }
 
   // ── Marcar con confirm ──

@@ -18,7 +18,6 @@ export class HeaderComponent {
         { label: 'Nosotros', sectionId: 'about' },
         { label: 'Servicios', sectionId: 'services' },
         { label: 'Proceso', sectionId: 'process' },
-        { label: 'Testimonios', sectionId: 'testimonials' },
         { label: 'FAQ', sectionId: 'faq' },
         { label: 'Contáctanos', sectionId: 'contact' }
     ];
@@ -48,7 +47,7 @@ export class HeaderComponent {
         }, observerOptions);
 
         // Sections to observe
-        const sectionsIds = ['hero', 'about', 'services', 'process', 'testimonials', 'faq', 'contact'];
+        const sectionsIds = ['hero', 'about', 'services', 'process', 'faq', 'contact'];
 
         // Retry logic to ensure elements are in the DOM (handling router delays)
         let attempts = 0;

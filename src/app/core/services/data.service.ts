@@ -56,7 +56,6 @@ export class DataService {
             { label: 'Nosotros', sectionId: 'about' },
             { label: 'Servicios', sectionId: 'services' },
             { label: 'Proceso', sectionId: 'process' },
-            { label: 'Testimonios', sectionId: 'testimonials' },
             { label: 'FAQ', sectionId: 'faq' }
         ];
         return of(links).pipe(delay(100));

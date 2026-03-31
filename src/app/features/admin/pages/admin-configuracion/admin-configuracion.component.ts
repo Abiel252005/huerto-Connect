@@ -16,6 +16,7 @@ import { RegionesService } from '../../../../core/services/regiones.service';
 import { UsuariosService as CoreUsuariosService } from '../../../../core/services/usuarios.service';
 import { ToastService } from '../../components/toast-notification/toast-notification.component';
 import { AdminNotificationsService } from '../../services/admin-notifications.service';
+import { formatAdminDate } from '../../utils/date-format.util';
 
 @Component({
   selector: 'app-admin-configuracion',
@@ -138,22 +139,7 @@ export class AdminConfiguracionComponent implements OnInit {
   }
 
   formatDate(value: string | null): string {
-    if (!value) {
-      return 'Sin fecha';
-    }
-
-    const parsed = new Date(value);
-    if (Number.isNaN(parsed.getTime())) {
-      return 'Sin fecha';
-    }
-
-    return new Intl.DateTimeFormat('es-MX', {
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    }).format(parsed);
+    return formatAdminDate(value);
   }
 
   trackBySession(_index: number, session: SessionInfo): string {

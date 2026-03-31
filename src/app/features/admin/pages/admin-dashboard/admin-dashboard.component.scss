@@ -5,7 +5,7 @@
 .dashboard {
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 8px;
 }
 
 .panel {
@@ -13,14 +13,14 @@
   border-radius: 16px;
   background: var(--admin-panel-bg);
   backdrop-filter: blur(12px);
-  padding: 16px;
+  padding: 12px;
   box-shadow: var(--admin-glass-shadow);
   display: flex;
   flex-direction: column;
 }
 
 .panel-head {
-  margin-bottom: 12px;
+  margin-bottom: 8px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -37,20 +37,39 @@
 .kpi-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 10px;
+  gap: 6px;
 }
 
 .row {
   display: grid;
-  gap: 14px;
+  gap: 8px;
 }
 
 .row-map {
-  grid-template-columns: 2fr 1fr;
+  grid-template-columns: minmax(0, 2.5fr) minmax(260px, 1fr);
+  align-items: start;
+}
+
+.row-map > app-map-veracruz {
+  min-height: clamp(320px, 50vh, 460px);
+}
+
+.row-map > article.panel {
+  min-height: clamp(220px, 32vh, 300px);
+  max-height: 460px;
+}
+
+.row-map > article.panel {
+  overflow: hidden;
 }
 
 .row-two {
   grid-template-columns: 1fr 1fr;
+  align-items: start;
+}
+
+.row-two > .panel {
+  min-height: 0;
 }
 
 .stack,
@@ -58,9 +77,11 @@
   display: flex;
   flex-direction: column;
   gap: 6px;
-  max-height: 320px;
+  max-height: 180px;
+  min-height: 0;
+  flex: 1 1 auto;
   overflow-y: auto;
-  padding-right: 4px;
+  padding-right: 2px;
 
   scrollbar-width: none;
 
@@ -140,11 +161,45 @@
 }
 
 .line-bars-container {
-  height: 120px;
+  height: 96px;
   width: 100%;
   border-radius: 8px;
   overflow: hidden;
   flex-shrink: 0;
+}
+
+.empty-state {
+  min-height: 92px;
+  flex: 1 1 auto;
+  border: 1px dashed var(--admin-line);
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--admin-surface) 70%, transparent);
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 6px;
+  text-align: center;
+  padding: 10px;
+}
+
+.empty-state.compact {
+  min-height: 92px;
+}
+
+.empty-state ion-icon {
+  font-size: 20px;
+  color: var(--admin-accent);
+}
+
+.empty-state strong {
+  font-size: 12.5px;
+  color: var(--admin-text-main);
+  font-weight: 600;
+}
+
+.empty-state span {
+  font-size: 11px;
+  color: var(--admin-text-dim);
 }
 
 @media (max-width: 1300px) {
@@ -159,6 +214,11 @@
   .row-two,
   .kpi-grid {
     grid-template-columns: 1fr;
+  }
+
+  .row-map > app-map-veracruz,
+  .row-map > article.panel {
+    min-height: auto;
   }
 }
 

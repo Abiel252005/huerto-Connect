@@ -11,7 +11,7 @@ import { ScrollRevealDirective } from '../../../../shared/directives/scroll-reve
     styleUrls: ['./about.component.scss']
 })
 export class AboutComponent {
-    readonly aboutImage = 'assets/images/huerto.webp';
+    readonly aboutImage = 'assets/images/huerto.jpg';
     readonly leaves: FloatingLeaf[] = createFloatingLeaves(12, 3101);
     aboutImageLoaded = true;
 

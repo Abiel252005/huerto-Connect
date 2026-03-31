@@ -8,6 +8,7 @@ import { ToastService } from '../../components/toast-notification/toast-notifica
 import { ActionDef, ColumnDef } from '../../models/table-def.model';
 import { ReportesService } from '../../services/reportes.service';
 import { ReporteItem } from '../../mock/reportes.mock';
+import { formatAdminDate } from '../../utils/date-format.util';
 
 @Component({
   selector: 'app-admin-reportes',
@@ -46,7 +47,7 @@ export class AdminReportesComponent implements OnInit {
   readonly columns: ColumnDef<ReporteItem>[] = [
     { key: 'nombre', header: 'Reporte', cell: (row) => row.nombre },
     { key: 'tipo', header: 'Tipo', cell: (row) => row.tipo, width: '140px' },
-    { key: 'fecha', header: 'Fecha', cell: (row) => row.fecha, width: '120px' },
+    { key: 'fecha', header: 'Fecha', cell: (row) => this.formatFecha(row.fecha), width: '130px' },
     { key: 'estado', header: 'Estado', cell: (row) => row.estado, align: 'center', width: '130px', isCustom: true }
   ];
   readonly actions: ActionDef<ReporteItem>[] = [
@@ -93,6 +94,10 @@ export class AdminReportesComponent implements OnInit {
 
   clearSelection() {
     this.selectedReporte = null;
+  }
+
+  formatFecha(value: string | null): string {
+    return formatAdminDate(value, { withTime: false });
   }
 
   private crear() {

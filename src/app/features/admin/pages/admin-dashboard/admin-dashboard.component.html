@@ -12,15 +12,22 @@
       <header class="panel-head">
         <h3>Alertas activas</h3>
       </header>
-      <div class="stack">
+      <div class="stack" *ngIf="vm.alertas.length > 0; else noAlertsState">
         <div *ngFor="let alert of vm.alertas" class="list-card">
           <div>
             <strong>{{ alert.titulo }}</strong>
-            <span>{{ alert.region }} · {{ alert.fecha }}</span>
+            <span>{{ alert.region }} · {{ formatFecha(alert.fecha) }}</span>
           </div>
           <app-status-badge [status]="alert.severidad"></app-status-badge>
         </div>
       </div>
+      <ng-template #noAlertsState>
+        <div class="empty-state">
+          <ion-icon name="alert-circle-outline" aria-hidden="true"></ion-icon>
+          <strong>Sin información de alertas</strong>
+          <span>Aun no hay registros de alertas para mostrar.</span>
+        </div>
+      </ng-template>
     </article>
   </section>
 
@@ -29,22 +36,29 @@
       <header class="panel-head">
         <h3>Deteccion de plagas IA</h3>
       </header>
-      <div class="stack">
+      <div class="stack" *ngIf="vm.plagas.length > 0; else noPlagasState">
         <div *ngFor="let item of vm.plagas" class="list-card">
           <div>
             <strong>{{ item.plaga }} ({{ item.confianza }}%)</strong>
-            <span>{{ item.cultivo }} · {{ item.ubicacion }} · {{ item.fecha }}</span>
+            <span>{{ item.cultivo }} · {{ item.ubicacion }} · {{ formatFecha(item.fecha) }}</span>
           </div>
           <app-status-badge [status]="item.severidad"></app-status-badge>
         </div>
       </div>
+      <ng-template #noPlagasState>
+        <div class="empty-state">
+          <ion-icon name="bug-outline" aria-hidden="true"></ion-icon>
+          <strong>Sin información de detecciones</strong>
+          <span>Aun no hay registros de plagas detectadas.</span>
+        </div>
+      </ng-template>
     </article>
 
     <article class="panel">
       <header class="panel-head">
         <h3>Actividad chatbot</h3>
       </header>
-      <div class="topic-list">
+      <div class="topic-list" *ngIf="vm.chatMetricas.length > 0; else noChatbotState">
         <div *ngFor="let topic of vm.chatMetricas" class="topic-row">
           <div class="topic-meta">
             <strong>{{ topic.tema }}</strong>
@@ -53,6 +67,13 @@
           <div class="bar"><i [style.width.%]="topic.porcentaje"></i></div>
         </div>
       </div>
+      <ng-template #noChatbotState>
+        <div class="empty-state">
+          <ion-icon name="chatbubble-ellipses-outline" aria-hidden="true"></ion-icon>
+          <strong>Sin información de chatbot</strong>
+          <span>Aun no hay consultas registradas.</span>
+        </div>
+      </ng-template>
     </article>
   </section>
 
@@ -61,18 +82,32 @@
       <header class="panel-head">
         <h3>Crecimiento de usuarios</h3>
       </header>
-      <div class="line-bars-container">
+      <div class="line-bars-container" *ngIf="vm.growthSeries.length > 0; else noGrowthState">
         <app-mini-chart [data]="vm.growthSeries" color="primary"></app-mini-chart>
       </div>
+      <ng-template #noGrowthState>
+        <div class="empty-state compact">
+          <ion-icon name="stats-chart-outline" aria-hidden="true"></ion-icon>
+          <strong>Sin información de crecimiento</strong>
+          <span>Aun no hay registros suficientes para graficar.</span>
+        </div>
+      </ng-template>
     </article>
 
     <article class="panel">
       <header class="panel-head">
         <h3>Tendencia de plagas</h3>
       </header>
-      <div class="line-bars-container danger">
+      <div class="line-bars-container danger" *ngIf="vm.plagaSeries.length > 0; else noPlagaTrendState">
         <app-mini-chart [data]="vm.plagaSeries" color="danger"></app-mini-chart>
       </div>
+      <ng-template #noPlagaTrendState>
+        <div class="empty-state compact">
+          <ion-icon name="analytics-outline" aria-hidden="true"></ion-icon>
+          <strong>Sin información de tendencia</strong>
+          <span>Aun no hay detecciones para generar esta grafica.</span>
+        </div>
+      </ng-template>
     </article>
   </section>
 

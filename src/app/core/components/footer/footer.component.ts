@@ -37,7 +37,6 @@ export class FooterComponent implements OnDestroy {
         { label: 'Nosotros', sectionId: 'about' },
         { label: 'Servicios', sectionId: 'services' },
         { label: 'Cómo Funciona', sectionId: 'process' },
-        { label: 'Testimonios', sectionId: 'testimonials' },
         { label: 'FAQ', sectionId: 'faq' },
         { label: 'Contáctanos', sectionId: 'contact' }
     ];

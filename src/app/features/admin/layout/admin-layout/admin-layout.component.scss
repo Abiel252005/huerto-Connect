@@ -223,7 +223,7 @@
 
 /* ── WORKSPACE & HEADER ── */
 .workspace {
-  padding: 24px;
+  padding: 14px 16px 16px;
   min-height: 100vh;
 }
 
@@ -235,7 +235,7 @@
   justify-content: space-between;
   align-items: center;
   padding: 12px 16px;
-  margin-bottom: 24px;
+  margin-bottom: 10px;
   background: color-mix(in srgb, var(--admin-panel) 80%, transparent);
   border: 1px solid var(--admin-line);
   border-radius: 16px;
@@ -607,7 +607,7 @@
 }
 
 .content {
-  margin-top: 24px;
+  margin-top: 8px;
 }
 
 @media (max-width: 1024px) {

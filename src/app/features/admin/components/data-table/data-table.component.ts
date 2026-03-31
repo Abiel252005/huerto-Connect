@@ -17,6 +17,7 @@ export interface DataColumn {
 export class DataTableComponent {
   @Input() columns: DataColumn[] = [];
   @Input() rows: Record<string, unknown>[] = [];
+  @Input() emptyMessage = 'Aun no hay registros disponibles.';
 
   trackByIndex(index: number): number {
     return index;

@@ -115,6 +115,7 @@ export class UsuariosService {
       estado: u.estado ?? 'Activo',
       huertos: huertosCount,
       ultimaActividad: u.ultima_actividad ?? '',
+      createdAt: u.created_at ?? '',
     };
   }
 

@@ -11,6 +11,7 @@ import { HuertosService } from '../../services/huertos.service';
 import { PlagasService } from '../../services/plagas.service';
 import { RegionesService } from '../../services/regiones.service';
 import { UsuariosService } from '../../services/usuarios.service';
+import { formatAdminDate } from '../../utils/date-format.util';
 
 Chart.register(...registerables);
 
@@ -38,19 +39,32 @@ export class MiniChartComponent implements AfterViewInit, OnChanges, OnDestroy {
     const ctx = this.chartCanvas.nativeElement.getContext('2d');
     if (!ctx) return;
 
-    const primary = this.color === 'danger' ? '#ef4444' : '#235347';
-    const bg = this.color === 'danger' ? 'rgba(239, 68, 68, 0.4)' : 'rgba(35, 83, 71, 0.4)';
+    const stroke = this.color === 'danger' ? '#ef4444' : '#235347';
+    const gradient = ctx.createLinearGradient(0, 0, 0, 180);
+    if (this.color === 'danger') {
+      gradient.addColorStop(0, 'rgba(239, 68, 68, 0.34)');
+      gradient.addColorStop(1, 'rgba(239, 68, 68, 0.02)');
+    } else {
+      gradient.addColorStop(0, 'rgba(35, 83, 71, 0.34)');
+      gradient.addColorStop(1, 'rgba(35, 83, 71, 0.02)');
+    }
 
     this.chartInstance = new Chart(ctx, {
-      type: 'bar',
+      type: 'line',
       data: {
         labels: this.data.map((_, i) => String(i)),
         datasets: [{
           data: this.data,
-          backgroundColor: bg,
-          hoverBackgroundColor: primary,
-          borderRadius: 6,
-          borderWidth: 0,
+          borderColor: stroke,
+          backgroundColor: gradient,
+          fill: 'start',
+          borderWidth: 2.5,
+          tension: 0.36,
+          pointRadius: 2.5,
+          pointHoverRadius: 4,
+          pointBackgroundColor: '#ffffff',
+          pointBorderColor: stroke,
+          pointBorderWidth: 1.4,
         }]
       },
       options: {
@@ -125,35 +139,58 @@ export class AdminDashboardComponent {
       const alertasCriticas = data.alertas.filter((item) => item.severidad === 'Critico').length;
       const deteccionesHoy = data.plagas.length;
       const totalChats = data.chatConversations.length;
+      const growthSeries = this.buildUserRegistrationsSeries(data.usuarios, 12);
+      const plagaSeriesFromDates = this.buildSeriesFromDates(data.plagas.map((item) => item.fecha), 12);
+      const plagaSeries = plagaSeriesFromDates.length > 0
+        ? plagaSeriesFromDates
+        : this.buildSeveridadSeries(data.plagas);
+
+      const growthSpark = this.takeLastValues(growthSeries, 7);
+      const plagaSpark = this.takeLastValues(plagaSeries, 7);
+      const alertSpark = this.takeLastValues(
+        this.buildSeriesFromDates(data.alertas.map((item) => item.fecha), 7),
+        7
+      );
+      const chatSpark = this.takeLastValues(
+        this.buildSeriesFromDates(data.chatConversations.map((item) => item.fecha), 7),
+        7
+      );
+      const chatTopicSpark = this.takeLastValues(data.chatMetricas.map((item) => item.total), 7);
+      const huertoSpark = this.takeLastValues(data.huertos.map((item) => Math.round(item.salud ?? 0)), 7);
+      const regionSpark = this.takeLastValues(
+        data.regiones.map((item) => Math.max(item.huertos ?? 0, item.detecciones ?? 0)),
+        7
+      );
+      const confianzaSpark = this.takeLastValues(data.plagas.map((item) => Number(item.confianza ?? 0)), 7);
 
       // Select KPIs based on the activated filter
       if (filter === 'map') {
         this.kpis = [
-          { label: 'Alertas críticas activas', value: alertasCriticas.toString(), delta: '+3 (hoy)', tone: 'down', icon: 'warning-outline', spark: [10, 15, 12, 18, 19, 21, 20], chartType: 'line' },
-          { label: 'Regiones en riesgo', value: '3', delta: 'Estable', tone: 'steady', icon: 'map-outline', spark: [3, 3, 2, 4, 3, 3, 3], chartType: 'area' },
-          { label: 'Total reportes regionales', value: data.alertas.length.toString(), delta: '+12%', tone: 'down', icon: 'alert-circle-outline', spark: [12, 14, 14, 15, 18, 21, 22], chartType: 'bar' },
+          { label: 'Alertas críticas activas', value: alertasCriticas.toString(), delta: '+3 (hoy)', tone: 'down', icon: 'warning-outline', spark: alertSpark, chartType: 'line' },
+          { label: 'Regiones en riesgo', value: '3', delta: 'Estable', tone: 'steady', icon: 'map-outline', spark: regionSpark, chartType: 'area' },
+          { label: 'Total reportes regionales', value: data.alertas.length.toString(), delta: '+12%', tone: 'down', icon: 'alert-circle-outline', spark: alertSpark, chartType: 'bar' },
         ];
       } else if (filter === 'ai') {
         this.kpis = [
-          { label: 'Consultas totales Chatbot', value: totalChats.toString(), delta: '+14.2%', tone: 'up', icon: 'chatbubbles-outline', spark: [30, 36, 44, 47, 53, 60, 69], chartType: 'bar' },
-          { label: 'Detecciones de plagas', value: deteccionesHoy.toString(), delta: '-2.1%', tone: 'down', icon: 'bug-outline', spark: [60, 56, 53, 48, 45, 42, 39], chartType: 'area' },
-          { label: 'Confianza de la IA', value: '94.2%', delta: '+0.5%', tone: 'up', icon: 'hardware-chip-outline', spark: [90, 91, 91, 92, 93, 94, 94], chartType: 'line' },
+          { label: 'Consultas totales Chatbot', value: totalChats.toString(), delta: '+14.2%', tone: 'up', icon: 'chatbubbles-outline', spark: chatSpark.length > 0 ? chatSpark : chatTopicSpark, chartType: 'bar' },
+          { label: 'Detecciones de plagas', value: deteccionesHoy.toString(), delta: '-2.1%', tone: 'down', icon: 'bug-outline', spark: plagaSpark, chartType: 'area' },
+          { label: 'Confianza de la IA', value: '94.2%', delta: '+0.5%', tone: 'up', icon: 'hardware-chip-outline', spark: confianzaSpark, chartType: 'line' },
         ];
       } else if (filter === 'stats') {
         this.kpis = [
-          { label: 'Tendencia de crecimiento', value: '+18.4%', delta: 'Mejora', tone: 'up', icon: 'trending-up-outline', spark: [10, 15, 25, 40, 55, 70, 85], chartType: 'area' },
-          { label: 'Usuarios nuevos', value: '24', delta: '+5', tone: 'up', icon: 'person-add-outline', spark: [4, 6, 5, 8, 12, 18, 24], chartType: 'bar' },
-          { label: 'Métricas de sanidad', value: '88/100', delta: 'Estable', tone: 'steady', icon: 'heart-outline', spark: [80, 82, 85, 84, 86, 88, 88], chartType: 'line' },
+          { label: 'Tendencia de crecimiento', value: '+18.4%', delta: 'Mejora', tone: 'up', icon: 'trending-up-outline', spark: growthSpark, chartType: 'area' },
+          { label: 'Usuarios nuevos', value: growthSpark.length > 0 ? String(growthSpark[growthSpark.length - 1]) : '0', delta: '+5', tone: 'up', icon: 'person-add-outline', spark: growthSpark, chartType: 'bar' },
+          { label: 'Métricas de sanidad', value: '88/100', delta: 'Estable', tone: 'steady', icon: 'heart-outline', spark: huertoSpark, chartType: 'line' },
         ];
       } else {
         // All
         this.kpis = [
-          { label: 'Usuarios activos hoy', value: activosHoy.toString(), delta: '+6.3%', tone: 'up', icon: 'people-outline', spark: [30, 36, 41, 48, 52, 60, 66], chartType: 'area' },
-          { label: 'Huertos registrados', value: data.huertos.length.toString(), delta: '+9.1%', tone: 'up', icon: 'leaf-outline', spark: [18, 22, 24, 28, 31, 35, 40], chartType: 'line' },
-          { label: 'Detecciones de plagas hoy', value: deteccionesHoy.toString(), delta: '-2.1%', tone: 'down', icon: 'bug-outline', spark: [60, 56, 53, 48, 45, 42, 39], chartType: 'bar' },
-          { label: 'Alertas criticas', value: alertasCriticas.toString(), delta: 'estable', tone: 'steady', icon: 'warning-outline', spark: [20, 20, 19, 18, 19, 18, 17], chartType: 'line' },
-          { label: 'Conversaciones chatbot hoy', value: totalChats.toString(), delta: '+14.2%', tone: 'up', icon: 'chatbubbles-outline', spark: [20, 16, 24, 37, 43, 60, 69], chartType: 'area' },
-          { label: 'Regiones activas', value: data.regiones.length.toString(), delta: '+2', tone: 'up', icon: 'earth-outline', spark: [22, 22, 23, 24, 24, 25, 26], chartType: 'bar' }
+          { label: 'Usuarios activos hoy', value: activosHoy.toString(), delta: '+6.3%', tone: 'up', icon: 'people-outline', spark: growthSpark, chartType: 'area' },
+          { label: 'Huertos registrados', value: data.huertos.length.toString(), delta: '+9.1%', tone: 'up', icon: 'leaf-outline', spark: huertoSpark, chartType: 'line' },
+          { label: 'Detecciones de plagas hoy', value: deteccionesHoy.toString(), delta: '-2.1%', tone: 'down', icon: 'bug-outline', spark: plagaSpark, chartType: 'bar' },
+          { label: 'Alertas criticas', value: alertasCriticas.toString(), delta: 'estable', tone: 'steady', icon: 'warning-outline', spark: alertSpark, chartType: 'line' },
+          { label: 'Conversaciones chatbot hoy', value: totalChats.toString(), delta: '+14.2%', tone: 'up', icon: 'chatbubbles-outline', spark: chatSpark.length > 0 ? chatSpark : chatTopicSpark, chartType: 'area' },
+          { label: 'Regiones activas', value: data.regiones.length.toString(), delta: '+2', tone: 'up', icon: 'earth-outline', spark: regionSpark, chartType: 'bar' }
         ];
       }
 
@@ -165,8 +202,8 @@ export class AdminDashboardComponent {
         alertasCriticas,
         deteccionesHoy,
         totalChats,
-        growthSeries: [38, 44, 41, 53, 58, 64, 69, 74, 78, 82, 88, 91],
-        plagaSeries: [55, 51, 47, 43, 40, 42, 39, 36, 31, 29, 27, 24],
+        growthSeries,
+        plagaSeries,
         currentFilter: filter
       };
     })
@@ -174,5 +211,143 @@ export class AdminDashboardComponent {
 
   trackByIndex(index: number): number {
     return index;
+  }
+
+  formatFecha(value: string | null): string {
+    return formatAdminDate(value);
+  }
+
+  private buildUserRegistrationsSeries(
+    usuarios: Array<{ createdAt?: string | null }>,
+    months = 12
+  ): number[] {
+    if (!usuarios.length || months <= 0) {
+      return [];
+    }
+
+    const now = new Date();
+    const currentMonthKey = now.getFullYear() * 12 + now.getMonth();
+    const series = Array.from({ length: months }, () => 0);
+    let hasValidDates = false;
+
+    for (const usuario of usuarios) {
+      const createdDate = this.parseDate(usuario.createdAt);
+      if (!createdDate) {
+        continue;
+      }
+
+      const createdMonthKey = createdDate.getFullYear() * 12 + createdDate.getMonth();
+      const diffMonths = currentMonthKey - createdMonthKey;
+
+      if (diffMonths < 0 || diffMonths >= months) {
+        continue;
+      }
+
+      const bucket = months - 1 - diffMonths;
+      series[bucket] += 1;
+      hasValidDates = true;
+    }
+
+    return hasValidDates ? series : [];
+  }
+
+  private buildSeriesFromDates(
+    dates: Array<string | null | undefined>,
+    buckets = 12
+  ): number[] {
+    if (!dates.length || buckets <= 0) {
+      return [];
+    }
+
+    const now = new Date();
+    const useDailyBuckets = buckets <= 8;
+    const series = Array.from({ length: buckets }, () => 0);
+    let hasValidDates = false;
+
+    if (useDailyBuckets) {
+      const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+      const dayMs = 24 * 60 * 60 * 1000;
+
+      for (const value of dates) {
+        const parsed = this.parseDate(value);
+        if (!parsed) {
+          continue;
+        }
+
+        const dateStart = new Date(parsed.getFullYear(), parsed.getMonth(), parsed.getDate()).getTime();
+        const diffDays = Math.floor((todayStart - dateStart) / dayMs);
+        if (diffDays < 0 || diffDays >= buckets) {
+          continue;
+        }
+
+        const bucketIndex = buckets - 1 - diffDays;
+        series[bucketIndex] += 1;
+        hasValidDates = true;
+      }
+
+      return hasValidDates ? series : [];
+    }
+
+    const currentMonthKey = now.getFullYear() * 12 + now.getMonth();
+    for (const value of dates) {
+      const parsed = this.parseDate(value);
+      if (!parsed) {
+        continue;
+      }
+
+      const monthKey = parsed.getFullYear() * 12 + parsed.getMonth();
+      const diffMonths = currentMonthKey - monthKey;
+      if (diffMonths < 0 || diffMonths >= buckets) {
+        continue;
+      }
+
+      const bucketIndex = buckets - 1 - diffMonths;
+      series[bucketIndex] += 1;
+      hasValidDates = true;
+    }
+
+    return hasValidDates ? series : [];
+  }
+
+  private buildSeveridadSeries(
+    plagas: Array<{ severidad: 'Baja' | 'Media' | 'Alta' }>
+  ): number[] {
+    if (!plagas.length) {
+      return [];
+    }
+
+    const severidad = {
+      Baja: 0,
+      Media: 0,
+      Alta: 0,
+    };
+
+    for (const plaga of plagas) {
+      severidad[plaga.severidad] += 1;
+    }
+
+    const values = [severidad.Baja, severidad.Media, severidad.Alta];
+    return values.some((value) => value > 0) ? values : [];
+  }
+
+  private takeLastValues(values: number[], size: number): number[] {
+    if (!values.length || size <= 0) {
+      return [];
+    }
+
+    if (values.length <= size) {
+      return [...values];
+    }
+
+    return values.slice(values.length - size);
+  }
+
+  private parseDate(value?: string | null): Date | null {
+    if (!value) {
+      return null;
+    }
+
+    const parsed = new Date(value);
+    return Number.isNaN(parsed.getTime()) ? null : parsed;
   }
 }

@@ -36,20 +36,16 @@
             animation: reveal-section 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.7s both;
         }
 
-        app-testimonials {
+        app-faq {
             animation: reveal-section 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.8s both;
         }
 
-        app-faq {
+        app-contact {
             animation: reveal-section 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.9s both;
         }
 
-        app-contact {
-            animation: reveal-section 0.8s cubic-bezier(0.16, 1, 0.3, 1) 1.0s both;
-        }
-
         app-footer {
-            animation: reveal-footer 0.8s cubic-bezier(0.16, 1, 0.3, 1) 1.1s both;
+            animation: reveal-footer 0.8s cubic-bezier(0.16, 1, 0.3, 1) 1.0s both;
         }
     }
 }

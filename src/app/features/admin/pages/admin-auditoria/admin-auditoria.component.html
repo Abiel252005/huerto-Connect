@@ -10,7 +10,7 @@
   ></app-selected-action-bar>
 
   <ng-template #logSummary let-log>
-    <p>{{ log.actor }} · {{ log.accion }} · {{ log.modulo }} · {{ log.fecha }} · {{ log.ip }}</p>
+    <p>{{ log.actor }} · {{ log.accion }} · {{ log.modulo }} · {{ formatFecha(log.fecha) }} · {{ log.ip }}</p>
   </ng-template>
 
   <app-admin-data-table

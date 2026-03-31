@@ -7,6 +7,7 @@ export interface Usuario {
   estado: 'Activo' | 'Inactivo' | 'Suspendido';
   huertos: number;
   ultimaActividad: string;
+  createdAt?: string;
 }
 
 export interface UsuarioFiltro {
@@ -15,4 +16,3 @@ export interface UsuarioFiltro {
   estado?: Usuario['estado'] | '';
   rol?: string;
 }
-

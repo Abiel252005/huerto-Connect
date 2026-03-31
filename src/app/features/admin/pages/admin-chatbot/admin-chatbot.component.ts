@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit } from '@
 import { CommonModule } from '@angular/common';
 import { ChatbotService } from '../../services/chatbot.service';
 import { ChatConversation, ChatMetric } from '../../mock/chatbot.mock';
+import { formatAdminDate } from '../../utils/date-format.util';
 
 @Component({
   selector: 'app-admin-chatbot',
@@ -29,5 +30,9 @@ export class AdminChatbotComponent implements OnInit {
       this.conversaciones = conversaciones;
       this.cdr.markForCheck();
     });
+  }
+
+  formatFecha(value: string | null): string {
+    return formatAdminDate(value);
   }
 }

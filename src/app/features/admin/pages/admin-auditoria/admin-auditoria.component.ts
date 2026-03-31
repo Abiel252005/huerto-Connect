@@ -5,6 +5,7 @@ import { ActionDef, ColumnDef } from '../../models/table-def.model';
 import { AdminDataTableComponent } from '../../components/admin-data-table/admin-data-table.component';
 import { SelectedActionBarComponent } from '../../components/selected-action-bar/selected-action-bar.component';
 import { AuditoriaService } from '../../services/auditoria.service';
+import { formatAdminDate } from '../../utils/date-format.util';
 
 @Component({
   selector: 'app-admin-auditoria',
@@ -22,7 +23,7 @@ export class AdminAuditoriaComponent implements OnInit {
     { key: 'actor', header: 'Actor', cell: (row) => row.actor },
     { key: 'accion', header: 'Accion', cell: (row) => row.accion },
     { key: 'modulo', header: 'Modulo', cell: (row) => row.modulo, align: 'center', width: '120px' },
-    { key: 'fecha', header: 'Fecha', cell: (row) => row.fecha, width: '150px' },
+    { key: 'fecha', header: 'Fecha', cell: (row) => this.formatFecha(row.fecha), width: '150px' },
     { key: 'ip', header: 'IP', cell: (row) => row.ip, align: 'center', width: '120px' }
   ];
   readonly actions: ActionDef<AuditoriaLog>[] = [
@@ -62,6 +63,10 @@ export class AdminAuditoriaComponent implements OnInit {
 
   clearSelection() {
     this.selectedLog = null;
+  }
+
+  formatFecha(value: string | null): string {
+    return formatAdminDate(value);
   }
 
   private verDetalle(selected: AuditoriaLog | null) {
