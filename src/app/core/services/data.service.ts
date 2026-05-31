@@ -1,5 +1,7 @@
-import { Injectable } from '@angular/core';
-import { Observable, of, delay } from 'rxjs';
+import { Injectable, inject } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable, of, delay, map, catchError } from 'rxjs';
+import { environment } from '../../../environments/environment';
 
 export interface Testimonial {
     name: string;
@@ -24,12 +26,58 @@ export interface ContactData {
     message: string;
 }
 
+export interface HeroData {
+    badge: string;
+    title: string;
+    highlight: string;
+    subtitle: string;
+    ctaPrimary: string;
+    ctaSecondary: string;
+    stats: { value: string; label: string }[];
+    backgroundImage: string;
+}
+
+export interface HeaderLink {
+    label: string;
+    sectionId: string;
+}
+
 @Injectable({
     providedIn: 'root'
 })
 export class DataService {
+    private readonly http = inject(HttpClient);
+    private readonly publicBase = `${environment.apiUrl}/api/public`;
 
     constructor() { }
+
+    getHeaderLinks(): Observable<HeaderLink[]> {
+        const links: HeaderLink[] = [
+            { label: 'Nosotros', sectionId: 'about' },
+            { label: 'Servicios', sectionId: 'services' },
+            { label: 'Proceso', sectionId: 'process' },
+            { label: 'FAQ', sectionId: 'faq' }
+        ];
+        return of(links).pipe(delay(100));
+    }
+
+    getHeroData(): Observable<HeroData> {
+        const data: HeroData = {
+            badge: 'Agricultura Inteligente',
+            title: 'Tu Huerto,',
+            highlight: 'Infinitas Posibilidades',
+            subtitle: 'Cosecha más, usa menos. Tecnología que respeta la tierra y multiplica tus resultados.',
+            ctaPrimary: 'Comenzar Ahora →',
+            ctaSecondary: 'Ver Demo',
+            stats: [
+                { value: '500+', label: 'Huertos Activos' },
+                { value: '98%', label: 'Satisfacción' },
+                { value: '24/7', label: 'Monitoreo' }
+            ],
+            backgroundImage: 'https://images.unsplash.com/photo-1530836369250-ef72a3f5cda8?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'
+        };
+        return of(data).pipe(delay(200));
+    }
 
     getTestimonials(): Observable<Testimonial[]> {
         const data: Testimonial[] = [
@@ -66,20 +114,56 @@ export class DataService {
 
     getFAQs(): Observable<FAQ[]> {
         const data: FAQ[] = [
-            { question: '¿Qué tamaño de huerto necesito para usar Huerto Connect?', answer: 'Nuestra tecnología es escalable. Funciona perfectamente desde pequeños invernaderos familiares de 500m² hasta grandes extensiones de cientos de hectáreas.' },
-            { question: '¿Cuánto cuesta la implementación?', answer: 'El costo varía según el tamaño y necesidades específicas. Ofrecemos planes iniciales muy accesibles. Contáctanos para una cotización a medida.' },
-            { question: '¿Necesito internet en mi huerto?', answer: 'Idealmente sí, pero nuestros sensores tienen almacenamiento local y pueden sincronizarse cuando se restablece la conexión o mediante nodos LoRaWAN de largo alcance.' },
-            { question: '¿Qué pasa si falla el sistema?', answer: 'Contamos con redundancia y alertas automáticas. Si un sensor falla, el sistema te notifica inmediatamente. Además, nuestro soporte técnico está disponible para ayudarte.' },
-            { question: '¿Es difícil de usar?', answer: 'Diseñamos la plataforma pensando en la facilidad de uso. Cualquier persona con un smartphone puede monitorear su huerto. Incluimos capacitación inicial gratuita.' },
-            { question: '¿Funciona con cualquier tipo de cultivo?', answer: 'Sí, la plataforma permite configurar parámetros específicos para más de 50 tipos de cultivos diferentes, desde hortalizas hasta frutales.' },
-            { question: '¿Cuánto tiempo toma la instalación?', answer: 'Una instalación promedio toma entre 3 y 7 días hábiles, dependiendo de la extensión del terreno y la complejidad del sistema de riego.' },
-            { question: '¿Ofrecen garantías de resultados?', answer: 'Garantizamos el funcionamiento de nuestra tecnología y brindamos acompañamiento para que logres tus objetivos de productividad y ahorro.' }
+            {
+                question: '¿Cómo funciona la asistencia con Inteligencia Artificial?',
+                answer: 'Nuestra IA analiza tus cultivos, ubicación y condiciones climáticas para brindarte recomendaciones personalizadas en tiempo real. Puedes hacer preguntas sobre plagas, riego, fertilización y más, y recibirás respuestas adaptadas a tu situación específica.'
+            },
+            {
+                question: '¿Es útil si no tengo experiencia en agricultura?',
+                answer: '¡Absolutamente! Huerto Connect está diseñado tanto para principiantes como para expertos. Te guiamos paso a paso con tutoriales, cronogramas de actividades y alertas. Si tienes conocimiento empírico, la app te ayuda a optimizarlo con técnicas modernas.'
+            },
+            {
+                question: '¿Cómo se adapta la app a mi tipo de siembra y ubicación?',
+                answer: 'Al registrarte, configuras tu perfil con el tipo de cultivo, clima de tu región y características de tu terreno. La IA utiliza estos datos para personalizar todas las recomendaciones, calendarios y técnicas sugeridas.'
+            },
+            {
+                question: '¿Qué tan disponible está el soporte técnico?',
+                answer: 'Ofrecemos asistencia 24/7. Puedes consultar a la IA en cualquier momento, y nuestro equipo humano está disponible para casos que requieran atención especializada.'
+            },
+            {
+                question: '¿Qué incluye el cronograma de actividades?',
+                answer: 'El cronograma te muestra cuándo sembrar, regar, fertilizar, podar y cosechar. Se genera automáticamente según tu cultivo, ubicación y temporada. Además, puedes registrar tus actividades para llevar un historial completo.'
+            },
+            {
+                question: '¿Cómo funciona la comunidad de agricultores?',
+                answer: 'Dentro de la app encontrarás una comunidad donde puedes compartir experiencias, hacer preguntas a otros agricultores, intercambiar técnicas y aprender de casos reales. Juntos crecemos mejor.'
+            },
+            {
+                question: '¿Puedo aprender nuevas técnicas de cultivo?',
+                answer: 'Sí, la app incluye una sección de técnicas modernas y tradicionales, desde hidroponía hasta métodos orgánicos. La IA te sugiere las más adecuadas para tu situación y nivel de experiencia.'
+            },
+            {
+                question: '¿Cómo registro y monitoreo mis cultivos?',
+                answer: 'La app te permite registrar cada cultivo con fotos, notas y métricas. Puedes hacer seguimiento del crecimiento, detectar problemas temprano con análisis de imágenes y mantener un historial completo de tu producción.'
+            }
         ];
         return of(data).pipe(delay(300));
     }
 
     sendContactForm(data: ContactData): Observable<boolean> {
-        console.log('Sending contact data to API:', data);
-        return of(true).pipe(delay(1500)); // Simulate API call time
+        const payload = {
+            nombre: data.name,
+            email: data.email,
+            telefono: data.phone ?? '',
+            mensaje: data.message
+        };
+
+        return this.http.post(`${this.publicBase}/contacto`, payload).pipe(
+            map(() => true),
+            catchError((error) => {
+                console.error('Error sending contact form:', error);
+                return of(false);
+            })
+        );
     }
 }

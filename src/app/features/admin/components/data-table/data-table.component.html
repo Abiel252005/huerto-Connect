@@ -1,0 +1,17 @@
+<div class="table-wrap">
+  <table>
+    <thead>
+      <tr>
+        <th *ngFor="let col of columns">{{ col.label }}</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let row of rows; trackBy: trackByIndex">
+        <td *ngFor="let col of columns">{{ row[col.key] }}</td>
+      </tr>
+      <tr *ngIf="rows.length === 0">
+        <td class="empty" [attr.colspan]="columns.length || 1">{{ emptyMessage }}</td>
+      </tr>
+    </tbody>
+  </table>
+</div>

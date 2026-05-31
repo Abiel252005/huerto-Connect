@@ -2,21 +2,21 @@
   <div class="container header-container">
     <div class="logo">
       <div class="logo-icon">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+        <img src="/assets/images/brote.png" alt="Huerto Connect Logo" class="logo-img logo-white">
+        <img src="/assets/images/brote-negro.png" alt="Huerto Connect Logo" class="logo-img logo-dark">
       </div>
       <span class="logo-text">HUERTO CONNECT</span>
     </div>
 
     <nav class="nav-desktop">
-      <a (click)="scrollToSection('about')">Nosotros</a>
-      <a (click)="scrollToSection('services')">Servicios</a>
-      <a (click)="scrollToSection('process')">Proceso</a>
-      <a (click)="scrollToSection('testimonials')">Testimonios</a>
-      <a (click)="scrollToSection('faq')">FAQ</a>
+      <a *ngFor="let link of links" (click)="scrollToSection(link.sectionId)"
+        [class.active]="activeSection === link.sectionId">
+        {{ link.label }}
+      </a>
     </nav>
 
     <div class="header-actions">
-      <button class="btn btn-primary" (click)="scrollToSection('contact')">Contáctanos</button>
+      <button class="btn btn-primary" routerLink="/login">Iniciar Sesión</button>
       <button class="mobile-toggle" (click)="toggleMenu()">
         <span class="bar"></span>
         <span class="bar"></span>
@@ -27,11 +27,7 @@
 
   <!-- Mobile Menu -->
   <div class="mobile-menu" [class.open]="isMenuOpen">
-    <a (click)="scrollToSection('about')">Nosotros</a>
-    <a (click)="scrollToSection('services')">Servicios</a>
-    <a (click)="scrollToSection('process')">Proceso</a>
-    <a (click)="scrollToSection('testimonials')">Testimonios</a>
-    <a (click)="scrollToSection('faq')">FAQ</a>
-    <button class="btn btn-primary mobile-cta" (click)="scrollToSection('contact')">Contáctanos</button>
+    <a *ngFor="let link of links" (click)="scrollToSection(link.sectionId)">{{ link.label }}</a>
+    <button class="btn btn-primary mobile-cta" routerLink="/login">Iniciar Sesión</button>
   </div>
 </header>

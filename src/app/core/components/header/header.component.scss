@@ -16,7 +16,17 @@ header {
 
         .logo-text,
         .nav-desktop a {
-            color: var(--color-secondary);
+            color: var(--color-text-dark); // Force dark text
+        }
+
+        .logo .logo-icon .logo-img {
+            &.logo-white {
+                opacity: 0;
+            }
+
+            &.logo-dark {
+                opacity: 1;
+            }
         }
     }
 }
@@ -33,7 +43,29 @@ header {
     gap: 10px;
 
     .logo-icon {
-        color: var(--color-primary);
+        display: flex;
+        align-items: center;
+        position: relative;
+        width: 52px;
+        height: 52px;
+
+        .logo-img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 100%;
+            object-fit: contain;
+            transition: opacity 0.3s ease;
+
+            &.logo-white {
+                opacity: 1;
+            }
+
+            &.logo-dark {
+                opacity: 0;
+            }
+        }
     }
 
     .logo-text {
@@ -78,7 +110,8 @@ header.scrolled .logo-text {
                 transition: width 0.3s;
             }
 
-            &:hover:after {
+            &:hover:after,
+            &.active:after {
                 width: 100%;
             }
         }

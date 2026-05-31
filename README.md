@@ -2,15 +2,34 @@
 
 This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.1.2.
 
-## Development server
+## Frontend (este repositorio)
 
-To start a local development server, run:
+Este repositorio ahora contiene **solo el frontend Angular**.
+
+Para iniciar el frontend:
 
 ```bash
-ng serve
+npm install
+npm start
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+Abre `http://localhost:4200/`.
+
+## API OTP (proyecto separado)
+
+La API de autenticacion/OTP se movio a:
+
+`D:\huerto-connect-api`
+
+Para iniciar la API:
+
+```bash
+cd D:\huerto-connect-api
+npm install
+npm start
+```
+
+API por defecto: `http://localhost:3000`.
 
 ## Code scaffolding
 
