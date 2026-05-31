@@ -1,6 +1,6 @@
 import re
 from pathlib import Path
-
+## Este es un comentario para la generacion de un nuevo commit para los correos de OTP
 content = r'''"""
 Auth Service — Mail service for sending OTP codes via SMTP.
 Includes rich HTML email template (ported from Express API) with CID attachments.
