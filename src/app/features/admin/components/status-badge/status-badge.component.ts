@@ -17,11 +17,14 @@ export class StatusBadgeComponent {
     if (['activo', 'optimo', 'conectado', 'seguro', 'resuelta', 'confirmada', 'generado'].includes(value)) {
       return 'ok';
     }
-    if (['advertencia', 'atencion', 'degradado', 'en progreso', 'pendiente', 'inactivo', 'media'].includes(value)) {
+    if (['advertencia', 'atencion', 'degradado', 'en progreso', 'en proceso', 'pendiente', 'media'].includes(value)) {
       return 'warn';
     }
     if (['critico', 'suspendido', 'desconectado', 'descartada', 'alta'].includes(value)) {
       return 'bad';
+    }
+    if (['inactivo'].includes(value)) {
+      return 'neutral';
     }
     return 'neutral';
   }

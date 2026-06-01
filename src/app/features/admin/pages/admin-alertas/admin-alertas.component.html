@@ -1,13 +1,10 @@
 <section class="panel">
-  <header class="head"><h2>Alertas</h2><small>Incidentes y estado de atencion</small></header>
+  <header class="head">
+    <h2>Alertas</h2><small>Incidentes y estado de atencion</small>
+  </header>
 
-  <app-selected-action-bar
-    [title]="'Alerta seleccionada'"
-    [selected]="selectedAlerta"
-    [actions]="actions"
-    [summaryTemplate]="alertaSummary"
-    (clearSelection)="clearSelection()"
-  ></app-selected-action-bar>
+  <app-selected-action-bar [title]="'Alerta seleccionada'" [selected]="selectedAlerta" [actions]="actions"
+    [summaryTemplate]="alertaSummary" (clearSelection)="clearSelection()"></app-selected-action-bar>
 
   <ng-template #alertaSummary let-alerta>
     <p>
@@ -16,12 +13,15 @@
     </p>
   </ng-template>
 
-  <app-admin-data-table
-    [rows]="alertas"
-    [columns]="columns"
-    [selected]="selectedAlerta"
-    [rowIdentity]="rowIdentity"
-    [emptyMessage]="'No hay alertas activas.'"
-    (selectedChange)="onSelectedChange($event)"
-  ></app-admin-data-table>
+  <app-admin-data-table [rows]="alertas" [columns]="columns" [selected]="selectedAlerta" [rowIdentity]="rowIdentity"
+    [emptyMessage]="'No hay alertas activas.'" (selectedChange)="onSelectedChange($event)"></app-admin-data-table>
 </section>
+
+<!-- Edit Modal -->
+<app-edit-modal [visible]="editVisible" [title]="'Editar alerta'" [fields]="editFields" [data]="editData"
+  (save)="onEditSave($event)" (cancel)="onEditCancel()"></app-edit-modal>
+
+<!-- Confirm Dialog -->
+<app-confirm-dialog [visible]="confirmVisible" [title]="confirmTitle" [message]="confirmMessage"
+  [variant]="confirmVariant" [icon]="confirmIcon" [confirmLabel]="confirmLabel" (confirm)="onConfirm()"
+  (cancel)="onCancelConfirm()"></app-confirm-dialog>

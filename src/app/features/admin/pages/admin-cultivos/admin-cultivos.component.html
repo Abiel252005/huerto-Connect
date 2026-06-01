@@ -4,13 +4,8 @@
     <small>Catalogo de cultivos y parametros de produccion</small>
   </header>
 
-  <app-selected-action-bar
-    [title]="'Cultivo seleccionado'"
-    [selected]="selectedCultivo"
-    [actions]="actions"
-    [summaryTemplate]="cultivoSummary"
-    (clearSelection)="clearSelection()"
-  ></app-selected-action-bar>
+  <app-selected-action-bar [title]="'Cultivo seleccionado'" [selected]="selectedCultivo" [actions]="actions"
+    [summaryTemplate]="cultivoSummary" (clearSelection)="clearSelection()"></app-selected-action-bar>
 
   <ng-template #cultivoSummary let-cultivo>
     <p>
@@ -19,12 +14,15 @@
     </p>
   </ng-template>
 
-  <app-admin-data-table
-    [rows]="cultivos"
-    [columns]="columns"
-    [selected]="selectedCultivo"
-    [rowIdentity]="rowIdentity"
-    [emptyMessage]="'No hay cultivos disponibles.'"
-    (selectedChange)="onSelectedChange($event)"
-  ></app-admin-data-table>
+  <app-admin-data-table [rows]="cultivos" [columns]="columns" [selected]="selectedCultivo" [rowIdentity]="rowIdentity"
+    [emptyMessage]="'No hay cultivos disponibles.'" (selectedChange)="onSelectedChange($event)"></app-admin-data-table>
 </section>
+
+<!-- Edit Modal -->
+<app-edit-modal [visible]="editVisible" [title]="'Editar cultivo'" [fields]="editFields" [data]="editData"
+  (save)="onEditSave($event)" (cancel)="onEditCancel()"></app-edit-modal>
+
+<!-- Confirm Delete Dialog -->
+<app-confirm-dialog [visible]="confirmVisible" [title]="confirmTitle" [message]="confirmMessage" [variant]="'danger'"
+  [icon]="'trash-outline'" [confirmLabel]="'Eliminar'" (confirm)="onConfirmDelete()"
+  (cancel)="onCancelDelete()"></app-confirm-dialog>

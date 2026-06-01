@@ -6,6 +6,7 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { ToastNotificationComponent } from '../../components/toast-notification/toast-notification.component';
 
 interface NavItem {
   label: string;
@@ -16,7 +17,7 @@ interface NavItem {
 @Component({
   selector: 'app-admin-layout',
   standalone: true,
-  imports: [CommonModule, RouterLink, RouterLinkActive, RouterOutlet],
+  imports: [CommonModule, RouterLink, RouterLinkActive, RouterOutlet, ToastNotificationComponent],
   templateUrl: './admin-layout.component.html',
   styleUrls: ['./admin-layout.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -76,10 +77,10 @@ export class AdminLayoutComponent {
 
   private loadTheme(): 'dark' | 'light' {
     if (typeof window === 'undefined') {
-      return 'dark';
+      return 'light';
     }
 
     const storedTheme = window.localStorage.getItem(AdminLayoutComponent.THEME_STORAGE_KEY);
-    return storedTheme === 'light' ? 'light' : 'dark';
+    return storedTheme === 'dark' ? 'dark' : 'light';
   }
 }

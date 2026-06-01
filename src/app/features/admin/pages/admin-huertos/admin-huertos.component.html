@@ -4,13 +4,8 @@
     <small>Control operativo y salud por huerto</small>
   </header>
 
-  <app-selected-action-bar
-    [title]="'Huerto seleccionado'"
-    [selected]="selectedHuerto"
-    [actions]="actions"
-    [summaryTemplate]="huertoSummary"
-    (clearSelection)="clearSelection()"
-  ></app-selected-action-bar>
+  <app-selected-action-bar [title]="'Huerto seleccionado'" [selected]="selectedHuerto" [actions]="actions"
+    [summaryTemplate]="huertoSummary" (clearSelection)="clearSelection()"></app-selected-action-bar>
 
   <ng-template #huertoSummary let-huerto>
     <p>
@@ -19,12 +14,15 @@
     </p>
   </ng-template>
 
-  <app-admin-data-table
-    [rows]="huertos"
-    [columns]="columns"
-    [selected]="selectedHuerto"
-    [rowIdentity]="rowIdentity"
-    [emptyMessage]="'No hay huertos disponibles.'"
-    (selectedChange)="onSelectedChange($event)"
-  ></app-admin-data-table>
+  <app-admin-data-table [rows]="huertos" [columns]="columns" [selected]="selectedHuerto" [rowIdentity]="rowIdentity"
+    [emptyMessage]="'No hay huertos disponibles.'" (selectedChange)="onSelectedChange($event)"></app-admin-data-table>
 </section>
+
+<!-- Edit Modal -->
+<app-edit-modal [visible]="editVisible" [title]="'Editar huerto'" [fields]="editFields" [data]="editData"
+  (save)="onEditSave($event)" (cancel)="onEditCancel()"></app-edit-modal>
+
+<!-- Confirm Delete Dialog -->
+<app-confirm-dialog [visible]="confirmVisible" [title]="confirmTitle" [message]="confirmMessage" [variant]="'danger'"
+  [icon]="'trash-outline'" [confirmLabel]="'Eliminar'" (confirm)="onConfirmDelete()"
+  (cancel)="onCancelDelete()"></app-confirm-dialog>

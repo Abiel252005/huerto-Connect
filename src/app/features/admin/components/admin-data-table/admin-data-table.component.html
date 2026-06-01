@@ -2,30 +2,38 @@
   <table>
     <thead>
       <tr>
-        <th
-          *ngFor="let column of columns; trackBy: trackByColumn"
-          [style.width]="column.width || null"
-          [style.text-align]="column.align || 'left'"
-        >
+        <th *ngFor="let column of columns; trackBy: trackByColumn" [style.width]="column.width || null"
+          [style.text-align]="column.align || 'left'">
           {{ column.header }}
         </th>
       </tr>
     </thead>
 
     <tbody>
-      <tr
-        *ngFor="let row of rows; trackBy: trackByRow"
-        (click)="selectRow(row)"
-        (keydown)="onRowKeydown($event, row)"
-        [class.selected]="isSelected(row)"
-        [attr.aria-selected]="isSelected(row)"
-        tabindex="0"
-      >
-        <td
-          *ngFor="let column of columns; trackBy: trackByColumn"
-          [style.text-align]="column.align || 'left'"
-        >
-          {{ column.cell(row) }}
+      <tr *ngFor="let row of rows; trackBy: trackByRow" (click)="selectRow(row)" (keydown)="onRowKeydown($event, row)"
+        [class.selected]="isSelected(row)" [attr.aria-selected]="isSelected(row)" tabindex="0">
+        <td *ngFor="let column of columns; trackBy: trackByColumn" [style.text-align]="column.align || 'left'">
+          <ng-container [ngSwitch]="column.key">
+
+            <ng-container *ngSwitchCase="'estado'">
+              <app-status-badge [status]="$any(column.cell(row))"></app-status-badge>
+            </ng-container>
+
+            <ng-container *ngSwitchCase="'severidad'">
+              <app-status-badge [status]="$any(column.cell(row))"></app-status-badge>
+            </ng-container>
+
+            <ng-container *ngSwitchCase="'salud'">
+              <div class="salud-bar-wrapper">
+                <span class="salud-val">{{ column.cell(row) }}</span>
+                <div class="salud-bar"><i [style.width]="column.cell(row)"></i></div>
+              </div>
+            </ng-container>
+
+            <ng-container *ngSwitchDefault>
+              {{ column.cell(row) }}
+            </ng-container>
+          </ng-container>
         </td>
       </tr>
 
